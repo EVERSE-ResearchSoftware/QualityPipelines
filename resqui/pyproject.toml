@@ -38,4 +38,5 @@ resqui = "resqui.cli:resqui"
 Homepage = "https://github.com/VERSE-ResearchSoftware/QualityPipelines"
 
 [tool.setuptools_scm]
-write_to = "src/resqui/version.py"
+write_to = "resqui/src/resqui/version.py"
+root = ".."
