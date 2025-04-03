@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=64", "setuptools-scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "resqui"
+authors = [{ name = "Tamas Gal", email = "tamas.gal@fau.de" }]
+maintainers = [{ name = "Tamas Gal", email = "tamas.gal@fau.de" }]
+dependencies = ["setuptools_scm"]
+requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering",
+]
+description = "EVERSE Research Software Quality Indicators"
+readme = { file = "README.rst", content-type = "text/x-rst" }
+dynamic = ["version"]
+
+[project.optional-dependencies]
+dev = ["black"]
+
+[project.scripts]
+resqui = "resqui.cli:resqui"
+
+[project.urls]
+Homepage = "https://github.com/VERSE-ResearchSoftware/QualityPipelines"
+
+[tool.setuptools_scm]
+write_to = "src/resqui/version.py"
