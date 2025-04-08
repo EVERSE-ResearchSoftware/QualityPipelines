@@ -16,11 +16,12 @@ pip install .
 ```
 $ resqui -h
 Usage:
-    resqui -c <config_file> <repository_url>
+    resqui [options] -c <config_file> <repository_url>
 
 Options:
     <repository_url>  URL of the repository to be analyzed.
     -c <config_file>  Path to the configuration file.
+    -b <branch>       The Git branch to be checked [default: main].
     --version         Show the version of the script.
     --help            Show this help message.
 ```
@@ -35,6 +36,7 @@ of indicators and the plugins to be used:
   "indicators": [
 	  { "name": "has_license", "plugin": "HowFairIs" },
 	  { "name": "has_citation", "plugin": "CFFConvert" },
+	  { "name": "has_linting_issues", "plugin": "SuperLinter" },
 	  { "name": "has_security_leak", "plugin": "Gitleaks" }
   ]
 }
@@ -44,7 +46,9 @@ of indicators and the plugins to be used:
 
 ```
 $ resqui -c example.json https://github.com/JuliaHep/UnROOT.jl
-  Checking indicator has_security_leak via Gitleaks: False
-  Checking indicator has_license via HowFairIs: True
-  Checking indicator has_citation via CFFConvert: True
+Checking indicators...
+    has_license/HowFairIs (4.0s): ✔
+    has_citation/CFFConvert (3.9s): ✔
+    has_linting_issues/SuperLinter (145.8s): ✖
+    has_security_leak/Gitleaks (65.0s): ✖
 ```
