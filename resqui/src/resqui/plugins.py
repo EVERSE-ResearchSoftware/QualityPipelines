@@ -45,11 +45,11 @@ class HowFairIs:
     def has_license(self, url):
         script = normalized(
             f"""
-        from howfairis import Repo, Checker
-        url = "{url}"
-        repo = Repo(url)
-        checker = Checker(repo, is_quiet=True)
-        print(checker.has_license())
+            from howfairis import Repo, Checker
+            url = "{url}"
+            repo = Repo(url)
+            checker = Checker(repo, is_quiet=True)
+            print(checker.has_license())
         """
         )
         result = self.execute(script)
