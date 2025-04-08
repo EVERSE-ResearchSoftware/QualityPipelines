@@ -1,5 +1,6 @@
 import os
 import venv
+import platform
 import subprocess
 import tempfile
 import json
@@ -42,12 +43,11 @@ class HowFairIs:
             print(f"Error installing howfairis: {e}")
             raise
 
-    def has_license(self, url):
+    def has_license(self, url, branch):
         script = normalized(
             f"""
             from howfairis import Repo, Checker
-            url = "{url}"
-            repo = Repo(url)
+            repo = Repo("{url}", "{branch}")
             checker = Checker(repo, is_quiet=True)
             print(checker.has_license())
         """
@@ -88,7 +88,7 @@ class CFFConvert:
             print(f"Error installing cffconvert: {e}")
             raise
 
-    def has_citation(self, url):
+    def has_citation(self, url, branch):
         script = normalized(
             f"""
             from cffconvert.cli.create_citation import create_citation
@@ -131,7 +131,7 @@ class Gitleaks:
             print(f"Error pulling the Gitleaks Docker image: {e}")
             raise
 
-    def has_security_leak(self, url):
+    def has_security_leak(self, url, branch):
         temp_dir = tempfile.mkdtemp()
         report_fname = "report.json"
 
@@ -163,4 +163,71 @@ class Gitleaks:
 
         if report:
             return True
+        return False
+
+
+class SuperLinter:
+    indicators = ["has_linting_issues"]
+    version = "7.3.0"
+
+    def __init__(self):
+        self.instantiate()
+
+    def instantiate(self):
+        cmd = (
+            ["docker", "pull"]
+            + (
+                ["--platform", "linux/amd64"]
+                if platform.machine() == "arm64"
+                else []
+            )
+            + [f"ghcr.io/super-linter/super-linter:v{self.version}"]
+        )
+
+        try:
+            subprocess.run(
+                cmd,
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+        except subprocess.CalledProcessError as e:
+            print(f"Error pulling the Super-Linter Docker image: {e}")
+            raise
+
+    def has_linting_issues(self, url, branch):
+        temp_dir = tempfile.mkdtemp()
+
+        try:
+            subprocess.run(
+                ["git", "clone", url, temp_dir],
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+        except subprocess.CalledProcessError as e:
+            print(f"Error cloning {url}: {e}")
+            raise
+
+        cmd = [
+            "docker",
+            "run",
+            "-e",
+            "LOG_LEVEL=DEBUG",
+            "-e",
+            "RUN_LOCAL=true",
+            "-e",
+            f"DEFAULT_BRANCH={branch}",
+            "-v",
+            f"{temp_dir}:/tmp/lint",
+            f"ghcr.io/super-linter/super-linter:v{self.version}",
+        ]
+        subprocess.run(cmd, capture_output=True, text=True)
+
+        # print("STDOUT")
+        # print(p.stdout)
+        # print()
+        # print("STDERR")
+        # print(p.stderr)
+
         return False
