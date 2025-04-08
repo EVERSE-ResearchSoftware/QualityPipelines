@@ -1,10 +1,11 @@
 """
 Usage:
-    resqui -c <config_file> <repository_url>
+    resqui [options] -c <config_file> <repository_url>
 
 Options:
     <repository_url>  URL of the repository to be analyzed.
     -c <config_file>  Path to the configuration file.
+    -b <branch>       The Git branch to be checked [default: main].
     --version         Show the version of the script.
     --help            Show this help message.
 """
@@ -33,6 +34,7 @@ class Spinner:
     def __init__(self):
         self.spinning = False
         self.spinner_thread = None
+        self.start_time = time.time()
 
     def start(self):
         self.spinning = True
@@ -51,6 +53,8 @@ class Spinner:
             time.sleep(0.1)
             sys.stdout.write("\b")
             if not self.spinning:
+                elapsed_time = time.time() - self.start_time
+                print(f"({elapsed_time:.1f}s)", end=": ")
                 break
 
     def __enter__(self):
@@ -66,10 +70,12 @@ def resqui():
 
     configuration = Configuration(args["-c"])
     url = args["<repository_url>"]
+    branch = args["-b"]
 
+    print("Checking indicators...")
     for indicator in configuration._cfg["indicators"]:
         print(
-            f"  Checking indicator {indicator['name']}/{indicator['plugin']}:",
+            f"    {indicator['name']}/{indicator['plugin']}",
             end=" ",
         )
         sys.stdout.flush()
@@ -80,9 +86,9 @@ def resqui():
             plugin_module = importlib.import_module(base_package + ".plugins")
             plugin_instance = getattr(plugin_module, plugin_class)()
             plugin_method = indicator["name"]
-            result = getattr(plugin_instance, plugin_method)(url)
+            result = getattr(plugin_instance, plugin_method)(url, branch)
 
         if result:
-            print("\033[92mTrue\033[0m")
+            print("\033[92m✔\033[0m")
         else:
-            print("\033[91mFalse\033[0m")
+            print("\033[91m✖\033[0m")
