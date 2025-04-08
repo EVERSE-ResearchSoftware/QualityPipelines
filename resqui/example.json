@@ -1,7 +1,7 @@
 {
   "indicators": [
-	  { "name": "has_security_leak", "plugin": "Gitleaks" },
 	  { "name": "has_license", "plugin": "HowFairIs" },
-	  { "name": "has_citation", "plugin": "CFFConvert" }
+	  { "name": "has_citation", "plugin": "CFFConvert" },
+	  { "name": "has_security_leak", "plugin": "Gitleaks" }
   ]
 }
