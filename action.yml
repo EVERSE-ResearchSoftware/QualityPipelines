@@ -1,9 +1,13 @@
 name: 'Run resqui'
-description: 'Installs resqui from GitHub and runs it on a provided URL.'
+description: 'Installs resqui from GitHub and runs it on a provided URL with optional config file.'
 inputs:
   url:
-    description: 'The URL of the repository to process with resqui'
+    description: 'The URL to process with resqui'
     required: true
+  config:
+    description: 'Path to the configuration file (e.g., example.yml)'
+    required: false
+
 runs:
   using: 'composite'
   steps:
@@ -19,5 +23,10 @@ runs:
       shell: bash
 
     - name: Run resqui
-      run: resqui ${{ inputs.url }}
+      run: |
+        if [[ -n "${{ inputs.config }}" ]]; then
+          resqui "${{ inputs.url }}" --config "${{ inputs.config }}"
+        else
+          resqui "${{ inputs.url }}"
+        fi
       shell: bash
