@@ -1,4 +1,4 @@
-# reqsui
+# resqui
 
 A command line tool to check a bunch of indicators related to research software
 quality.
