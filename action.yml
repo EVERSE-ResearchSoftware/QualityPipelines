@@ -1,0 +1,23 @@
+name: 'Run resqui'
+description: 'Installs resqui from GitHub and runs it on a provided URL.'
+inputs:
+  url:
+    description: 'The URL of the repository to process with resqui'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Python 3.13
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+
+    - name: Install resqui
+      run: |
+        python -m pip install --upgrade pip
+        pip install git+https://github.com/EVERSE-ResearchSoftware/QualityPipelines.git
+      shell: bash
+
+    - name: Run resqui
+      run: resqui ${{ inputs.url }}
+      shell: bash
