@@ -1,8 +1,6 @@
 {
   "indicators": [
 	  { "name": "has_license", "plugin": "HowFairIs" },
-	  { "name": "has_citation", "plugin": "CFFConvert" },
-	  { "name": "has_linting_issues", "plugin": "SuperLinter" },
-	  { "name": "has_security_leak", "plugin": "Gitleaks" }
+	  { "name": "has_citation", "plugin": "CFFConvert" }
   ]
 }
