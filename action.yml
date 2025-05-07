@@ -5,7 +5,7 @@ inputs:
     description: 'The URL to process with resqui'
     required: true
   config:
-    description: 'Path to the configuration file (e.g., example.yml)'
+    description: 'Path to the configuration file (e.g., example.json)'
     required: false
 
 runs:
