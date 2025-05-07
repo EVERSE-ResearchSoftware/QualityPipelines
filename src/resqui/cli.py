@@ -58,6 +58,8 @@ class Spinner:
                 break
 
     def __enter__(self):
+        if not sys.stdout.isatty():
+            return self
         self.start()
         return self
 
