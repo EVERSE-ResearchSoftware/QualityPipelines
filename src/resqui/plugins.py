@@ -163,11 +163,11 @@ class Gitleaks:
             "-r",
             f"/path/{report_fname}",
         ]
-        subprocess.run(cmd, capture_output=True, text=True)
+        p = subprocess.run(cmd, capture_output=True, text=True)
         with open(os.path.join(temp_dir, report_fname)) as f:
             report = json.load(f)
 
-        if report:
+        if "no leaks found" in p.stderr and not report:
             return True
         return False
 
