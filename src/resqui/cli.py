@@ -74,8 +74,10 @@ class Spinner:
 
     def stop(self):
         self.spinning = False
+        elapsed_time = time.time() - self.start_time
         if self.spinner_thread:
             self.spinner_thread.join()
+        print(f"({elapsed_time:.1f}s)", end=": ")
 
     def _spinner(self):
         for char in itertools.cycle("|/-\\"):
@@ -84,8 +86,6 @@ class Spinner:
             time.sleep(0.1)
             sys.stdout.write("\b")
             if not self.spinning:
-                elapsed_time = time.time() - self.start_time
-                print(f"({elapsed_time:.1f}s)", end=": ")
                 break
 
     def __enter__(self):
