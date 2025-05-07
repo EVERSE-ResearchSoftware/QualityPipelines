@@ -1,0 +1,27 @@
+name: Run Resqui CI
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      url:
+        description: 'The URL to process with resqui'
+        required: true
+      config:
+        description: 'Optional config file'
+        required: false
+
+jobs:
+  run-resqui:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run resqui
+        uses: ./
+        with:
+          url: ${{ github.event.inputs.url }}
+          config: ${{ github.event.inputs.config }}
