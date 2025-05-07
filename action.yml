@@ -25,7 +25,7 @@ runs:
     - name: Run resqui
       run: |
         if [[ -n "${{ inputs.config }}" ]]; then
-          resqui "${{ inputs.url }}" --config "${{ inputs.config }}"
+          resqui -c "${{ inputs.config }}" "${{ inputs.url }}"
         else
           resqui "${{ inputs.url }}"
         fi
