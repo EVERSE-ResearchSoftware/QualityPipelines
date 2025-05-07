@@ -22,6 +22,11 @@ runs:
         pip install git+https://github.com/EVERSE-ResearchSoftware/QualityPipelines.git@initial-setup
       shell: bash
 
+    - name: Test Docker
+      run: |
+        docker info
+      shell: bash
+
     - name: Run resqui
       run: |
         if [[ -n "${{ inputs.config }}" ]]; then
