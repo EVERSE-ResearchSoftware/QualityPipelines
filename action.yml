@@ -19,7 +19,7 @@ runs:
     - name: Install resqui
       run: |
         python -m pip install --upgrade pip
-        pip install git+https://github.com/EVERSE-ResearchSoftware/QualityPipelines.git
+        pip install git+https://github.com/EVERSE-ResearchSoftware/QualityPipelines.git@initial-setup
       shell: bash
 
     - name: Run resqui
