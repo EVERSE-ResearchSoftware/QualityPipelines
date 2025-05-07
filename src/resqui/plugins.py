@@ -19,8 +19,10 @@ def normalized(script):
 
 
 class HowFairIs:
-    indicators = ["has_license"]
+    name = "HowFairIs"
     version = "0.14.2"
+    id = "https://w3id.org/everse/tools/howfairis"
+    indicators = ["has_license"]
 
     def __init__(self):
         self.instantiate()
@@ -64,8 +66,10 @@ class HowFairIs:
 
 
 class CFFConvert:
-    indicators = ["has_citation"]
+    name = "CFFConvert"
     version = "2.0.0"
+    id = "https://w3id.org/everse/tools/cffconvert"
+    indicators = ["has_citation"]
 
     def __init__(self):
         self.instantiate()
@@ -109,8 +113,10 @@ class CFFConvert:
 
 
 class Gitleaks:
-    indicators = ["has_security_leak"]
+    name = "GitLeaks"
     version = "8.24.2"
+    id = "https://w3id.org/everse/tools/gitleaks"
+    indicators = ["has_security_leak"]
 
     def __init__(self):
         self.instantiate()
@@ -167,8 +173,10 @@ class Gitleaks:
 
 
 class SuperLinter:
-    indicators = ["has_linting_issues"]
+    name = "SuperLinter"
     version = "7.3.0"
+    id = "https://w3id.org/everse/tools/superlinter"
+    indicators = ["has_linting_issues"]
 
     def __init__(self):
         self.instantiate()
