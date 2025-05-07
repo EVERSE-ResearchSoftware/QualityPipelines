@@ -12,6 +12,9 @@ venv:
 test:
 	python3 run_tests.py
 
+example:
+	resqui -c example.json https://github.com/JuliaHEP/UnROOT.jl
+
 black:
 	black src/$(PKGNAME)
 	black doc/conf.py
@@ -21,4 +24,4 @@ black:
 clean:
 	rm -rf venv
 
-.PHONY: install install-dev venv test black clean
+.PHONY: install install-dev venv test example black clean
