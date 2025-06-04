@@ -16,6 +16,8 @@ import threading
 import importlib
 import json
 import sys
+
+from .api import Publisher
 from .docopt import docopt
 from .version import __version__
 
@@ -110,6 +112,7 @@ def resqui():
     print(f"Branch: {branch}")
     print("Checking indicators ...")
 
+    publisher = Publisher()
     summary = Summary()
     for indicator in configuration._cfg["indicators"]:
         print(
@@ -138,3 +141,11 @@ def resqui():
 
     summary.to_json(output_file)
     print(f"Summary has been written to {output_file}")
+
+    print("Publishing summary ", end=" ")
+    sys.stdout.flush()
+    success = publisher.upload(summary)
+    if success:
+        print("\033[92m✔\033[0m")
+    else:
+        print("\033[91m✖\033[0m")
