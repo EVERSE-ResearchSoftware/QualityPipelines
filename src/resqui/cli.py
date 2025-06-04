@@ -106,7 +106,9 @@ def resqui():
     url = args["<repository_url>"]
     branch = args["-b"]
 
-    print("Checking indicators...")
+    print(f"Repository URL: {url}")
+    print(f"Branch: {branch}")
+    print("Checking indicators ...")
 
     summary = Summary()
     for indicator in configuration._cfg["indicators"]:
