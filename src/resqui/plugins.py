@@ -176,7 +176,7 @@ class SuperLinter:
     name = "SuperLinter"
     version = "7.3.0"
     id = "https://w3id.org/everse/tools/superlinter"
-    indicators = ["has_linting_issues"]
+    indicators = ["has_no_linting_issues"]
 
     def __init__(self):
         self.instantiate()
@@ -203,7 +203,7 @@ class SuperLinter:
             print(f"Error pulling the Super-Linter Docker image: {e}")
             raise
 
-    def has_linting_issues(self, url, branch):
+    def has_no_linting_issues(self, url, branch):
         temp_dir = tempfile.mkdtemp()
 
         try:

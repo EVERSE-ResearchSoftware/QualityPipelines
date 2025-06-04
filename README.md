@@ -37,7 +37,7 @@ of indicators and the plugins to be used:
   "indicators": [
 	  { "name": "has_license", "plugin": "HowFairIs" },
 	  { "name": "has_citation", "plugin": "CFFConvert" },
-	  { "name": "has_linting_issues", "plugin": "SuperLinter" },
+	  { "name": "has_no_linting_issues", "plugin": "SuperLinter" },
 	  { "name": "has_security_leak", "plugin": "Gitleaks" }
   ]
 }
@@ -50,6 +50,6 @@ $ resqui -c example.json https://github.com/JuliaHep/UnROOT.jl
 Checking indicators...
     has_license/HowFairIs (4.0s): ✔
     has_citation/CFFConvert (3.9s): ✔
-    has_linting_issues/SuperLinter (145.8s): ✖
+    has_no_linting_issues/SuperLinter (145.8s): ✖
     has_security_leak/Gitleaks (65.0s): ✖
 ```
