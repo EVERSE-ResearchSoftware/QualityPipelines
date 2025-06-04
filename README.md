@@ -33,6 +33,7 @@ of indicators and the plugins to be used:
 
 ```json
 {
+  "api_endpoint": "https://everse.software/api/v1",
   "indicators": [
 	  { "name": "has_license", "plugin": "HowFairIs" },
 	  { "name": "has_citation", "plugin": "CFFConvert" },
