@@ -4,7 +4,7 @@ install:
 	pip install .
 
 install-dev:
-	pip install -e .
+	pip install -e ".[dev]"
 
 venv:
 	python3 -m venv venv
@@ -17,9 +17,7 @@ example:
 
 black:
 	black src/$(PKGNAME)
-	black doc/conf.py
 	black tests
-	black examples
 
 clean:
 	rm -rf venv
