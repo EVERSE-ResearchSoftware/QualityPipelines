@@ -255,7 +255,7 @@ class SuperLinter(IndicatorPlugin):
         except Exception as e:
             print(f"Failed to remove clone repository at {temp_dir}: {e}")
 
-        if "Super-linter detected linting errors" in p.stderr:
+        if "Super-linter detected linting errors" in p.stdout:
             return False
         # print("STDOUT")
         # print(p.stdout)
