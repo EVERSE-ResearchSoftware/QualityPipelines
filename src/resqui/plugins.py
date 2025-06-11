@@ -104,29 +104,13 @@ class HowFairIs(IndicatorPlugin, PythonExecutor):
 class CFFConvert(IndicatorPlugin):
     name = "CFFConvert"
     version = "2.0.0"
+    python_package_name = "cffconvert"
     id = "https://w3id.org/everse/tools/cffconvert"
     indicators = ["has_citation"]
 
     def __init__(self):
-        self.instantiate()
-
-    def instantiate(self):
-        self.temp_dir = tempfile.mkdtemp()
-        venv.create(self.temp_dir, with_pip=True)
-        try:
-            subprocess.run(
-                [
-                    f"{self.temp_dir}/bin/pip",
-                    "install",
-                    f"cffconvert=={self.version}",
-                ],
-                check=True,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
-        except subprocess.CalledProcessError as e:
-            print(f"Error installing cffconvert: {e}")
-            raise
+        self.executor = PythonExecutor()
+        self.executor.install(f"{self.python_package_name}=={self.version}")
 
     def has_citation(self, url, branch):
         script = normalized(
@@ -137,15 +121,8 @@ class CFFConvert(IndicatorPlugin):
                 print("True")
         """
         )
-        result = self.execute(script)
+        result = self.executor.execute(script)
         return result.stdout.strip() == "True"
-
-    def execute(self, script):
-        return subprocess.run(
-            [f"{self.temp_dir}/bin/python", "-c", script],
-            capture_output=True,
-            text=True,
-        )
 
 
 class Gitleaks(IndicatorPlugin):
