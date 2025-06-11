@@ -18,6 +18,90 @@ def normalized(script):
     return "\n".join(line[leading_whitespace:] for line in lines)
 
 
+
+class OpenSSFScorecard:
+    name = "OpenSSF Scorecard"
+    id = "https://github.com/ossf/scorecard"
+    version = "v5.1.1-45-g40bbc9c9"
+    indicators = [
+        "has_ci-tests",
+        "human_code_review_requirement",
+        "has_published_package"
+    ]
+    
+    def __init__(self):
+        self.results = {}
+        self.instantiate()
+
+    def instantiate(self):
+        try:
+            subprocess.run(
+                ["docker", "pull", "gcr.io/openssf/scorecard:stable"],
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )
+        except subprocess.CalledProcessError as e:
+            print(f"Error pulling OpenSSF Scorecard image: {e}")
+            raise
+
+        
+    def execute(self, url):
+
+        cmd = [
+            "docker", "run", "--rm",
+            "gcr.io/openssf/scorecard:stable",
+            "--repo", url,
+            "--format", "json"
+        ]
+
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            if result.stdout:
+                self.results = {
+                    check["name"]: check
+                    for check in json.loads(result.stdout).get("checks", [])
+                }
+            else:
+                raise ValueError("No output received from Scorecard.")
+        except subprocess.CalledProcessError as e:
+            print("Scorecard error output:")
+            print(e.stderr)
+            raise
+        except json.JSONDecodeError:
+            print("JSON output not valid:")
+            print(result.stdout)
+            raise
+
+    def _check_score(self, check_name):
+        if not self.results:
+            raise ValueError("OpenSSF Scorecard results not available.")
+
+        check = self.results.get(check_name)
+        if check is not None:
+            return check.get("score", 0) >= 5
+        else:
+            return False
+
+    def has_ci_tests(self, url, branch):
+        if not self.results:
+            self.execute(url)
+        return self._check_score("CI-Tests")
+
+    def human_code_review_requirement(self, url, branch):
+        if not self.results:
+            self.execute(url)
+        return self._check_score("Code-Review")
+
+    def has_published_package(self, url, branch):
+        if not self.results:
+            self.execute(url)
+        return self._check_score("Packaging")
+        
+    
+
+
+
 class HowFairIs:
     name = "HowFairIs"
     version = "0.14.2"
