@@ -1,5 +1,5 @@
 import unittest
-from resqui.plugins import PythonExecutor
+from resqui.plugins import PythonExecutor, DockerExecutor
 
 
 class TestPythonExecutor(unittest.TestCase):
@@ -28,3 +28,10 @@ class TestPythonExecutor(unittest.TestCase):
         out = pe.execute("import ansi2txt; ansi2txt.putchar('a')")
         print(out.stdout.strip())
         assert out.stdout.strip() == "a"
+
+
+class TestDockerExecutor(unittest.TestCase):
+    def test_docker_executor(self):
+        de = DockerExecutor("hello-world")
+        out = de.run([])
+        assert "installation appears to be working correctly" in out.stdout
