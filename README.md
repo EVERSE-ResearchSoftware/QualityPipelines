@@ -37,7 +37,6 @@ of indicators and the plugins to be used:
   "indicators": [
 	  { "name": "has_license", "plugin": "HowFairIs" },
 	  { "name": "has_citation", "plugin": "CFFConvert" },
-	  { "name": "has_no_linting_issues", "plugin": "SuperLinter" },
 	  { "name": "has_security_leak", "plugin": "Gitleaks" }
   ]
 }
@@ -52,7 +51,6 @@ Branch: main
 Checking indicators ...
     has_license/HowFairIs (4.1s): ✔
     has_citation/CFFConvert (3.4s): ✔
-    has_no_linting_issues/SuperLinter (125.7s): ✖
     has_security_leak/Gitleaks (63.7s): ✔
 Summary has been written to resqui_summary.json
 Publishing summary  ✖
