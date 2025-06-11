@@ -1,0 +1,7 @@
+{
+  "indicators": [
+	  { "name": "has_license", "plugin": "HowFairIs" },
+	  { "name": "has_citation", "plugin": "CFFConvert" },
+	  { "name": "has_security_leak", "plugin": "Gitleaks" }
+  ]
+}

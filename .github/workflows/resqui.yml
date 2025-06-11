@@ -1,0 +1,20 @@
+name: Run Resqui CI
+
+on:
+  push:
+    branches:
+      - initial-setup
+
+jobs:
+  run-resqui:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run resqui action
+        uses: ./
+        with:
+          url: "https://github.com/EVERSE-ResearchSoftware/QualityPipelines"
+          config: "example.json"
