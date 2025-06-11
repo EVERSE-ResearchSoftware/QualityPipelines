@@ -66,7 +66,9 @@ class PythonExecutor:
                 """
             from importlib.metadata import distributions
             for dist in distributions():
-                print(f"{dist.name}=={dist.version}")
+                name = dist.metadata.get('Name', '<unknown>')
+                version = getattr(dist, 'version', '<unknown>')
+                print(f"{name}=={version}")
         """
             )
         )
