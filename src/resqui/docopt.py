@@ -108,7 +108,7 @@ class LeafPattern(Pattern):
 
     def match(self, left, collected=None):
         collected = [] if collected is None else collected
-        pos, m = self.single_m(left)
+        pos, m = self.single_match(left)
         if m is None:
             return False, left, collected
         _pos = pos + 1
