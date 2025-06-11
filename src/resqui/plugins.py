@@ -1,6 +1,7 @@
 import os
 import venv
 import platform
+import shutil
 import subprocess
 import tempfile
 import json
@@ -18,32 +19,121 @@ def normalized(script):
     return "\n".join(line[leading_whitespace:] for line in lines)
 
 
-class HowFairIs:
-    name = "HowFairIs"
-    version = "0.14.2"
-    id = "https://w3id.org/everse/tools/howfairis"
-    indicators = ["has_license"]
+class IndicatorPlugin:
+    """Skeleton for an Indicator Plugin"""
 
-    def __init__(self):
-        self.instantiate()
+    name = None
+    version = None
+    id = None
+    indicators = []
 
-    def instantiate(self):
+
+class PythonExecutor:
+    """A Python executor which uses a temporary virtual environment.
+
+    The `packages` should be a list of package names with optional
+    requirement specifiers as accepted by `pip`.
+
+    More information:
+    https://packaging.python.org/en/latest/glossary/#term-Requirement-Specifier
+
+    """
+
+    def __init__(self, packages=None):
+        """Instantiates a virtual environment in a temporary folder."""
         self.temp_dir = tempfile.mkdtemp()
         venv.create(self.temp_dir, with_pip=True)
+        if packages is None:
+            return
+        for package in packages:
+            self.install(package)
+
+    def install(self, package):
         try:
             subprocess.run(
-                [
-                    f"{self.temp_dir}/bin/pip",
-                    "install",
-                    f"howfairis=={self.version}",
-                ],
+                [f"{self.temp_dir}/bin/pip", "install", package],
                 check=True,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
             )
         except subprocess.CalledProcessError as e:
-            print(f"Error installing howfairis: {e}")
+            print(f"Error installing {package} with pip: {e}")
             raise
+
+    def is_installed(self, package_name, version=None):
+        out = self.execute(
+            normalized(
+                """
+            from importlib.metadata import distributions
+            for dist in distributions():
+                name = dist.metadata.get('Name', '<unknown>')
+                version = getattr(dist, 'version', '<unknown>')
+                print(f"{name}=={version}")
+        """
+            )
+        )
+        package = package_name + "" if version is None else f"=={version}"
+        return package in out.stdout
+
+    def execute(self, script):
+        """Run the script in the virtual environment."""
+        return subprocess.run(
+            [f"{self.temp_dir}/bin/python", "-c", script],
+            capture_output=True,
+            text=True,
+        )
+
+    def __del__(self):
+        """Cleanup the temporary virtual environment on destruction."""
+        try:
+            if os.path.exists(self.temp_dir):
+                shutil.rmtree(self.temp_dir)
+        except Exception as e:
+            print(f"Failed to remove virtualenv at {self.temp_dir}: {e}")
+
+
+class DockerExecutor:
+    """A Docker executor."""
+
+    def __init__(self, image_url, pull_args=None):
+        self.url = image_url
+        if pull_args is None:
+            pull_args = []
+        try:
+            subprocess.run(
+                ["docker", "pull"] + pull_args + [self.url],
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+        except subprocess.CalledProcessError as e:
+            print(f"Error pulling the Docker image from {self.url}: {e}")
+            raise
+
+    def run(self, command, run_args=None):
+        """
+        Run command (popenargs) inside a Docker container and return a
+        CompletedProcess instance from the subprocess Python module.
+
+        Extra arguments to the command can be passed as a list of
+        strings via `run_args`.
+        """
+        if run_args is None:
+            run_args = []
+        cmd = ["docker", "run"] + run_args + [self.url] + command
+        return subprocess.run(cmd, capture_output=True, text=True)
+
+
+class HowFairIs(IndicatorPlugin):
+    name = "HowFairIs"
+    version = "0.14.2"
+    python_package_name = "howfairis"
+    id = "https://w3id.org/everse/tools/howfairis"
+    indicators = ["has_license"]
+
+    def __init__(self):
+        self.executor = PythonExecutor()
+        self.executor.install(f"{self.python_package_name}=={self.version}")
 
     def has_license(self, url, branch):
         script = normalized(
@@ -54,43 +144,20 @@ class HowFairIs:
             print(checker.has_license())
         """
         )
-        result = self.execute(script)
+        result = self.executor.execute(script)
         return result.stdout.strip() == "True"
 
-    def execute(self, script):
-        return subprocess.run(
-            [f"{self.temp_dir}/bin/python", "-c", script],
-            capture_output=True,
-            text=True,
-        )
 
-
-class CFFConvert:
+class CFFConvert(IndicatorPlugin):
     name = "CFFConvert"
     version = "2.0.0"
+    python_package_name = "cffconvert"
     id = "https://w3id.org/everse/tools/cffconvert"
     indicators = ["has_citation"]
 
     def __init__(self):
-        self.instantiate()
-
-    def instantiate(self):
-        self.temp_dir = tempfile.mkdtemp()
-        venv.create(self.temp_dir, with_pip=True)
-        try:
-            subprocess.run(
-                [
-                    f"{self.temp_dir}/bin/pip",
-                    "install",
-                    f"cffconvert=={self.version}",
-                ],
-                check=True,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
-        except subprocess.CalledProcessError as e:
-            print(f"Error installing cffconvert: {e}")
-            raise
+        self.executor = PythonExecutor()
+        self.executor.install(f"{self.python_package_name}=={self.version}")
 
     def has_citation(self, url, branch):
         script = normalized(
@@ -101,41 +168,19 @@ class CFFConvert:
                 print("True")
         """
         )
-        result = self.execute(script)
+        result = self.executor.execute(script)
         return result.stdout.strip() == "True"
 
-    def execute(self, script):
-        return subprocess.run(
-            [f"{self.temp_dir}/bin/python", "-c", script],
-            capture_output=True,
-            text=True,
-        )
 
-
-class Gitleaks:
+class Gitleaks(IndicatorPlugin):
     name = "GitLeaks"
     version = "8.24.2"
+    image_url = f"ghcr.io/gitleaks/gitleaks:v{version}"
     id = "https://w3id.org/everse/tools/gitleaks"
     indicators = ["has_security_leak"]
 
     def __init__(self):
-        self.instantiate()
-
-    def instantiate(self):
-        try:
-            subprocess.run(
-                [
-                    "docker",
-                    "pull",
-                    f"ghcr.io/gitleaks/gitleaks:v{self.version}",
-                ],
-                check=True,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
-        except subprocess.CalledProcessError as e:
-            print(f"Error pulling the Gitleaks Docker image: {e}")
-            raise
+        self.executor = DockerExecutor(self.image_url)
 
     def has_security_leak(self, url, branch):
         temp_dir = tempfile.mkdtemp()
@@ -152,56 +197,35 @@ class Gitleaks:
             print(f"Error cloning {url}: {e}")
             raise
 
-        cmd = [
-            "docker",
-            "run",
-            "-v",
-            f"{temp_dir}:/path",
-            f"ghcr.io/gitleaks/gitleaks:v{self.version}",
-            "git",
-            "/path",
-            "-r",
-            f"/path/{report_fname}",
-        ]
-        p = subprocess.run(cmd, capture_output=True, text=True)
+        run_args = ["-v", f"{temp_dir}:/path"]
+        p = self.executor.run(
+            ["git", "/path", "-r", f"/path/{report_fname}"], run_args=run_args
+        )
         with open(os.path.join(temp_dir, report_fname)) as f:
             report = json.load(f)
+
+        try:
+            if os.path.exists(temp_dir):
+                shutil.rmtree(temp_dir)
+        except Exception as e:
+            print(f"Failed to remove clone repository at {temp_dir}: {e}")
 
         if "no leaks found" in p.stderr and not report:
             return True
         return False
 
 
-class SuperLinter:
+class SuperLinter(IndicatorPlugin):
     name = "SuperLinter"
     version = "7.3.0"
+    image_url = f"ghcr.io/super-linter/super-linter:v{version}"
     id = "https://w3id.org/everse/tools/superlinter"
     indicators = ["has_no_linting_issues"]
 
     def __init__(self):
-        self.instantiate()
-
-    def instantiate(self):
-        cmd = (
-            ["docker", "pull"]
-            + (
-                ["--platform", "linux/amd64"]
-                if platform.machine() == "arm64"
-                else []
-            )
-            + [f"ghcr.io/super-linter/super-linter:v{self.version}"]
-        )
-
-        try:
-            subprocess.run(
-                cmd,
-                check=True,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
-        except subprocess.CalledProcessError as e:
-            print(f"Error pulling the Super-Linter Docker image: {e}")
-            raise
+        machine = platform.machine()
+        pull_args = ["--platform", "linux/amd64"] if machine == "arm64" else []
+        self.executor = DockerExecutor(self.image_url, pull_args=pull_args)
 
     def has_no_linting_issues(self, url, branch):
         temp_dir = tempfile.mkdtemp()
@@ -217,25 +241,30 @@ class SuperLinter:
             print(f"Error cloning {url}: {e}")
             raise
 
-        cmd = [
-            "docker",
-            "run",
-            "-e",
-            "LOG_LEVEL=DEBUG",
+        run_args = [
+            #            "-e",
+            #            "LOG_LEVEL=DEBUG",
             "-e",
             "RUN_LOCAL=true",
             "-e",
             f"DEFAULT_BRANCH={branch}",
             "-v",
             f"{temp_dir}:/tmp/lint",
-            f"ghcr.io/super-linter/super-linter:v{self.version}",
         ]
-        subprocess.run(cmd, capture_output=True, text=True)
+        p = self.executor.run([], run_args=run_args)
 
+        try:
+            if os.path.exists(temp_dir):
+                shutil.rmtree(temp_dir)
+        except Exception as e:
+            print(f"Failed to remove clone repository at {temp_dir}: {e}")
+
+        if "Super-linter detected linting errors" in p.stdout:
+            return False
         # print("STDOUT")
         # print(p.stdout)
         # print()
         # print("STDERR")
         # print(p.stderr)
 
-        return False
+        return True
