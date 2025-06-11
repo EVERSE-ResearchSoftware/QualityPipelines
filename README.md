@@ -47,9 +47,13 @@ of indicators and the plugins to be used:
 
 ```
 $ resqui -c example.json https://github.com/JuliaHep/UnROOT.jl
-Checking indicators...
-    has_license/HowFairIs (4.0s): ✔
-    has_citation/CFFConvert (3.9s): ✔
-    has_no_linting_issues/SuperLinter (145.8s): ✖
-    has_security_leak/Gitleaks (65.0s): ✖
+Repository URL: https://github.com/JuliaHep/UnROOT.jl
+Branch: main
+Checking indicators ...
+    has_license/HowFairIs (4.1s): ✔
+    has_citation/CFFConvert (3.4s): ✔
+    has_no_linting_issues/SuperLinter (125.7s): ✖
+    has_security_leak/Gitleaks (63.7s): ✔
+Summary has been written to resqui_summary.json
+Publishing summary  ✖
 ```

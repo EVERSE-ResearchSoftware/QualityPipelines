@@ -20,6 +20,8 @@ def normalized(script):
 
 
 class IndicatorPlugin:
+    """Skeleton for an Indicator Plugin"""
+
     name = None
     version = None
     id = None
