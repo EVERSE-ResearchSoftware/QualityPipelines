@@ -59,15 +59,6 @@ class XMLTestRunner(unittest.TextTestRunner):
         return result
 
 
-# Example Test Case
-class ExampleTest(unittest.TestCase):
-    def test_success(self):
-        self.assertEqual(1 + 1, 2)
-
-    def test_failure(self):
-        self.assertEqual(1 + 1, 3)
-
-
 if __name__ == "__main__":
     runner = XMLTestRunner(verbosity=2)
     unittest.main(testRunner=runner, exit=False)
