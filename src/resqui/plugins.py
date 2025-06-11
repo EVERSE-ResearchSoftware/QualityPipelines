@@ -26,36 +26,47 @@ class IndicatorPlugin:
 
 
 class PythonExecutor:
-    """A Python executor which uses a temporary virtual environment."""
+    """A Python executor which uses a temporary virtual environment.
 
-    python_package_name = None
-    version = None
+    The `packages` should be a list of package names with optional
+    requirement specifiers as accepted by `pip`.
 
-    def instantiate(self):
+    More information:
+    https://packaging.python.org/en/latest/glossary/#term-Requirement-Specifier
+
+    """
+
+    def __init__(self, packages=[]):
         """Instantiates a virtual environment in a temporary folder."""
-        if self.python_package_name is None:
-            print(
-                f"The Python executor of the Plugin {self.name} "
-                f"v{self.version} does not specify a Python package "
-                "name ('python_package_name')"
-            )
-            exit(1)
         self.temp_dir = tempfile.mkdtemp()
         venv.create(self.temp_dir, with_pip=True)
+        for package in packages:
+            self.install(package)
+
+    def install(self, package):
         try:
             subprocess.run(
-                [
-                    f"{self.temp_dir}/bin/pip",
-                    "install",
-                    f"{self.python_package_name}=={self.version}",
-                ],
+                [f"{self.temp_dir}/bin/pip", "install", package],
                 check=True,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
             )
         except subprocess.CalledProcessError as e:
-            print(f"Error installing {self.name} v{self.version}: {e}")
+            print(f"Error installing {package} with pip: {e}")
             raise
+
+    def is_installed(self, package_name, version=None):
+        out = self.execute(
+            normalized(
+                """
+            from importlib.metadata import distributions
+            for dist in distributions():
+                print(f"{dist.name}=={dist.version}")
+        """
+            )
+        )
+        package = package_name + "" if version is None else f"=={version}"
+        return package in out.stdout
 
     def execute(self, script):
         """Run the script in the virtual environment."""
