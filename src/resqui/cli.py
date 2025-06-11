@@ -10,6 +10,7 @@ Options:
     --version         Show the version of the script.
     --help            Show this help message.
 """
+
 import itertools
 import time
 import threading

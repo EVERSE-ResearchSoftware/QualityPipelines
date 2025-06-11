@@ -1,11 +1,12 @@
 """Pythonic command-line interface parser that will make you smile.
 
- * http://docopt.org
- * Repository and issue-tracker: https://github.com/docopt/docopt
- * Licensed under terms of MIT license (see LICENSE-MIT)
- * Copyright (c) 2013 Vladimir Keleshev, vladimir@keleshev.com
+* http://docopt.org
+* Repository and issue-tracker: https://github.com/docopt/docopt
+* Licensed under terms of MIT license (see LICENSE-MIT)
+* Copyright (c) 2013 Vladimir Keleshev, vladimir@keleshev.com
 
 """
+
 import sys
 import re
 
@@ -15,12 +16,10 @@ __version__ = "0.6.2"
 
 
 class DocoptLanguageError(Exception):
-
     """Error in construction of usage-message by developer."""
 
 
 class DocoptExit(SystemExit):
-
     """Exit in case user invoked program with incorrect arguments."""
 
     usage = ""
@@ -96,45 +95,39 @@ def transform(pattern):
 
 
 class LeafPattern(Pattern):
-
     """Leaf/terminal node of a pattern tree."""
 
     def __init__(self, name, value=None):
         self.name, self.value = name, value
 
     def __repr__(self):
-        return "{}({!r}, {!r})".format(
-            self.__class__.__name__, self.name, self.value
-        )
+        return f"{self.__class__.__name__}({self.name!r}, {self.value!r})"
 
     def flat(self, *types):
         return [self] if not types or type(self) in types else []
 
     def match(self, left, collected=None):
         collected = [] if collected is None else collected
-        pos, match = self.single_match(left)
-        if match is None:
+        pos, m = self.single_m(left)
+        if m is None:
             return False, left, collected
         _pos = pos + 1
         left_ = left[:pos] + left[_pos:]
         same_name = [a for a in collected if a.name == self.name]
         if type(self.value) in (int, list):
             if type(self.value) is int:
-                increment = 1
+                inc = 1
             else:
-                increment = (
-                    [match.value] if type(match.value) is str else match.value
-                )
+                inc = [m.value] if type(m.value) is str else m.value
             if not same_name:
-                match.value = increment
-                return True, left_, collected + [match]
-            same_name[0].value += increment
+                m.value = inc
+                return True, left_, collected + [m]
+            same_name[0].value += inc
             return True, left_, collected
-        return True, left_, collected + [match]
+        return True, left_, collected + [m]
 
 
 class BranchPattern(Pattern):
-
     """Branch/inner node of a pattern tree."""
 
     def __init__(self, *children):
@@ -241,7 +234,6 @@ class Optional(BranchPattern):
 
 
 class OptionsShortcut(Optional):
-
     """Marker/placeholder for [options] shortcut."""
 
 
@@ -343,20 +335,18 @@ def parse_shorts(tokens, options):
     parsed = []
     while left != "":
         short, left = "-" + left[0], left[1:]
-        similar = [o for o in options if o.short == short]
-        if len(similar) > 1:
+        sim = [o for o in options if o.short == short]
+        if len(sim) > 1:
             raise tokens.error(
-                "%s is specified ambiguously %d times" % (short, len(similar))
+                "%s is specified ambiguously %d times" % (short, len(sim))
             )
-        elif len(similar) < 1:
+        elif len(sim) < 1:
             o = Option(short, None, 0)
             options.append(o)
             if tokens.error is DocoptExit:
                 o = Option(short, None, 0, True)
         else:  # why copying is necessary here?
-            o = Option(
-                short, similar[0].long, similar[0].argcount, similar[0].value
-            )
+            o = Option(short, sim[0].long, sim[0].argcount, sim[0].value)
             value = None
             if o.argcount != 0:
                 if left == "":
