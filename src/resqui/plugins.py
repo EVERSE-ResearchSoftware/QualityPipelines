@@ -77,7 +77,7 @@ class PythonExecutor:
         )
 
 
-class HowFairIs(IndicatorPlugin, PythonExecutor):
+class HowFairIs(IndicatorPlugin):
     name = "HowFairIs"
     version = "0.14.2"
     python_package_name = "howfairis"
