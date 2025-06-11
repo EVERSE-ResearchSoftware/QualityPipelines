@@ -239,3 +239,74 @@ class SuperLinter:
         # print(p.stderr)
 
         return False
+
+
+class OpenSSFScorecard:
+    name = "OpenSSF Scorecard"
+    id = "https://github.com/ossf/scorecard"
+    version = "v5.1.1"
+    indicators = [
+        "has_ci_tests",
+        "human_code_review_requirement",
+        "has_published_package"
+    ]
+
+    def __init__(self):
+        self.instantiate()
+
+    def instantiate(self):
+        try:
+            subprocess.run(
+                ["docker", "pull", f"gcr.io/openssf/scorecard:{self.version}"],
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )
+        except subprocess.CalledProcessError as e:
+            print(f"Error pulling OpenSSF Scorecard image: {e}")
+            raise
+
+    def execute(self, url):
+        cmd = [
+            "docker", "run", "--rm",
+            "-e", f"GITHUB_AUTH_TOKEN={github_token}",
+            f"gcr.io/openssf/scorecard:{self.version}",
+            "--repo", url,
+            "--format", "json"
+        ]
+
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            if result.stdout:
+                return json.loads(result.stdout)
+            else:
+                raise ValueError("No output received from Scorecard.")
+        except subprocess.CalledProcessError as e:
+            print("Scorecard error output:")
+            print(e.stderr)
+            raise
+        except json.JSONDecodeError:
+            print("JSON output not valid:")
+            print(result.stdout)
+            raise
+
+    def get_score(self, results, check_name):
+        checks = results["checks"]
+        if not checks:
+            raise ValueError("No checks found in results.")
+        check = results[check_name]
+        if check is not None:
+            return check["score"]
+        return 0
+
+    def has_ci_tests(self, url, branch):
+        results = self.execute(url)
+        return self.get_score(results, "CI-Tests") >= 5
+
+    def human_code_review_requirement(self, url, branch):
+        results = self.execute(url)
+        return self.get_score(results, "Code-Review") >= 5
+
+    def has_published_package(self, url, branch):
+        results = self.execute(url)
+        return self.get_score(results, "Packaging") >= 5
