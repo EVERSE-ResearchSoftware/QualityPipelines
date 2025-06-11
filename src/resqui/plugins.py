@@ -19,13 +19,15 @@ def normalized(script):
 
 
 class IndicatorPlugin:
-    pass
+    name = None
+    version = None
+    id = None
+    indicators = []
 
 
 class PythonExecutor:
     """A Python executor which uses a temporary virtual environment."""
 
-    required_members = ["python_package_name", "version"]
     python_package_name = None
     version = None
 
@@ -87,7 +89,7 @@ class HowFairIs(IndicatorPlugin, PythonExecutor):
         return result.stdout.strip() == "True"
 
 
-class CFFConvert:
+class CFFConvert(IndicatorPlugin):
     name = "CFFConvert"
     version = "2.0.0"
     id = "https://w3id.org/everse/tools/cffconvert"
@@ -134,7 +136,7 @@ class CFFConvert:
         )
 
 
-class Gitleaks:
+class Gitleaks(IndicatorPlugin):
     name = "GitLeaks"
     version = "8.24.2"
     id = "https://w3id.org/everse/tools/gitleaks"
@@ -194,7 +196,7 @@ class Gitleaks:
         return False
 
 
-class SuperLinter:
+class SuperLinter(IndicatorPlugin):
     name = "SuperLinter"
     version = "7.3.0"
     id = "https://w3id.org/everse/tools/superlinter"
