@@ -18,16 +18,26 @@ def normalized(script):
     return "\n".join(line[leading_whitespace:] for line in lines)
 
 
-class HowFairIs:
-    name = "HowFairIs"
-    version = "0.14.2"
-    id = "https://w3id.org/everse/tools/howfairis"
-    indicators = ["has_license"]
+class IndicatorPlugin:
+    pass
 
-    def __init__(self):
-        self.instantiate()
+
+class PythonExecutor:
+    """A Python executor which uses a temporary virtual environment."""
+
+    required_members = ["python_package_name", "version"]
+    python_package_name = None
+    version = None
 
     def instantiate(self):
+        """Instantiates a virtual environment in a temporary folder."""
+        if self.python_package_name is None:
+            print(
+                f"The Python executor of the Plugin {self.name} "
+                f"v{self.version} does not specify a Python package "
+                "name ('python_package_name')"
+            )
+            exit(1)
         self.temp_dir = tempfile.mkdtemp()
         venv.create(self.temp_dir, with_pip=True)
         try:
@@ -35,15 +45,34 @@ class HowFairIs:
                 [
                     f"{self.temp_dir}/bin/pip",
                     "install",
-                    f"howfairis=={self.version}",
+                    f"{self.python_package_name}=={self.version}",
                 ],
                 check=True,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
             )
         except subprocess.CalledProcessError as e:
-            print(f"Error installing howfairis: {e}")
+            print(f"Error installing {self.name} v{self.version}: {e}")
             raise
+
+    def execute(self, script):
+        """Run the script in the virtual environment."""
+        return subprocess.run(
+            [f"{self.temp_dir}/bin/python", "-c", script],
+            capture_output=True,
+            text=True,
+        )
+
+
+class HowFairIs(IndicatorPlugin, PythonExecutor):
+    name = "HowFairIs"
+    version = "0.14.2"
+    python_package_name = "howfairis"
+    id = "https://w3id.org/everse/tools/howfairis"
+    indicators = ["has_license"]
+
+    def __init__(self):
+        self.instantiate()
 
     def has_license(self, url, branch):
         script = normalized(
@@ -56,13 +85,6 @@ class HowFairIs:
         )
         result = self.execute(script)
         return result.stdout.strip() == "True"
-
-    def execute(self, script):
-        return subprocess.run(
-            [f"{self.temp_dir}/bin/python", "-c", script],
-            capture_output=True,
-            text=True,
-        )
 
 
 class CFFConvert:
@@ -182,13 +204,10 @@ class SuperLinter:
         self.instantiate()
 
     def instantiate(self):
+        machine = platform.machine()
         cmd = (
             ["docker", "pull"]
-            + (
-                ["--platform", "linux/amd64"]
-                if platform.machine() == "arm64"
-                else []
-            )
+            + (["--platform", "linux/amd64"] if machine == "arm64" else [])
             + [f"ghcr.io/super-linter/super-linter:v{self.version}"]
         )
 
