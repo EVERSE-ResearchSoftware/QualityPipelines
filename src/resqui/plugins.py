@@ -85,7 +85,8 @@ class HowFairIs(IndicatorPlugin, PythonExecutor):
     indicators = ["has_license"]
 
     def __init__(self):
-        self.instantiate()
+        self.executor = PythonExecutor()
+        self.executor.install(f"{self.python_package_name}=={self.version}")
 
     def has_license(self, url, branch):
         script = normalized(
@@ -96,7 +97,7 @@ class HowFairIs(IndicatorPlugin, PythonExecutor):
             print(checker.has_license())
         """
         )
-        result = self.execute(script)
+        result = self.executor.execute(script)
         return result.stdout.strip() == "True"
 
 
