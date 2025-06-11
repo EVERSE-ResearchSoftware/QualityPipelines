@@ -88,6 +88,38 @@ class PythonExecutor:
             print(f"Failed to remove virtualenv at {self.temp_dir}: {e}")
 
 
+class DockerExecutor:
+    """A Docker executor."""
+
+    def __init__(self, image_url, pull_args=None):
+        self.url = image_url
+        if pull_args is None:
+            pull_args = []
+        try:
+            subprocess.run(
+                ["docker", "pull"] + pull_args + [self.url],
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+        except subprocess.CalledProcessError as e:
+            print(f"Error pulling the Docker image from {self.url}: {e}")
+            raise
+
+    def run(self, command, run_args=None):
+        """
+        Run command (popenargs) inside a Docker container and return a
+        CompletedProcess instance from the subprocess Python module.
+
+        Extra arguments to the command can be passed as a list of
+        strings via `run_args`.
+        """
+        if run_args is None:
+            run_args = []
+        cmd = ["docker", "run"] + run_args + [self.url] + command
+        return subprocess.run(cmd, capture_output=True, text=True)
+
+
 class HowFairIs(IndicatorPlugin):
     name = "HowFairIs"
     version = "0.14.2"
@@ -139,27 +171,12 @@ class CFFConvert(IndicatorPlugin):
 class Gitleaks(IndicatorPlugin):
     name = "GitLeaks"
     version = "8.24.2"
+    image_url = f"ghcr.io/gitleaks/gitleaks:v{version}"
     id = "https://w3id.org/everse/tools/gitleaks"
     indicators = ["has_security_leak"]
 
     def __init__(self):
-        self.instantiate()
-
-    def instantiate(self):
-        try:
-            subprocess.run(
-                [
-                    "docker",
-                    "pull",
-                    f"ghcr.io/gitleaks/gitleaks:v{self.version}",
-                ],
-                check=True,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
-        except subprocess.CalledProcessError as e:
-            print(f"Error pulling the Gitleaks Docker image: {e}")
-            raise
+        self.executor = DockerExecutor(self.image_url)
 
     def has_security_leak(self, url, branch):
         temp_dir = tempfile.mkdtemp()
@@ -176,20 +193,18 @@ class Gitleaks(IndicatorPlugin):
             print(f"Error cloning {url}: {e}")
             raise
 
-        cmd = [
-            "docker",
-            "run",
-            "-v",
-            f"{temp_dir}:/path",
-            f"ghcr.io/gitleaks/gitleaks:v{self.version}",
-            "git",
-            "/path",
-            "-r",
-            f"/path/{report_fname}",
-        ]
-        p = subprocess.run(cmd, capture_output=True, text=True)
+        run_args = ["-v", f"{temp_dir}:/path"]
+        p = self.executor.run(
+            ["git", "/path", "-r", f"/path/{report_fname}"], run_args=run_args
+        )
         with open(os.path.join(temp_dir, report_fname)) as f:
             report = json.load(f)
+
+        try:
+            if os.path.exists(temp_dir):
+                shutil.rmtree(temp_dir)
+        except Exception as e:
+            print(f"Failed to remove clone repository at {temp_dir}: {e}")
 
         if "no leaks found" in p.stderr and not report:
             return True
@@ -199,30 +214,14 @@ class Gitleaks(IndicatorPlugin):
 class SuperLinter(IndicatorPlugin):
     name = "SuperLinter"
     version = "7.3.0"
+    image_url = f"ghcr.io/super-linter/super-linter:v{version}"
     id = "https://w3id.org/everse/tools/superlinter"
     indicators = ["has_no_linting_issues"]
 
     def __init__(self):
-        self.instantiate()
-
-    def instantiate(self):
         machine = platform.machine()
-        cmd = (
-            ["docker", "pull"]
-            + (["--platform", "linux/amd64"] if machine == "arm64" else [])
-            + [f"ghcr.io/super-linter/super-linter:v{self.version}"]
-        )
-
-        try:
-            subprocess.run(
-                cmd,
-                check=True,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
-        except subprocess.CalledProcessError as e:
-            print(f"Error pulling the Super-Linter Docker image: {e}")
-            raise
+        pull_args = ["--platform", "linux/amd64"] if machine == "arm64" else []
+        self.executor = DockerExecutor(self.image_url, pull_args=pull_args)
 
     def has_no_linting_issues(self, url, branch):
         temp_dir = tempfile.mkdtemp()
@@ -238,25 +237,30 @@ class SuperLinter(IndicatorPlugin):
             print(f"Error cloning {url}: {e}")
             raise
 
-        cmd = [
-            "docker",
-            "run",
-            "-e",
-            "LOG_LEVEL=DEBUG",
+        run_args = [
+            #            "-e",
+            #            "LOG_LEVEL=DEBUG",
             "-e",
             "RUN_LOCAL=true",
             "-e",
             f"DEFAULT_BRANCH={branch}",
             "-v",
             f"{temp_dir}:/tmp/lint",
-            f"ghcr.io/super-linter/super-linter:v{self.version}",
         ]
-        subprocess.run(cmd, capture_output=True, text=True)
+        p = self.executor.run([], run_args=run_args)
 
+        try:
+            if os.path.exists(temp_dir):
+                shutil.rmtree(temp_dir)
+        except Exception as e:
+            print(f"Failed to remove clone repository at {temp_dir}: {e}")
+
+        if "Super-linter detected linting errors" in p.stderr:
+            return False
         # print("STDOUT")
         # print(p.stdout)
         # print()
         # print("STDERR")
         # print(p.stderr)
 
-        return False
+        return True
