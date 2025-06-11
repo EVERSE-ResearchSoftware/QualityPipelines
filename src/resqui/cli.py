@@ -3,12 +3,13 @@ Usage:
     resqui [options] -c <config_file> <repository_url>
 
 Options:
-    <repository_url>  URL of the repository to be analyzed.
-    -c <config_file>  Path to the configuration file.
-    -o <output_file>  Path to the output file [default: resqui_summary.json].
-    -b <branch>       The Git branch to be checked [default: main].
-    --version         Show the version of the script.
-    --help            Show this help message.
+    <repository_url>   URL of the repository to be analyzed.
+    -c <config_file>   Path to the configuration file.
+    -o <output_file>   Path to the output file [default: resqui_summary.json].
+    -t <github_token>  GitHub API token.
+    -b <branch>        The Git branch to be checked [default: main].
+    --version          Show the version of the script.
+    --help             Show this help message.
 """
 import itertools
 import time
@@ -107,6 +108,10 @@ def resqui():
     output_file = args["-o"]
     url = args["<repository_url>"]
     branch = args["-b"]
+    github_token = args["-t"]
+
+    if github_token is not None:
+        print("GitHub API token \033[92m✔\033[0m")
 
     print(f"Repository URL: {url}")
     print(f"Branch: {branch}")
