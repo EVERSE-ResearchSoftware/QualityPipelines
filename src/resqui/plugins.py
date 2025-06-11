@@ -1,6 +1,7 @@
 import os
 import venv
 import platform
+import shutil
 import subprocess
 import tempfile
 import json
@@ -36,10 +37,12 @@ class PythonExecutor:
 
     """
 
-    def __init__(self, packages=[]):
+    def __init__(self, packages=None):
         """Instantiates a virtual environment in a temporary folder."""
         self.temp_dir = tempfile.mkdtemp()
         venv.create(self.temp_dir, with_pip=True)
+        if packages is None:
+            return
         for package in packages:
             self.install(package)
 
@@ -75,6 +78,14 @@ class PythonExecutor:
             capture_output=True,
             text=True,
         )
+
+    def __del__(self):
+        """Cleanup the temporary virtual environment on destruction."""
+        try:
+            if os.path.exists(self.temp_dir):
+                shutil.rmtree(self.temp_dir)
+        except Exception as e:
+            print(f"Failed to remove virtualenv at {self.temp_dir}: {e}")
 
 
 class HowFairIs(IndicatorPlugin):
