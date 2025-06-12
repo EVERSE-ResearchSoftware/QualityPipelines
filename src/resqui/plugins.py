@@ -131,7 +131,8 @@ class HowFairIs(IndicatorPlugin):
     id = "https://w3id.org/everse/tools/howfairis"
     indicators = ["has_license"]
 
-    def __init__(self):
+    def __init__(self, context):
+        self.context = context
         self.executor = PythonExecutor()
         self.executor.install(f"{self.python_package_name}=={self.version}")
 
@@ -155,7 +156,8 @@ class CFFConvert(IndicatorPlugin):
     id = "https://w3id.org/everse/tools/cffconvert"
     indicators = ["has_citation"]
 
-    def __init__(self):
+    def __init__(self, context):
+        self.context = context
         self.executor = PythonExecutor()
         self.executor.install(f"{self.python_package_name}=={self.version}")
 
@@ -179,7 +181,8 @@ class Gitleaks(IndicatorPlugin):
     id = "https://w3id.org/everse/tools/gitleaks"
     indicators = ["has_security_leak"]
 
-    def __init__(self):
+    def __init__(self, context):
+        self.context = context
         self.executor = DockerExecutor(self.image_url)
 
     def has_security_leak(self, url, branch):
@@ -222,7 +225,8 @@ class SuperLinter(IndicatorPlugin):
     id = "https://w3id.org/everse/tools/superlinter"
     indicators = ["has_no_linting_issues"]
 
-    def __init__(self):
+    def __init__(self, context):
+        self.context = context
         machine = platform.machine()
         pull_args = ["--platform", "linux/amd64"] if machine == "arm64" else []
         self.executor = DockerExecutor(self.image_url, pull_args=pull_args)
