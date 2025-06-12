@@ -34,10 +34,12 @@ actual method of the class named `plugin`:
 
 ```json
 {
-  "api_endpoint": "https://everse.software/api/v1",
   "indicators": [
 	  { "name": "has_license", "plugin": "HowFairIs" },
 	  { "name": "has_citation", "plugin": "CFFConvert" },
+	  { "name": "has_ci_tests", "plugin": "OpenSSFScorecard" },
+	  { "name": "human_code_review_requirement", "plugin": "OpenSSFScorecard" },
+	  { "name": "has_published_package", "plugin": "OpenSSFScorecard" },
 	  { "name": "has_security_leak", "plugin": "Gitleaks" }
   ]
 }
@@ -46,13 +48,17 @@ actual method of the class named `plugin`:
 ### Example
 
 ```
-$ resqui -c example.json https://github.com/JuliaHep/UnROOT.jl
-Repository URL: https://github.com/JuliaHep/UnROOT.jl
+$ resqui -c example.json -t *** https://github.com/EVERSE-ResearchSoftware/QualityPipelines
+GitHub API token ✔
+Repository URL: https://github.com/EVERSE-ResearchSoftware/QualityPipelines
 Branch: main
 Checking indicators ...
-    has_license/HowFairIs (4.1s): ✔
-    has_citation/CFFConvert (3.4s): ✔
-    has_security_leak/Gitleaks (63.7s): ✔
+    has_license/HowFairIs (0.4s): ✔
+    has_citation/CFFConvert (0.2s): ✖
+    has_ci_tests/OpenSSFScorecard (6.2s): ✔
+    human_code_review_requirement/OpenSSFScorecard (0.0s): ✖
+    has_published_package/OpenSSFScorecard (0.0s): ✖
+    has_security_leak/Gitleaks (0.4s): ✔
 Summary has been written to resqui_summary.json
 Publishing summary  ✖
 ```
