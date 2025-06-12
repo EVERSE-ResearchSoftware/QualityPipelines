@@ -281,12 +281,13 @@ class OpenSSFScorecard:
     indicators = [
         "has_ci_tests",
         "human_code_review_requirement",
-        "has_published_package"
+        "has_published_package",
     ]
 
     def __init__(self, context):
         self.context = context
         self.instantiate()
+        self._cache = {}
 
     def instantiate(self):
         try:
@@ -294,25 +295,35 @@ class OpenSSFScorecard:
                 ["docker", "pull", f"gcr.io/openssf/scorecard:{self.version}"],
                 check=True,
                 stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL
+                stderr=subprocess.DEVNULL,
             )
         except subprocess.CalledProcessError as e:
             print(f"Error pulling OpenSSF Scorecard image: {e}")
             raise
 
     def execute(self, url):
+        if url in self._cache:
+            return self._cache[url]
+
         cmd = [
-            "docker", "run", "--rm",
-            "-e", f"GITHUB_AUTH_TOKEN={self.context.github_token}",
+            "docker",
+            "run",
+            "--rm",
+            "-e",
+            f"GITHUB_AUTH_TOKEN={self.context.github_token}",
             f"gcr.io/openssf/scorecard:{self.version}",
-            "--repo", url,
-            "--format", "json"
+            "--repo",
+            url,
+            "--format",
+            "json",
         ]
 
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-            if result.stdout:
-                return json.loads(result.stdout)
+            r = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            if r.stdout:
+                out = json.loads(r.stdout)
+                self._cache[url] = out
+                return out
             else:
                 raise ValueError("No output received from Scorecard.")
         except subprocess.CalledProcessError as e:
@@ -321,17 +332,17 @@ class OpenSSFScorecard:
             raise
         except json.JSONDecodeError:
             print("JSON output not valid:")
-            print(result.stdout)
+            print(r.stdout)
             raise
 
     def get_score(self, results, check_name):
         checks = results["checks"]
         if not checks:
             raise ValueError("No checks found in results.")
-        check = results[check_name]
-        if check is not None:
-            return check["score"]
-        return 0
+        for check in checks:
+            if check["name"] == check_name:
+                return check["score"]
+        raise ValueError(f"Check '{check_name}' not found in results.")
 
     def has_ci_tests(self, url, branch):
         results = self.execute(url)
@@ -344,4 +355,3 @@ class OpenSSFScorecard:
     def has_published_package(self, url, branch):
         results = self.execute(url)
         return self.get_score(results, "Packaging") >= 5
-
