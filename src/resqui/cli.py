@@ -1,6 +1,7 @@
 """
 Usage:
     resqui [options] -c <config_file> <repository_url>
+    resqui indicators
 
 Options:
     <repository_url>   URL of the repository to be analyzed.
@@ -11,52 +12,18 @@ Options:
     --version          Show the version of the script.
     --help             Show this help message.
 """
+
 import itertools
 import time
 import threading
 import importlib
-import json
 import sys
 
+from .core import Configuration, Context, Summary
+from .plugins import IndicatorPlugin
 from .api import Publisher
 from .docopt import docopt
 from .version import __version__
-
-
-class Configuration:
-    """
-    A basic wrapper for the configuration.
-    """
-
-    def __init__(self, filepath):
-        with open(filepath) as f:
-            self._cfg = json.load(f)
-
-
-class Summary:
-    """
-    Summary of the results of the checks.
-    """
-
-    def __init__(self):
-        self.checks = []
-
-    def add_indicator_result(self, indicator, checking_software, status):
-        self.checks.append(
-            {
-                "checking_software": {
-                    "name": checking_software.name,
-                    "id": checking_software.id,
-                    "version": checking_software.version,
-                },
-                "indicator": indicator,
-                "status": status,
-            }
-        )
-
-    def to_json(self, filename):
-        with open(filename, "w") as f:
-            json.dump(self.checks, f, indent=4)
 
 
 class Spinner:
@@ -104,6 +71,10 @@ class Spinner:
 def resqui():
     args = docopt(__doc__, version=__version__)
 
+    if args["indicators"]:
+        print_indicator_plugins()
+        exit(0)
+
     configuration = Configuration(args["-c"])
     output_file = args["-o"]
     url = args["<repository_url>"]
@@ -112,6 +83,8 @@ def resqui():
 
     if github_token is not None:
         print("GitHub API token \033[92m✔\033[0m")
+
+    context = Context(github_token=github_token)
 
     print(f"Repository URL: {url}")
     print(f"Branch: {branch}")
@@ -132,7 +105,7 @@ def resqui():
         plugin_class = getattr(plugin_module, plugin_class_name)
         plugin_method = indicator["name"]
         with Spinner():
-            plugin_instance = plugin_class()
+            plugin_instance = plugin_class(context)
             result = getattr(plugin_instance, plugin_method)(url, branch)
 
         if result:
@@ -154,3 +127,28 @@ def resqui():
         print("\033[92m✔\033[0m")
     else:
         print("\033[91m✖\033[0m")
+
+
+def print_indicator_plugins():
+    """
+    Prints a list of available indicator plugins.
+    """
+
+    def subclasses(cls):
+        return set(cls.__subclasses__()).union(
+            s for c in cls.__subclasses__() for s in subclasses(c)
+        )
+
+    for cls in sorted(subclasses(IndicatorPlugin), key=lambda c: c.__name__):
+        print(f"Class: {cls.__name__}")
+        for attr in ["name", "version", "id"]:
+            value = getattr(cls, attr, None)
+            print(f"  {attr.capitalize()}: {value}")
+        indicators = getattr(cls, "indicators", [])
+        print("  Indicators:")
+        if indicators:
+            for ind in indicators:
+                print(f"    - {ind}")
+        else:
+            print("    (none)")
+        print()
