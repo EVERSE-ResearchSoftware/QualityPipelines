@@ -17,49 +17,13 @@ import itertools
 import time
 import threading
 import importlib
-import json
 import sys
 
+from .core import Configuration, Context, Summary
 from .plugins import IndicatorPlugin
 from .api import Publisher
 from .docopt import docopt
 from .version import __version__
-
-
-class Configuration:
-    """
-    A basic wrapper for the configuration.
-    """
-
-    def __init__(self, filepath):
-        with open(filepath) as f:
-            self._cfg = json.load(f)
-
-
-class Summary:
-    """
-    Summary of the results of the checks.
-    """
-
-    def __init__(self):
-        self.checks = []
-
-    def add_indicator_result(self, indicator, checking_software, status):
-        self.checks.append(
-            {
-                "checking_software": {
-                    "name": checking_software.name,
-                    "id": checking_software.id,
-                    "version": checking_software.version,
-                },
-                "indicator": indicator,
-                "status": status,
-            }
-        )
-
-    def to_json(self, filename):
-        with open(filename, "w") as f:
-            json.dump(self.checks, f, indent=4)
 
 
 class Spinner:
@@ -120,6 +84,8 @@ def resqui():
     if github_token is not None:
         print("GitHub API token \033[92m✔\033[0m")
 
+    context = Context(github_token=github_token)
+
     print(f"Repository URL: {url}")
     print(f"Branch: {branch}")
     print("Checking indicators ...")
@@ -139,7 +105,7 @@ def resqui():
         plugin_class = getattr(plugin_module, plugin_class_name)
         plugin_method = indicator["name"]
         with Spinner():
-            plugin_instance = plugin_class()
+            plugin_instance = plugin_class(context)
             result = getattr(plugin_instance, plugin_method)(url, branch)
 
         if result:
