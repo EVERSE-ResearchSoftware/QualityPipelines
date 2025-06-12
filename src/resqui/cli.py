@@ -92,6 +92,7 @@ def resqui():
 
     publisher = Publisher()
     summary = Summary()
+    plugin_instances = {}
     for indicator in configuration._cfg["indicators"]:
         print(
             f"    {indicator['name']}/{indicator['plugin']}",
@@ -101,11 +102,14 @@ def resqui():
 
         base_package = __name__.rsplit(".", 1)[0]
         plugin_class_name = indicator["plugin"]
-        plugin_module = importlib.import_module(base_package + ".plugins")
-        plugin_class = getattr(plugin_module, plugin_class_name)
+        if plugin_class_name not in plugin_instances:
+            plugin_module = importlib.import_module(base_package + ".plugins")
+            plugin_class = getattr(plugin_module, plugin_class_name)
+            with Spinner(print_time=False):
+                plugin_instances[plugin_class_name] = plugin_class(context)
+        plugin_instance = plugin_instances[plugin_class_name]
         plugin_method = indicator["name"]
         with Spinner():
-            plugin_instance = plugin_class(context)
             result = getattr(plugin_instance, plugin_method)(url, branch)
 
         if result:
