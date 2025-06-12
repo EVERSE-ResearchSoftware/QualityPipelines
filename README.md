@@ -26,10 +26,11 @@ Options:
     --help            Show this help message.
 ```
 
-## Configuration file
+### Configuration file
 
 The preliminary configuration file format is JSON and consists a list
-of indicators and the plugins to be used:
+of indicators and the plugins to be used. The `name` field matches the
+actual method of the class named `plugin`:
 
 ```json
 {
@@ -42,7 +43,7 @@ of indicators and the plugins to be used:
 }
 ```
 
-## Example
+### Example
 
 ```
 $ resqui -c example.json https://github.com/JuliaHep/UnROOT.jl
@@ -55,3 +56,36 @@ Checking indicators ...
 Summary has been written to resqui_summary.json
 Publishing summary  ✖
 ```
+
+## Indicator Plugins
+
+An indicator plugin is represented by a subclass of
+`resqui.plugins.IndicatorPlugin` and uses either a
+`resqui.plugins.PythonExecutor` or a `resqui.plugins.DockerExecutor` to run the
+software to determine the indicator values.
+
+### Mandatory Attributes
+
+Each indicator plugin should define a set of class attributes:
+
+- `name`: currently matches the class name
+- `version`: dot-separated numbers
+- `id`: URL of the tool description on w3id.org
+- `indicators`: a list of indicators, matching the actual method names
+
+### Executors
+
+#### `PythonExecutor`
+
+The Python executor manages a virtual environment and installs the required
+packages via `pip`. A script can be passed to `.execute()` which returns the
+result as an instance of `subprocess.CompletedProcess` that is executed inside
+the virtual environment.
+
+#### `DockerExecutor`
+
+The Docker executor pulls the required image and allows to run scripts inside a
+container spawned from that very image. The command is passed to `.run()` with
+optional argments that are passed to the `docker run` command. The result is
+returned similar to the `PythonExecutor` as an instance of
+`subprocess.CompletedProcess`.
