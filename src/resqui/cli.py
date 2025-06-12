@@ -32,10 +32,11 @@ class Spinner:
     Use it as a context manager.
     """
 
-    def __init__(self):
+    def __init__(self, print_time=True):
         self.spinning = False
         self.spinner_thread = None
         self.start_time = time.time()
+        self.print_time = print_time
 
     def start(self):
         self.spinning = True
@@ -47,7 +48,8 @@ class Spinner:
         elapsed_time = time.time() - self.start_time
         if self.spinner_thread:
             self.spinner_thread.join()
-        print(f"({elapsed_time:.1f}s)", end=": ")
+        if self.print_time:
+            print(f"({elapsed_time:.1f}s)", end=": ")
 
     def _spinner(self):
         for char in itertools.cycle("|/-\\"):
