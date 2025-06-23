@@ -40,7 +40,7 @@ actual method of the class named `plugin`:
 	  { "name": "has_ci_tests", "plugin": "OpenSSFScorecard" },
 	  { "name": "human_code_review_requirement", "plugin": "OpenSSFScorecard" },
 	  { "name": "has_published_package", "plugin": "OpenSSFScorecard" },
-	  { "name": "has_security_leak", "plugin": "Gitleaks" }
+	  { "name": "has_no_security_leak", "plugin": "Gitleaks" }
   ]
 }
 ```
@@ -58,7 +58,7 @@ Checking indicators ...
     has_ci_tests/OpenSSFScorecard (6.2s): ✔
     human_code_review_requirement/OpenSSFScorecard (0.0s): ✖
     has_published_package/OpenSSFScorecard (0.0s): ✖
-    has_security_leak/Gitleaks (0.4s): ✔
+    has_no_security_leak/Gitleaks (0.4s): ✔
 Summary has been written to resqui_summary.json
 Publishing summary  ✖
 ```

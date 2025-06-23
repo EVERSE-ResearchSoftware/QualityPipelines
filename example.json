@@ -5,6 +5,6 @@
 	  { "name": "has_ci_tests", "plugin": "OpenSSFScorecard" },
 	  { "name": "human_code_review_requirement", "plugin": "OpenSSFScorecard" },
 	  { "name": "has_published_package", "plugin": "OpenSSFScorecard" },
-	  { "name": "has_security_leak", "plugin": "Gitleaks" }
+	  { "name": "has_no_security_leak", "plugin": "Gitleaks" }
   ]
 }
