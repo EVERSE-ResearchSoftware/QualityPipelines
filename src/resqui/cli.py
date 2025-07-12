@@ -119,9 +119,7 @@ def resqui():
         else:
             print("\033[91m✖\033[0m")
 
-        status = "success" if result else "fail"
-
-        summary.add_indicator_result(indicator, plugin_class, status)
+        summary.add_indicator_result(indicator, plugin_class, result)
 
     summary.to_json(output_file)
     print(f"Summary has been written to {output_file}")
