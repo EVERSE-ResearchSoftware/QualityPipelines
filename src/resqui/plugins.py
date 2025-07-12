@@ -6,6 +6,8 @@ import subprocess
 import tempfile
 import json
 
+from .core import CheckResult
+
 
 def normalized(script):
     """
@@ -146,7 +148,21 @@ class HowFairIs(IndicatorPlugin):
         """
         )
         result = self.executor.execute(script)
-        return result.stdout.strip() == "True"
+        output = "valid" if result.stdout.strip() == "True" else "invalid"
+        if output == "valid":
+            evidence = "Found license file: 'LICENSE'."
+            success = True
+        else:
+            evidence = "No license file found."
+            success = False
+
+        return CheckResult(
+            process="Searches for a file named 'LICENSE' or 'LICENSE.md' in the repository root.",  # noqa: E501
+            status_id="schema:CompletedActionStatus",
+            output=output,
+            evidence=evidence,
+            success=success,
+        )
 
 
 class CFFConvert(IndicatorPlugin):
@@ -171,7 +187,22 @@ class CFFConvert(IndicatorPlugin):
         """
         )
         result = self.executor.execute(script)
-        return result.stdout.strip() == "True"
+
+        output = "valid" if result.stdout.strip() == "True" else "invalid"
+        if output == "valid":
+            evidence = "Found valid CITATION.cff file in repository root."
+            success = True
+        else:
+            evidence = "No valid CITATION.cff file found in repository root."
+            success = False
+
+        return CheckResult(
+            process="Searches for a 'CITATION.cff' file in the repository root and validates its syntax.",  # noqa: E501
+            status_id="schema:CompletedActionStatus",
+            output=output,
+            evidence=evidence,
+            success=success,
+        )
 
 
 class Gitleaks(IndicatorPlugin):
