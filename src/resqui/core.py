@@ -71,6 +71,9 @@ class Summary:
                     "@context": "https://w3id.org/everse/rsqa/0.0.1/",
                     "@type": "SoftwareQualityAssessment",
                     "dateCreated": str(datetime.now()),
+                    "license": {
+                        "@id": "https://creativecommons.org/publicdomain/zero/1.0/"  # noqa: E501
+                    },
                     "checks": self.checks,
                 },
                 f,
