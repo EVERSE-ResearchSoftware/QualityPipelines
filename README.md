@@ -45,6 +45,7 @@ actual method of the class named `plugin`:
 }
 ```
 
+
 ### Example
 
 ```
@@ -63,6 +64,58 @@ Summary has been written to resqui_summary.json
 Publishing summary  ✖
 ```
 
+### Output File
+
+The current output format is a `JSON`, based on the Schema presented here: https://github.com/EVERSE-ResearchSoftware/schemas/blob/main/assessment/dev/example.json
+
+```json
+{
+    "@context": "https://w3id.org/everse/rsqa/0.0.1/",
+    "@type": "SoftwareQualityAssessment",
+    "dateCreated": "2025-07-16 09:17:34.280112",
+    "license": {
+        "@id": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    "checks": [
+        {
+            "@type": "CheckResult",
+            "assessesIndicator": {
+                "@id": "https://w3id.org/everse/i/indicators/license"
+            },
+            "checkingSoftware": {
+                "@type": "schema:SoftwareApplication",
+                "name": "HowFairIs",
+                "@id": "https://w3id.org/everse/tools/howfairis",
+                "softwareVersion": "0.14.2"
+            },
+            "process": "Searches for a file named 'LICENSE' or 'LICENSE.md' in the repository root.",
+            "status": {
+                "@id": "schema:CompletedActionStatus"
+            },
+            "output": "valid",
+            "evidence": "Found license file: 'LICENSE'."
+        },
+        {
+            "@type": "CheckResult",
+            "assessesIndicator": {
+                "@id": "https://w3id.org/everse/i/indicators/citation"
+            },
+            "checkingSoftware": {
+                "@type": "schema:SoftwareApplication",
+                "name": "CFFConvert",
+                "@id": "https://w3id.org/everse/tools/cffconvert",
+                "softwareVersion": "2.0.0"
+            },
+            "process": "Searches for a 'CITATION.cff' file in the repository root and validates its syntax.",
+            "status": {
+                "@id": "schema:CompletedActionStatus"
+            },
+            "output": "invalid",
+            "evidence": "No valid CITATION.cff file found in repository root."
+        }
+    ]
+}
+```
 ## Indicator Plugins
 
 An indicator plugin is represented by a subclass of
