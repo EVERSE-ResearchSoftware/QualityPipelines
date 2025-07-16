@@ -245,8 +245,21 @@ class Gitleaks(IndicatorPlugin):
             print(f"Failed to remove clone repository at {temp_dir}: {e}")
 
         if "no leaks found" in p.stderr and not report:
-            return True
-        return False
+            output = "secure"
+            evidence = "No leaks have been found."
+            success = True
+        else:
+            output = "insecure"
+            evidence = "Leaks have been found."
+            success = False
+
+        return CheckResult(
+            process="Searches for security leaks in the full repository history.",  # noqa: E501
+            status_id="schema:CompletedActionStatus",
+            output=output,
+            evidence=evidence,
+            success=success,
+        )
 
 
 class SuperLinter(IndicatorPlugin):
@@ -295,14 +308,27 @@ class SuperLinter(IndicatorPlugin):
             print(f"Failed to remove clone repository at {temp_dir}: {e}")
 
         if "Super-linter detected linting errors" in p.stdout:
-            return False
+            output = "invalid"
+            evidence = "Linting errors have been detected."
+            success = False
+        else:
+            output = "valid"
+            evidence = "No linting errors have been detected."
+            success = True
+
         # print("STDOUT")
         # print(p.stdout)
         # print()
         # print("STDERR")
         # print(p.stderr)
 
-        return True
+        return CheckResult(
+            process="Searches for linting errors.",  # noqa: E501
+            status_id="schema:CompletedActionStatus",
+            output=output,
+            evidence=evidence,
+            success=success,
+        )
 
 
 class OpenSSFScorecard:
@@ -377,12 +403,62 @@ class OpenSSFScorecard:
 
     def has_ci_tests(self, url, branch):
         results = self.execute(url)
-        return self.get_score(results, "CI-Tests") >= 5
+        score = self.get_score(results, "CI-Tests")
+        if score >= 5:
+            output = "true"
+            evidence = f"CI-Tests score is 5 or higher ({score})."
+            success = True
+        else:
+            output = "false"
+            evidence = f"CI-Tests score is less than 5 ({score})."
+            success = False
+
+        return CheckResult(
+            process="Calculates the CI-Tests score.",  # noqa: E501
+            status_id="schema:CompletedActionStatus",
+            output=output,
+            evidence=evidence,
+            success=success,
+        )
 
     def human_code_review_requirement(self, url, branch):
         results = self.execute(url)
-        return self.get_score(results, "Code-Review") >= 5
+        score = self.get_score(results, "Code-Review")
+
+        if score >= 5:
+            output = "true"
+            evidence = f"Code-Review score is 5 or higher ({score})."
+            success = True
+        else:
+            output = "false"
+            evidence = f"Code-Review score is less than 5 ({score})."
+            success = False
+
+        return CheckResult(
+            process="Calculates the Code-Review score.",  # noqa: E501
+            status_id="schema:CompletedActionStatus",
+            output=output,
+            evidence=evidence,
+            success=success,
+        )
 
     def has_published_package(self, url, branch):
         results = self.execute(url)
-        return self.get_score(results, "Packaging") >= 5
+        score = self.get_score(results, "Packaging")
+
+        if score >= 5:
+            output = "true"
+            evidence = f"Packaging score is 5 or higher ({score})."
+            success = True
+        else:
+            output = "false"
+            evidence = f"Packaging score is less than 5 ({score})."
+            success = False
+
+        return CheckResult(
+            process="Calculates the Packaging score.",  # noqa: E501
+            status_id="schema:CompletedActionStatus",
+            output=output,
+            evidence=evidence,
+            success=success,
+        )
