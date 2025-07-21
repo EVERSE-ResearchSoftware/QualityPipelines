@@ -1,24 +1,13 @@
 import os
-import venv
 import platform
 import shutil
 import subprocess
-import tempfile
 import json
+import tempfile
 
-from .core import CheckResult
-
-
-def normalized(script):
-    """
-    Removes extra indentation from a script, caused by triple quotes.
-    This does not support mixed tab/spaces.
-    """
-    lines = script.splitlines()
-    lines = [line for line in lines if line.strip()]  # remove empty lines
-    first_line = lines[0]
-    leading_whitespace = len(first_line) - len(first_line.lstrip())
-    return "\n".join(line[leading_whitespace:] for line in lines)
+from resqui.core import CheckResult
+from resqui.tools import normalized
+from resqui.executors import DockerExecutor, PythonExecutor
 
 
 class IndicatorPlugin:
@@ -28,102 +17,6 @@ class IndicatorPlugin:
     version = None
     id = None
     indicators = []
-
-
-class PythonExecutor:
-    """A Python executor which uses a temporary virtual environment.
-
-    The `packages` should be a list of package names with optional
-    requirement specifiers as accepted by `pip`.
-
-    More information:
-    https://packaging.python.org/en/latest/glossary/#term-Requirement-Specifier
-
-    """
-
-    def __init__(self, packages=None):
-        """Instantiates a virtual environment in a temporary folder."""
-        self.temp_dir = tempfile.mkdtemp()
-        venv.create(self.temp_dir, with_pip=True)
-        if packages is None:
-            return
-        for package in packages:
-            self.install(package)
-
-    def install(self, package):
-        try:
-            subprocess.run(
-                [f"{self.temp_dir}/bin/pip", "install", package],
-                check=True,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
-        except subprocess.CalledProcessError as e:
-            print(f"Error installing {package} with pip: {e}")
-            raise
-
-    def is_installed(self, package_name, version=None):
-        out = self.execute(
-            normalized(
-                """
-            from importlib.metadata import distributions
-            for dist in distributions():
-                name = dist.metadata.get('Name', '<unknown>')
-                version = getattr(dist, 'version', '<unknown>')
-                print(f"{name}=={version}")
-        """
-            )
-        )
-        package = package_name + "" if version is None else f"=={version}"
-        return package in out.stdout
-
-    def execute(self, script):
-        """Run the script in the virtual environment."""
-        return subprocess.run(
-            [f"{self.temp_dir}/bin/python", "-c", script],
-            capture_output=True,
-            text=True,
-        )
-
-    def __del__(self):
-        """Cleanup the temporary virtual environment on destruction."""
-        try:
-            if os.path.exists(self.temp_dir):
-                shutil.rmtree(self.temp_dir)
-        except Exception as e:
-            print(f"Failed to remove virtualenv at {self.temp_dir}: {e}")
-
-
-class DockerExecutor:
-    """A Docker executor."""
-
-    def __init__(self, image_url, pull_args=None):
-        self.url = image_url
-        if pull_args is None:
-            pull_args = []
-        try:
-            subprocess.run(
-                ["docker", "pull"] + pull_args + [self.url],
-                check=True,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
-        except subprocess.CalledProcessError as e:
-            print(f"Error pulling the Docker image from {self.url}: {e}")
-            raise
-
-    def run(self, command, run_args=None):
-        """
-        Run command (popenargs) inside a Docker container and return a
-        CompletedProcess instance from the subprocess Python module.
-
-        Extra arguments to the command can be passed as a list of
-        strings via `run_args`.
-        """
-        if run_args is None:
-            run_args = []
-        cmd = ["docker", "run"] + run_args + [self.url] + command
-        return subprocess.run(cmd, capture_output=True, text=True)
 
 
 class HowFairIs(IndicatorPlugin):
