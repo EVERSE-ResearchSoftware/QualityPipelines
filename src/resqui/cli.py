@@ -19,11 +19,10 @@ import threading
 import importlib
 import sys
 
-from .core import Configuration, Context, Summary
-from .plugins import IndicatorPlugin
-from .api import Publisher
-from .docopt import docopt
-from .version import __version__
+from resqui.core import Configuration, Context, Summary
+from resqui.plugins import IndicatorPlugin
+from resqui.docopt import docopt
+from resqui.version import __version__
 
 
 class Spinner:
@@ -92,7 +91,6 @@ def resqui():
     print(f"Branch: {branch}")
     print("Checking indicators ...")
 
-    publisher = Publisher()
     summary = Summary()
     plugin_instances = {}
     for indicator in configuration._cfg["indicators"]:
@@ -121,16 +119,17 @@ def resqui():
 
         summary.add_indicator_result(indicator, plugin_class, result)
 
-    summary.to_json(output_file)
+    summary.write(output_file)
     print(f"Summary has been written to {output_file}")
 
     print("Publishing summary ", end=" ")
     sys.stdout.flush()
-    success = publisher.upload(summary)
-    if success:
-        print("\033[92m✔\033[0m")
+    try:
+        summary.upload()
+    except (RuntimeError, ValueError) as e:
+        print(f"\033[91m✖\033[0m {e}")
     else:
-        print("\033[91m✖\033[0m")
+        print("\033[92m✔\033[0m")
 
 
 def print_indicator_plugins():
