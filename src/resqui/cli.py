@@ -84,6 +84,8 @@ def resqui():
 
     if github_token is not None:
         print("GitHub API token \033[92m✔\033[0m")
+    else:
+        print("GitHub API token \033[91m✖\033[0m")
 
     context = Context(github_token=github_token)
 
