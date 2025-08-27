@@ -1,3 +1,6 @@
+import re
+
+
 def normalized(script):
     """
     Removes extra indentation from a script, caused by triple quotes.
@@ -12,3 +15,21 @@ def normalized(script):
     first_line = lines[0]
     leading_whitespace = len(first_line) - len(first_line.lstrip())
     return "\n".join(line[leading_whitespace:] for line in lines)
+
+
+def is_commit_hash(ref):
+    """
+    Returns True if ref looks like a valid git full commit hash.
+    """
+    return bool(re.fullmatch(r"[0-9a-f]{40}", ref))
+
+
+def construct_full_url(url, branch_hash_or_tag):
+    """
+    Construct the full GitHub repository URL for a given branch, (full) hash or tag.
+    """
+    repo_url = url.rstrip("/")
+    if repo_url.endswith(".git"):
+        repo_url = url[:-4]
+    midfix = "commit" if is_commit_hash(branch_hash_or_tag) else "tree"
+    return f"{repo_url}/{midfix}/{branch_hash_or_tag}"
