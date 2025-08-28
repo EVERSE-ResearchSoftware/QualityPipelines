@@ -83,12 +83,7 @@ class GitInspector:
 
     @property
     def version(self):
-        try:
-            version = self.git("describe", "--tags", "--exact-match")
-        except subprocess.CalledProcessError:
-            version = self.git("describe", "--tags", "--always")
-
-        return version
+        return self.git("describe", "--tags", "--always")
 
     @property
     def project_name_from_url(self):
