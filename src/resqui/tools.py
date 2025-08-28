@@ -33,3 +33,20 @@ def construct_full_url(url, branch_hash_or_tag):
         repo_url = url[:-4]
     midfix = "commit" if is_commit_hash(branch_hash_or_tag) else "tree"
     return f"{repo_url}/{midfix}/{branch_hash_or_tag}"
+
+
+def to_https(url):
+    if url.startswith("http://") or url.startswith("https://"):
+        return url
+
+    # git@github.com:user/repo.git
+    m = re.match(r"git@([^:]+):(.+)", url)
+    if m:
+        host, path = m.groups()
+        return f"https://{host}/{path}"
+
+    # git:// form
+    if url.startswith("git://"):
+        return "https://" + url[6:]
+
+    return url

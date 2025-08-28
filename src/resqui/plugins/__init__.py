@@ -6,7 +6,7 @@ import json
 import tempfile
 
 from resqui.core import CheckResult
-from resqui.tools import normalized
+from resqui.tools import normalized, construct_full_url
 from resqui.executors import DockerExecutor, PythonExecutor
 
 
@@ -31,11 +31,11 @@ class HowFairIs(IndicatorPlugin):
         self.executor = PythonExecutor()
         self.executor.install(f"{self.python_package_name}=={self.version}")
 
-    def has_license(self, url, branch):
+    def has_license(self, url, branch_hash_or_tag):
         script = normalized(
             f"""
             from howfairis import Repo, Checker
-            repo = Repo("{url}", "{branch}")
+            repo = Repo("{url}", "{branch_hash_or_tag}")
             checker = Checker(repo, is_quiet=True)
             print(checker.has_license())
         """
@@ -70,11 +70,12 @@ class CFFConvert(IndicatorPlugin):
         self.executor = PythonExecutor()
         self.executor.install(f"{self.python_package_name}=={self.version}")
 
-    def has_citation(self, url, branch):
+    def has_citation(self, url, branch_hash_or_tag):
+        full_url = construct_full_url(url, branch_hash_or_tag)
         script = normalized(
             f"""
             from cffconvert.cli.create_citation import create_citation
-            citation = create_citation(None, "{url}")
+            citation = create_citation(None, "{full_url}")
             if citation.validate() is None:
                 print("True")
         """
@@ -109,7 +110,7 @@ class Gitleaks(IndicatorPlugin):
         self.context = context
         self.executor = DockerExecutor(self.image_url)
 
-    def has_no_security_leak(self, url, branch):
+    def has_no_security_leak(self, url, branch_hash_or_tag):
         temp_dir = tempfile.mkdtemp()
         report_fname = "report.json"
 
@@ -131,11 +132,8 @@ class Gitleaks(IndicatorPlugin):
         with open(os.path.join(temp_dir, report_fname)) as f:
             report = json.load(f)
 
-        try:
-            if os.path.exists(temp_dir):
-                shutil.rmtree(temp_dir)
-        except Exception as e:
-            print(f"Failed to remove clone repository at {temp_dir}: {e}")
+        if os.path.exists(temp_dir):
+            shutil.rmtree(temp_dir)
 
         if "no leaks found" in p.stderr and not report:
             output = "secure"
@@ -194,11 +192,8 @@ class SuperLinter(IndicatorPlugin):
         ]
         p = self.executor.run([], run_args=run_args)
 
-        try:
-            if os.path.exists(temp_dir):
-                shutil.rmtree(temp_dir)
-        except Exception as e:
-            print(f"Failed to remove clone repository at {temp_dir}: {e}")
+        if os.path.exists(temp_dir):
+            shutil.rmtree(temp_dir)
 
         if "Super-linter detected linting errors" in p.stdout:
             output = "invalid"
