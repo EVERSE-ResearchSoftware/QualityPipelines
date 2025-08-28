@@ -1,25 +1,28 @@
 """
 Usage:
-    resqui [options] -c <config_file> <repository_url>
+    resqui [options]
     resqui indicators
 
 Options:
-    <repository_url>   URL of the repository to be analyzed.
-    -c <config_file>   Path to the configuration file.
-    -o <output_file>   Path to the output file [default: resqui_summary.json].
-    -t <github_token>  GitHub API token.
-    -b <branch>        The Git branch to be checked [default: main].
-    --version          Show the version of the script.
-    --help             Show this help message.
+    -u <repository_url>  URL of the repository to be analyzed.
+    -c <config_file>     Path to the configuration file.
+    -o <output_file>     Path to the output file [default: resqui_summary.json].
+    -t <github_token>    GitHub API token.
+    -b <branch>          The Git branch to be checked.
+    --version            Show the version of the script.
+    --help               Show this help message.
 """
 
 import itertools
 import time
 import threading
 import importlib
+import os
+import subprocess
 import sys
 
 from resqui.core import Configuration, Context, Summary
+from resqui.tools import to_https
 from resqui.plugins import IndicatorPlugin
 from resqui.docopt import docopt
 from resqui.version import __version__
@@ -69,6 +72,50 @@ class Spinner:
         self.stop()
 
 
+class GitInspector:
+    def __init__(self, path="."):
+        self.path = os.path.abspath(path)
+
+    def git(self, *args):
+        return subprocess.check_output(
+            ["git", "-C", self.path] + list(args), text=True
+        ).strip()
+
+    @property
+    def version(self):
+        try:
+            version = self.git("describe", "--tags", "--exact-match")
+        except subprocess.CalledProcessError:
+            version = self.git("describe", "--tags", "--always")
+
+        return version
+
+    @property
+    def project_name_from_url(self):
+        name = self.remote_url.rstrip("/").split("/")[-1]
+        return name[:-4] if name.endswith(".git") else name
+
+    @property
+    def current_commit_hash(self):
+        return self.git("rev-parse", "HEAD")
+
+    @property
+    def author(self):
+        return self.git("show", "-s", "--pretty=format:%an", "HEAD")
+
+    @property
+    def email(self):
+        return self.git("show", "-s", "--pretty=format:%ae", "HEAD")
+
+    @property
+    def remote_url(self):
+        return self.git("config", "--get", "remote.origin.url")
+
+    @property
+    def remote_https_url(self):
+        return to_https(self.remote_url)
+
+
 def resqui():
     args = docopt(__doc__, version=__version__)
 
@@ -78,9 +125,21 @@ def resqui():
 
     configuration = Configuration(args["-c"])
     output_file = args["-o"]
-    url = args["<repository_url>"]
+    url = args["-u"]
     branch = args["-b"]
     github_token = args["-t"]
+
+    if url is None:
+        gitinspector = GitInspector()
+        url = gitinspector.remote_https_url
+        project_name = gitinspector.project_name_from_url
+        author = gitinspector.author
+        email = gitinspector.email
+        software_version = gitinspector.version
+
+    if branch is None:
+        gitinspector = GitInspector()
+        branch_hash_or_tag = gitinspector.current_commit_hash
 
     if github_token is not None:
         print("GitHub API token \033[92m✔\033[0m")
@@ -90,10 +149,16 @@ def resqui():
     context = Context(github_token=github_token)
 
     print(f"Repository URL: {url}")
-    print(f"Branch: {branch}")
+    print(f"Project name: {project_name}")
+    print(f"Author: {author}")
+    print(f"Email: {email}")
+    print(f"Version: {software_version}")
+    print(f"Branch, tag or commit hash: {branch_hash_or_tag}")
     print("Checking indicators ...")
 
-    summary = Summary()
+    summary = Summary(
+        author, email, project_name, url, software_version, branch_hash_or_tag
+    )
     plugin_instances = {}
     for indicator in configuration._cfg["indicators"]:
         print(
@@ -104,15 +169,18 @@ def resqui():
 
         base_package = __name__.rsplit(".", 1)[0]
         plugin_class_name = indicator["plugin"]
+
         if plugin_class_name not in plugin_instances:
             plugin_module = importlib.import_module(base_package + ".plugins")
             plugin_class = getattr(plugin_module, plugin_class_name)
             with Spinner(print_time=False):
                 plugin_instances[plugin_class_name] = plugin_class(context)
+
         plugin_instance = plugin_instances[plugin_class_name]
         plugin_method = indicator["name"]
+
         with Spinner():
-            result = getattr(plugin_instance, plugin_method)(url, branch)
+            result = getattr(plugin_instance, plugin_method)(url, branch_hash_or_tag)
 
         if result:
             print("\033[92m✔\033[0m")
