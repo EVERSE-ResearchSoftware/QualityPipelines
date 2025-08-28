@@ -45,15 +45,19 @@ actual method of the class named `plugin`:
 ### Example
 
 ```
-$ resqui -c example.json -t *** https://github.com/EVERSE-ResearchSoftware/QualityPipelines
+$ resqui -c example.json -t $GITHUB_TOKEN
 GitHub API token ✔
-Repository URL: https://github.com/EVERSE-ResearchSoftware/QualityPipelines
-Branch: main
+Repository URL: https://github.com/EVERSE-ResearchSoftware/QualityPipelines.git
+Project name: QualityPipelines
+Author: Tamas Gal
+Email: himself@tamasgal.com
+Version: v0.1.0-95-gc1dacb1
+Branch, tag or commit hash: c1dacb1197005e9bce20063b2215bdfd7f9939d9
 Checking indicators ...
-    has_license/HowFairIs (0.4s): ✔
-    has_citation/CFFConvert (0.2s): ✖
+    has_license/HowFairIs (1.2s): ✖
+    has_citation/CFFConvert (1.0s): ✖
 Summary has been written to resqui_summary.json
-Publishing summary  ✖
+Publishing summary  ✔
 ```
 
 ### Output File
@@ -114,6 +118,8 @@ An indicator plugin is represented by a subclass of
 `resqui.plugins.IndicatorPlugin` and uses either a
 `resqui.plugins.PythonExecutor` or a `resqui.plugins.DockerExecutor` to run the
 software to determine the indicator values.
+The subclassing is mainly used to identify plugins during runtime,
+there is no other inheritence magic behind that.
 
 ### Mandatory Attributes
 
