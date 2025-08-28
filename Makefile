@@ -13,7 +13,7 @@ test:
 	python3 run_tests.py
 
 example:
-	resqui -c example.json https://github.com/JuliaHEP/UnROOT.jl
+	resqui -c example.json
 
 black:
 	black src/$(PKGNAME)
