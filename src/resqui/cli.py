@@ -120,7 +120,6 @@ def resqui():
         exit(0)
 
     configuration = Configuration(args["-c"])
-    print(configuration._cfg)
     output_file = args["-o"]
     url = args["-u"]
     branch = args["-b"]
