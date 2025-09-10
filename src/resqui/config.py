@@ -12,6 +12,18 @@ DEFAULT_CONFIG = {
             "plugin": "CFFConvert",
             "@id": "https://w3id.org/everse/i/indicators/citation",
         },
+        {"name": "has_ci_tests", "plugin": "OpenSSFScorecard", "@id": "missing"},
+        {
+            "name": "human_code_review_requirement",
+            "plugin": "OpenSSFScorecard",
+            "@id": "missing",
+        },
+        {
+            "name": "has_published_package",
+            "plugin": "OpenSSFScorecard",
+            "@id": "missing",
+        },
+        {"name": "has_no_security_leak", "plugin": "Gitleaks", "@id": "missing"},
     ]
 }
 
