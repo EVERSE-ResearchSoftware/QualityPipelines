@@ -11,7 +11,7 @@ class APIClient:
     def __init__(self, bearer_token=None):
         if bearer_token is None:
             bearer_token = os.environ.get("DASHVERSE_TOKEN")
-        if bearer_token is None:
+        if bearer_token is None or bearer_token == "":
             raise ValueError("Missing authentication token")
         self.headers = {
             "accept": "application/json",
