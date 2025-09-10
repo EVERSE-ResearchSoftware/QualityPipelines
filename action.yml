@@ -23,10 +23,13 @@ runs:
       shell: bash
 
     - name: Run resqui
-      run: |
-        if [[ -n "${{ inputs.config }}" ]]; then
-          resqui -c "${{ inputs.config }}" -t ${{ inputs.github_token }}
-        else
-          resqui -t ${{ inputs.github_token }}
-        fi
       shell: bash
+      env:
+        RESQUI_GITHUB_TOKEN: ${{ inputs.github_token }}
+        RESQUI_CONFIG: ${{ inputs.config }}
+      run: |
+        if [[ -n "$RESQUI_CONFIG" ]]; then
+          resqui -c "$RESQUI_CONFIG" -t "$RESQUI_GITHUB_TOKEN"
+        else
+          resqui -t "$RESQUI_GITHUB_TOKEN"
+        fi
