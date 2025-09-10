@@ -265,8 +265,6 @@ class OpenSSFScorecard:
             # TODO: commit hash is not used currently
             # "--commit",
             # commit_hash,
-            "--file-mode",
-            "git",
             "--format",
             "json",
         ]
