@@ -9,7 +9,7 @@ inputs:
     required: true
   dashverse_token:
     description: 'Dashverse token to upload the results'
-    required: true
+    required: false
 
 runs:
   using: 'composite'
@@ -17,7 +17,7 @@ runs:
     - name: Validate required inputs
       shell: bash
       run: |
-        for input in dashverse_token github_token; do
+        for input in github_token; do
           if [[ -z "${{ inputs.$input }}" ]]; then
             echo "ERROR: '$input' is required"
             exit 1
