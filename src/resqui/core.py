@@ -96,7 +96,7 @@ class Summary:
                 ],
                 "dateCreated": str(datetime.now()),
                 "license": {
-                    "@id": "https://creativecommons.org/publicdomain/zero/1.0/"  # noqa: E501
+                    "@id": "https://creativecommons.org/publicdomain/zero/1.0/"
                 },
                 "assessedSoftware": {
                     "@type": "schema:SoftwareApplication",

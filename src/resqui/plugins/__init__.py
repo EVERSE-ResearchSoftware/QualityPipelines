@@ -50,7 +50,7 @@ class HowFairIs(IndicatorPlugin):
             success = False
 
         return CheckResult(
-            process="Searches for a file named 'LICENSE' or 'LICENSE.md' in the repository root.",  # noqa: E501
+            process="Searches for a file named 'LICENSE' or 'LICENSE.md' in the repository root.",
             status_id="schema:CompletedActionStatus",
             output=output,
             evidence=evidence,
@@ -91,7 +91,7 @@ class CFFConvert(IndicatorPlugin):
             success = False
 
         return CheckResult(
-            process="Searches for a 'CITATION.cff' file in the repository root and validates its syntax.",  # noqa: E501
+            process="Searches for a 'CITATION.cff' file in the repository root and validates its syntax.",
             status_id="schema:CompletedActionStatus",
             output=output,
             evidence=evidence,
@@ -145,7 +145,7 @@ class Gitleaks(IndicatorPlugin):
             success = False
 
         return CheckResult(
-            process="Searches for security leaks in the full repository history.",  # noqa: E501
+            process="Searches for security leaks in the full repository history.",
             status_id="schema:CompletedActionStatus",
             output=output,
             evidence=evidence,
@@ -211,7 +211,7 @@ class SuperLinter(IndicatorPlugin):
         # print(p.stderr)
 
         return CheckResult(
-            process="Searches for linting errors.",  # noqa: E501
+            process="Searches for linting errors.",
             status_id="schema:CompletedActionStatus",
             output=output,
             evidence=evidence,
@@ -302,7 +302,7 @@ class OpenSSFScorecard:
             success = False
 
         return CheckResult(
-            process="Calculates the CI-Tests score.",  # noqa: E501
+            process="Calculates the CI-Tests score.",
             status_id="schema:CompletedActionStatus",
             output=output,
             evidence=evidence,
@@ -323,7 +323,7 @@ class OpenSSFScorecard:
             success = False
 
         return CheckResult(
-            process="Calculates the Code-Review score.",  # noqa: E501
+            process="Calculates the Code-Review score.",
             status_id="schema:CompletedActionStatus",
             output=output,
             evidence=evidence,
@@ -344,7 +344,7 @@ class OpenSSFScorecard:
             success = False
 
         return CheckResult(
-            process="Calculates the Packaging score.",  # noqa: E501
+            process="Calculates the Packaging score.",
             status_id="schema:CompletedActionStatus",
             output=output,
             evidence=evidence,
