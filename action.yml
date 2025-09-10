@@ -9,7 +9,7 @@ inputs:
     required: true
   dashverse_token:
     description: 'Dashverse token to upload the results'
-    required: false
+    required: true
 
 runs:
   using: 'composite'
