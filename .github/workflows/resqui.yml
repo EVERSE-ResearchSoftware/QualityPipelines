@@ -2,8 +2,6 @@ name: Run Resqui CI
 
 on:
   push:
-    branches:
-      - initial-setup
 
 jobs:
   run-resqui:
