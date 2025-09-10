@@ -17,15 +17,12 @@ runs:
     - name: Validate required inputs
       shell: bash
       run: |
-        if [[ -z "${{ inputs.github_token }}" ]]; then
-          echo "ERROR: github_token is required"
-          exit 1
-        fi
-
-        if [[ -z "${{ inputs.dashverse_token }}" ]]; then
-          echo "ERROR: dashverse_token is required"
-          exit 1
-        fi
+        for input in dashverse_token github_token; do
+          if [[ -z "${{ inputs.$input }}" ]]; then
+            echo "ERROR: '$input' is required"
+            exit 1
+          fi
+        done
 
     - name: Set up Python 3.13
       uses: actions/setup-python@v5
