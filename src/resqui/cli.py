@@ -21,7 +21,8 @@ import os
 import subprocess
 import sys
 
-from resqui.core import Configuration, Context, Summary
+from resqui.core import Context, Summary
+from resqui.config import Configuration
 from resqui.tools import to_https
 from resqui.plugins import IndicatorPlugin
 from resqui.docopt import docopt
@@ -119,6 +120,7 @@ def resqui():
         exit(0)
 
     configuration = Configuration(args["-c"])
+    print(configuration._cfg)
     output_file = args["-o"]
     url = args["-u"]
     branch = args["-b"]
