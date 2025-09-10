@@ -7,6 +7,9 @@ inputs:
   github_token:
     description: 'GitHub token required for some indicator plugins.'
     required: true
+  dashverse_token:
+    description: 'Dashverse token to upload the results'
+    required: false
 
 runs:
   using: 'composite'
@@ -27,6 +30,7 @@ runs:
       env:
         RESQUI_GITHUB_TOKEN: ${{ inputs.github_token }}
         RESQUI_CONFIG: ${{ inputs.config }}
+        DASHVERSE_TOKEN: ${{ inputs.dashverse_token }}
       run: |
         if [[ -n "$RESQUI_CONFIG" ]]; then
           resqui -c "$RESQUI_CONFIG" -t "$RESQUI_GITHUB_TOKEN"
