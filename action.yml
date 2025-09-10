@@ -4,6 +4,9 @@ inputs:
   config:
     description: 'Path to the configuration file (e.g., example.json)'
     required: false
+  github_token:
+    description: 'GitHub token required for some indicator plugins.'
+    required: true
 
 runs:
   using: 'composite'
@@ -22,8 +25,8 @@ runs:
     - name: Run resqui
       run: |
         if [[ -n "${{ inputs.config }}" ]]; then
-          resqui -c "${{ inputs.config }}" -t ${{ RESQUI_GITHUB_TOKEN }}
+          resqui -c "${{ inputs.config }}" -t ${{ inputs.github_token }}
         else
-          resqui -t ${{ RESQUI_GITHUB_TOKEN }}
+          resqui -t ${{ inputs.github_token }}
         fi
       shell: bash
