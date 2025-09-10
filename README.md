@@ -45,7 +45,7 @@ actual method of the class named `plugin`:
 ### Example
 
 ```
-$ resqui -c example.json -t $GITHUB_TOKEN
+$ resqui -c example.json -t $RESQUI_GITHUB_TOKEN
 GitHub API token ✔
 Repository URL: https://github.com/EVERSE-ResearchSoftware/QualityPipelines.git
 Project name: QualityPipelines

@@ -22,8 +22,8 @@ runs:
     - name: Run resqui
       run: |
         if [[ -n "${{ inputs.config }}" ]]; then
-          resqui -c "${{ inputs.config }}" -t ${{ secrets.GITHUB_TOKEN }}
+          resqui -c "${{ inputs.config }}" -t ${{ secrets.RESQUI_GITHUB_TOKEN }}
         else
-          resqui -t ${{ secrets.GITHUB_TOKEN }}
+          resqui -t ${{ secrets.RESQUI_GITHUB_TOKEN }}
         fi
       shell: bash
