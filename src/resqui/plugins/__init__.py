@@ -246,9 +246,12 @@ class OpenSSFScorecard:
             print(f"Error pulling OpenSSF Scorecard image: {e}")
             raise
 
-    def execute(self, url):
-        if url in self._cache:
-            return self._cache[url]
+    def execute(self, url, commit_hash):
+        cache_key = (url, commit_hash)
+        if cache_key in self._cache:
+            return self._cache[cache_key]
+
+        url = url[:-4] if url.endswith(".git") else url
 
         cmd = [
             "docker",
@@ -259,6 +262,11 @@ class OpenSSFScorecard:
             f"gcr.io/openssf/scorecard:{self.version}",
             "--repo",
             url,
+            # TODO: commit hash is not used currently
+            # "--commit",
+            # commit_hash,
+            "--file-mode",
+            "git",
             "--format",
             "json",
         ]
@@ -267,7 +275,7 @@ class OpenSSFScorecard:
             r = subprocess.run(cmd, capture_output=True, text=True, check=True)
             if r.stdout:
                 out = json.loads(r.stdout)
-                self._cache[url] = out
+                self._cache[cache_key] = out
                 return out
             else:
                 raise ValueError("No output received from Scorecard.")
@@ -289,8 +297,8 @@ class OpenSSFScorecard:
                 return check["score"]
         raise ValueError(f"Check '{check_name}' not found in results.")
 
-    def has_ci_tests(self, url, branch):
-        results = self.execute(url)
+    def has_ci_tests(self, url, branch_hash_or_tag):
+        results = self.execute(url, branch_hash_or_tag)
         score = self.get_score(results, "CI-Tests")
         if score >= 5:
             output = "true"
@@ -309,8 +317,8 @@ class OpenSSFScorecard:
             success=success,
         )
 
-    def human_code_review_requirement(self, url, branch):
-        results = self.execute(url)
+    def human_code_review_requirement(self, url, branch_hash_or_tag):
+        results = self.execute(url, branch_hash_or_tag)
         score = self.get_score(results, "Code-Review")
 
         if score >= 5:
@@ -330,8 +338,8 @@ class OpenSSFScorecard:
             success=success,
         )
 
-    def has_published_package(self, url, branch):
-        results = self.execute(url)
+    def has_published_package(self, url, branch_hash_or_tag):
+        results = self.execute(url, branch_hash_or_tag)
         score = self.get_score(results, "Packaging")
 
         if score >= 5:
