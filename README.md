@@ -90,8 +90,12 @@ jobs:
 ### Command line tool: `resqui`
 
 The `resqui` command line tool can be used to generate and publish a report.
-Some indicator plugins require a GitHub API token, which can be passed via `-t`.
+Some indicator plugins require a GitHub API access token, which can be passed via `-t`.
+A personal access token is can be generated on the GitHub
+website: https://github.com/settings/personal-access-tokens
 Be aware that some GitHub organisations might disallow tokens with no expiration date.
+When running `resqui` as a GitHub action, the automatically generated token from the CI
+job will be used.
 
 ```
 $ resqui -c example.json -t $RESQUI_GITHUB_TOKEN
