@@ -51,7 +51,9 @@ your GitHub repository settings under
 environment variable named `DASHVERSE_TOKEN` which is needed for publishing the
 pipeline results to the DashVerse instance.
 
-Note: the CI action will be triggered on each "push". Make sure to **Allow all actions and reusable workflows** in the repository settings under `https://github.com/USER_OR_GROUP/PROJECT/settings/actions`.
+Note: the CI action will be triggered on each "push". Make sure to **Allow all
+actions and reusable workflows** in the repository settings under
+`https://github.com/USER_OR_GROUP/PROJECT/settings/actions`.
 
 ### `.github/workflows/resqui.yml` Example
 
