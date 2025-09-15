@@ -47,12 +47,11 @@ actual method of the class named `plugin`:
 configuration file in the `.github/workflows` folder, named e.g. `resqui.yml`
 with the content below. It also needs a new **environment** called **resqui** in
 your GitHub repository settings under
-`https://github.com/USER_OR_GROUP/PROJECT/settings/environments` with two secret
-environment variables:
+`https://github.com/USER_OR_GROUP/PROJECT/settings/environments` with a secret
+environment variable named `DASHVERSE_TOKEN` which is needed for publishing the
+pipeline results to the DashVerse instance.
 
-- `DASHVERSE_TOKEN`, needed for publishing the pipeline results to the
-- `RESQUI_GITHUB_TOKEN` required by some indicator plugins which use the GitHub
-  API to access the repository.
+Note: the CI action will be triggered on each "push". Make sure to **Allow all actions and reusable workflows** in the repository settings under `https://github.com/USER_OR_GROUP/PROJECT/settings/actions`.
 
 ### `.github/workflows/resqui.yml` Example
 
@@ -86,11 +85,13 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Run resqui action
         uses: EVERSE-ResearchSoftware/QualityPipelines@main
         with:
-          github_token: ${{ secrets.RESQUI_GITHUB_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           dashverse_token: ${{ secrets.DASHVERSE_TOKEN }}
 ```
 
