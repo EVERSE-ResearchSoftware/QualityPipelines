@@ -41,8 +41,65 @@ actual method of the class named `plugin`:
 }
 ```
 
+## GitHub Action
 
-### Example
+**resqui** offers a GitHub action which can be installed by creating a dedicated
+configuration file in the `.github/workflows` folder, named e.g. `resqui.yml`
+with the content below. It also needs a new **environment** called **resqui** in
+your GitHub repository settings under
+`https://github.com/USER_OR_GROUP/PROJECT/settings/environments` with two secret
+environment variables:
+
+- `DASHVERSE_TOKEN`, needed for publishing the pipeline results to the
+- `RESQUI_GITHUB_TOKEN` required by some indicator plugins which use the GitHub
+  API to access the repository.
+
+### `.github/workflows/resqui.yml` Example
+
+``` yaml
+name: Run Resqui CI
+
+on:
+  push:
+
+jobs:
+  run-resqui:
+    runs-on: ubuntu-latest
+    # make sure to match the environment's name
+    environment: resqui
+
+    steps:
+      - name: Debug secrets
+        shell: bash
+        run: |
+          if [[ -z "${{ secrets.RESQUI_GITHUB_TOKEN }}" ]]; then
+            echo "RESQUI_GITHUB_TOKEN is missing!"
+          else
+            echo "RESQUI_GITHUB_TOKEN is set"
+          fi
+
+          if [[ -z "${{ secrets.DASHVERSE_TOKEN }}" ]]; then
+            echo "DASHVERSE_TOKEN is missing!"
+          else
+            echo "DASHVERSE_TOKEN is set"
+          fi
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run resqui action
+        # without an @TAG suffix, the "main" branch will be used
+        uses: EVERSE-ResearchSoftware/QualityPipelines
+        with:
+          github_token: ${{ secrets.RESQUI_GITHUB_TOKEN }}
+          dashverse_token: ${{ secrets.DASHVERSE_TOKEN }}
+```
+
+
+
+### Command line tool: `resqui`
+
+The `resqui` command line tool can be used to generate and publish a report.
 
 ```
 $ resqui -c example.json -t $RESQUI_GITHUB_TOKEN
