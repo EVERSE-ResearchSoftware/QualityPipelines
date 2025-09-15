@@ -88,8 +88,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run resqui action
-        # without an @TAG suffix, the "main" branch will be used
-        uses: EVERSE-ResearchSoftware/QualityPipelines
+        uses: EVERSE-ResearchSoftware/QualityPipelines@main
         with:
           github_token: ${{ secrets.RESQUI_GITHUB_TOKEN }}
           dashverse_token: ${{ secrets.DASHVERSE_TOKEN }}
