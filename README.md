@@ -68,21 +68,6 @@ jobs:
     environment: resqui
 
     steps:
-      - name: Debug secrets
-        shell: bash
-        run: |
-          if [[ -z "${{ secrets.RESQUI_GITHUB_TOKEN }}" ]]; then
-            echo "RESQUI_GITHUB_TOKEN is missing!"
-          else
-            echo "RESQUI_GITHUB_TOKEN is set"
-          fi
-
-          if [[ -z "${{ secrets.DASHVERSE_TOKEN }}" ]]; then
-            echo "DASHVERSE_TOKEN is missing!"
-          else
-            echo "DASHVERSE_TOKEN is set"
-          fi
-
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
