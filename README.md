@@ -26,11 +26,12 @@ Options:
     --help            Show this help message.
 ```
 
-### Configuration file
+### Configuration file (optional)
 
 The preliminary configuration file format is JSON and consists a list
 of indicators and the plugins to be used. The `name` field matches the
-actual method of the class named `plugin`:
+actual method of the class named `plugin`. If no configuration file is
+provided, a default set of indicators will be used.
 
 ```json
 {
@@ -80,6 +81,8 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           dashverse_token: ${{ secrets.DASHVERSE_TOKEN }}
+          # a configuartion file is optional and can be placed at the root of the repository
+          # config: .resqui.json
 ```
 
 
@@ -87,6 +90,8 @@ jobs:
 ### Command line tool: `resqui`
 
 The `resqui` command line tool can be used to generate and publish a report.
+Some indicator plugins require a GitHub API token, which can be passed via `-t`.
+Be aware that some GitHub organisations might disallow tokens with no expiration date.
 
 ```
 $ resqui -c example.json -t $RESQUI_GITHUB_TOKEN
