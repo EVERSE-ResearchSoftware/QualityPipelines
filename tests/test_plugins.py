@@ -1,5 +1,5 @@
 import unittest
-from resqui.plugins import PythonExecutor, DockerExecutor
+from resqui.executors import PythonExecutor, DockerExecutor
 
 
 class TestPythonExecutor(unittest.TestCase):
