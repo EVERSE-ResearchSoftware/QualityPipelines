@@ -18,12 +18,14 @@ import time
 import threading
 import importlib
 import os
+import shutil
 import subprocess
 import sys
+import tempfile
 
 from resqui.core import Context, Summary
 from resqui.config import Configuration
-from resqui.tools import to_https
+from resqui.tools import to_https, project_name_from_url
 from resqui.plugins import IndicatorPlugin
 from resqui.docopt import docopt
 from resqui.version import __version__
@@ -88,8 +90,7 @@ class GitInspector:
 
     @property
     def project_name_from_url(self):
-        name = self.remote_url.rstrip("/").split("/")[-1]
-        return name[:-4] if name.endswith(".git") else name
+        return project_name_from_url(self.remote_url)
 
     @property
     def current_commit_hash(self):
@@ -125,13 +126,31 @@ def resqui():
     branch = args["-b"]
     github_token = args["-t"]
 
+    temp_dir = None
     if url is None:
         gitinspector = GitInspector()
-        url = gitinspector.remote_https_url
-        project_name = gitinspector.project_name_from_url
-        author = gitinspector.author
-        email = gitinspector.email
-        software_version = gitinspector.version
+    else:
+        temp_dir = tempfile.mkdtemp()
+        try:
+            subprocess.run(
+                ["git", "clone", url, temp_dir],
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+        except subprocess.CalledProcessError as e:
+            print(f"Error cloning {url}: {e}")
+            raise
+        gitinspector = GitInspector(temp_dir)
+
+    url = gitinspector.remote_https_url
+    project_name = gitinspector.project_name_from_url
+    author = gitinspector.author
+    email = gitinspector.email
+    software_version = gitinspector.version
+
+    if temp_dir is not None:
+        shutil.rmtree(temp_dir)
 
     if branch is None:
         gitinspector = GitInspector()

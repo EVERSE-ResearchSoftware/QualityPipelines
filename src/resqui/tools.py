@@ -50,3 +50,9 @@ def to_https(url):
         return "https://" + url[6:]
 
     return url
+
+
+def project_name_from_url(url):
+    """Infere project name from URL"""
+    name = url.rstrip("/").split("/")[-1]
+    return name[:-4] if name.endswith(".git") else name
