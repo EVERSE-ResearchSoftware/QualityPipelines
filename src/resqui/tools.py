@@ -17,6 +17,11 @@ def normalized(script):
     return "\n".join(line[leading_whitespace:] for line in lines)
 
 
+def indented(text, indent):
+    """Indent text by a number of spaces."""
+    return "\n".join(" " * indent + line for line in text.splitlines())
+
+
 def is_commit_hash(ref):
     """
     Returns True if ref looks like a valid git full commit hash.
