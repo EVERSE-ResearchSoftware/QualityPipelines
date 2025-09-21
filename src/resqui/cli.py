@@ -9,6 +9,7 @@ Options:
     -o <output_file>     Path to the output file [default: resqui_summary.json].
     -t <github_token>    GitHub API token.
     -b <branch>          The Git branch to be checked.
+    -v                   Verbose output.
     --version            Show the version of the script.
     --help               Show this help message.
 """
@@ -25,7 +26,7 @@ import tempfile
 
 from resqui.core import Context, Summary
 from resqui.config import Configuration
-from resqui.tools import to_https, project_name_from_url
+from resqui.tools import indented, to_https, project_name_from_url
 from resqui.plugins import IndicatorPlugin
 from resqui.docopt import docopt
 from resqui.version import __version__
@@ -125,6 +126,7 @@ def resqui():
     url = args["-u"]
     branch = args["-b"]
     github_token = args["-t"]
+    verbose = args["-v"]
 
     temp_dir = None
     if url is None:
@@ -177,7 +179,7 @@ def resqui():
     plugin_instances = {}
     for indicator in configuration._cfg["indicators"]:
         print(
-            f"    {indicator['name']}/{indicator['plugin']}",
+            f"  {indicator['name']}/{indicator['plugin']}",
             end=" ",
         )
         sys.stdout.flush()
@@ -201,6 +203,8 @@ def resqui():
             print("\033[92m✔\033[0m")
         else:
             print("\033[91m✖\033[0m")
+        if verbose:
+            print(indented(result.evidence, 4))
 
         summary.add_indicator_result(indicator, plugin_class, result)
 
