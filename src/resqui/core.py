@@ -14,16 +14,6 @@ class Context:
     github_token: Optional[str] = None
 
 
-class Configuration:
-    """
-    A basic wrapper for the configuration.
-    """
-
-    def __init__(self, filepath):
-        with open(filepath) as f:
-            self._cfg = json.load(f)
-
-
 @dataclass
 class CheckResult:
     """
