@@ -16,14 +16,18 @@ pip install .
 ```
 $ resqui -h
 Usage:
-    resqui [options] -c <config_file> <repository_url>
+    resqui [options]
+    resqui indicators
 
 Options:
-    <repository_url>  URL of the repository to be analyzed.
-    -c <config_file>  Path to the configuration file.
-    -b <branch>       The Git branch to be checked [default: main].
-    --version         Show the version of the script.
-    --help            Show this help message.
+    -u <repository_url>  URL of the repository to be analyzed.
+    -c <config_file>     Path to the configuration file.
+    -o <output_file>     Path to the output file [default: resqui_summary.json].
+    -t <github_token>    GitHub API token.
+    -b <branch>          The Git branch to be checked.
+    -v                   Verbose output.
+    --version            Show the version of the script.
+    --help               Show this help message.
 ```
 
 ### Configuration file (optional)
