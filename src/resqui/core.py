@@ -98,16 +98,12 @@ class Summary:
                     },
                 },
                 "checks": self.checks,
-            }
+            }, sort_keys=True, indent=4
         )
 
     def write(self, filename):
         with open(filename, "w") as f:
-            json.dump(
-                self.to_json(),
-                f,
-                indent=4,
-            )
+            f.write(self.to_json())
 
     def upload(self):
         api = APIClient()
