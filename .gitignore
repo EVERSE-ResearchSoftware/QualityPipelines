@@ -174,4 +174,8 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
+src/resqui/plugins/rsfc_multitest.py
 config.json
+resqui_result.json
+resqui_result_pretty.json
+pretty_json.py
