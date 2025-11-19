@@ -5,6 +5,7 @@ from .howfairis import HowFairIs
 from .gitleaks import Gitleaks
 from .openssfscorecard import OpenSSFScorecard
 from .superlinter import SuperLinter
+from .rsfc import RSFC
 
 __all__ = [
     "IndicatorPlugin",
@@ -13,4 +14,5 @@ __all__ = [
     "Gitleaks",
     "OpenSSFScorecard",
     "SuperLinter",
+    "RSFC"
 ]
