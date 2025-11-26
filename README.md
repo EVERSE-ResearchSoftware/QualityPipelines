@@ -178,6 +178,9 @@ software to determine the indicator values.
 The subclassing is mainly used to identify plugins during runtime,
 there is no other inheritence magic behind that.
 
+Each indicator is implemented as a member function with the same name (e.g. `has_license`).
+The method should return an instance of `CheckResult` or a list of those.
+
 ### Mandatory Attributes
 
 Each indicator plugin should define a set of class attributes:
