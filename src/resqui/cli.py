@@ -26,7 +26,7 @@ import tempfile
 
 from resqui.core import Context, Summary
 from resqui.config import Configuration
-from resqui.tools import indented, to_https, project_name_from_url
+from resqui.tools import indented, to_https, project_name_from_url, ensure_list
 from resqui.plugins import IndicatorPlugin
 from resqui.docopt import docopt
 from resqui.version import __version__
@@ -197,16 +197,17 @@ def resqui():
         plugin_method = indicator["name"]
 
         with Spinner():
-            result = getattr(plugin_instance, plugin_method)(url, branch_hash_or_tag)
+            results = getattr(plugin_instance, plugin_method)(url, branch_hash_or_tag)
 
-        if result:
-            print("\033[92m✔\033[0m")
-        else:
-            print("\033[91m✖\033[0m")
-        if verbose:
-            print(indented(result.evidence, 4))
+        for result in ensure_list(results):
+            if result:
+                print("\033[92m✔\033[0m")
+            else:
+                print("\033[91m✖\033[0m")
+            if verbose:
+                print(indented(result.evidence, 4))
 
-        summary.add_indicator_result(indicator, plugin_class, result)
+            summary.add_indicator_result(indicator, plugin_class, result)
 
     summary.write(output_file)
     print(f"Summary has been written to {output_file}")
