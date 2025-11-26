@@ -61,3 +61,8 @@ def project_name_from_url(url):
     """Infere project name from URL"""
     name = url.rstrip("/").split("/")[-1]
     return name[:-4] if name.endswith(".git") else name
+
+
+def ensure_list(item):
+    """Wraps the item into a list if it is not already a list"""
+    return item if isinstance(item, list) else [item]
