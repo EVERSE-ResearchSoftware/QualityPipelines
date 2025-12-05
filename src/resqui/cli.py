@@ -200,19 +200,19 @@ def resqui():
             results = getattr(plugin_instance, plugin_method)(url, branch_hash_or_tag)
 
         for result in ensure_list(results):
-            if result:
-                print("\033[92m✔\033[0m")
-            else:
-                print("\033[91m✖\033[0m")
+            status = "\033[92m✔\033[0m" if result else "\033[91m✖\033[0m"
             if verbose:
-                print(indented(result.evidence, 4))
+                print(indented("\n" + result.evidence + status, 4), end="")
+            else:
+                print(status, end=" ")
 
             summary.add_indicator_result(indicator, plugin_class, result)
+        print()
 
     summary.write(output_file)
     print(f"Summary has been written to {output_file}")
 
-    print("Publishing summary ", end=" ")
+    print("Publishing summary ", end="")
     sys.stdout.flush()
     try:
         summary.upload()
