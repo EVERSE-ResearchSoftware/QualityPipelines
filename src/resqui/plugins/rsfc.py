@@ -1,5 +1,4 @@
 import json
-import subprocess
 import tempfile
 import os
 
@@ -10,7 +9,7 @@ from resqui.core import CheckResult
 class RSFC(IndicatorPlugin):
     name = "RSFC"
     id = "https://w3id.org/everse/tools/rsfc"
-    version = "0.0.4"
+    version = "0.0.7"
     image_url = f"docker.io/amonterodx/rsfc:{version}"
     indicators = [
         "persistent_and_unique_identifier",
@@ -44,10 +43,10 @@ class RSFC(IndicatorPlugin):
         
         run_args = [
             "--rm",
-            "-v", f"{tempdir}:/rsfc/outputs",
+            "-v", f"{tempdir}:/rsfc/rsfc_output",
         ]
         
-        _ = self.executor.run([url], run_args=run_args)
+        _ = self.executor.run(["--repo", url], run_args=run_args)
         
         files = os.listdir(tempdir)
         if len(files) != 1:
@@ -57,214 +56,309 @@ class RSFC(IndicatorPlugin):
         report_path = os.path.join(tempdir, files[0])
         with open(report_path) as f:
             report = json.load(f)
-            simplified_report = {check["test_id"]: check for check in report["checks"]}
             
-        self._cache[cache_key] = simplified_report
+        self._cache[cache_key] = report
         
-        return simplified_report
+        return report
             
         
         
     def persistent_and_unique_identifier(self, url, branch_hash_or_tag):
         report = self.execute(url, branch_hash_or_tag)
+        checks = report["checks"]
+        check_list = []
         
-        if report["RSFC-01-1"]["output"] == "true":
-            success = True
-        else:
-            success = False
-    
-        return CheckResult(
-            process=report["RSFC-01-1"]["process"],
-            status_id=report["RSFC-01-1"]["status"]["@id"],
-            output=report["RSFC-01-1"]["output"],
-            evidence=report["RSFC-01-1"]["evidence"],
-            success=success
-        )
+        for check in checks:
+            if "persistent_and_unique_identifier" in check["assessesIndicator"]["@id"]:
+                if check["output"] == "true":
+                    success = True
+                else:
+                    success = False
+                    
+                check_res = CheckResult(
+                    process=check["process"],
+                    status_id=check["status"]["@id"],
+                    output=check["output"],
+                    evidence=check["evidence"],
+                    success=success
+                )
+                
+                check_list.append(check_res)
+        
+        return check_list
     
     
     def software_has_documentation(self, url, branch_hash_or_tag):
         report = self.execute(url, branch_hash_or_tag)
+        checks = report["checks"]
+        check_list = []
         
-        if report["RSFC-05-3"]["output"] == "true":
-            success = True
-        else:
-            success = False
-    
-        return CheckResult(
-            process=report["RSFC-05-3"]["process"],
-            status_id=report["RSFC-05-3"]["status"]["@id"],
-            output=report["RSFC-05-3"]["output"],
-            evidence=report["RSFC-05-3"]["evidence"],
-            success=success
-        )
+        for check in checks:
+            if "software_documentation" in check["assessesIndicator"]["@id"]:
+                if check["output"] == "true":
+                    success = True
+                else:
+                    success = False
+                    
+                check_res = CheckResult(
+                    process=check["process"],
+                    status_id=check["status"]["@id"],
+                    output=check["output"],
+                    evidence=check["evidence"],
+                    success=success
+                )
+                
+                check_list.append(check_res)
+        
+        return check_list
     
     
     def requirements_specified(self, url, branch_hash_or_tag):
         report = self.execute(url, branch_hash_or_tag)
+        checks = report["checks"]
+        check_list = []
         
-        if report["RSFC-13-1"]["output"] == "true":
-            success = True
-        else:
-            success = False
-    
-        return CheckResult(
-            process=report["RSFC-13-1"]["process"],
-            status_id=report["RSFC-13-1"]["status"]["@id"],
-            output=report["RSFC-13-1"]["output"],
-            evidence=report["RSFC-13-1"]["evidence"],
-            success=success
-        )
+        for check in checks:
+            if "requirements_specified" in check["assessesIndicator"]["@id"]:
+                if check["output"] == "true":
+                    success = True
+                else:
+                    success = False
+                    
+                check_res = CheckResult(
+                    process=check["process"],
+                    status_id=check["status"]["@id"],
+                    output=check["output"],
+                    evidence=check["evidence"],
+                    success=success
+                )
+                
+                check_list.append(check_res)
+        
+        return check_list
     
     
     def has_releases(self, url, branch_hash_or_tag):
         report = self.execute(url, branch_hash_or_tag)
+        checks = report["checks"]
+        check_list = []
         
-        if report["RSFC-03-1"]["output"] == "true":
-            success = True
-        else:
-            success = False
-    
-        return CheckResult(
-            process=report["RSFC-03-1"]["process"],
-            status_id=report["RSFC-03-1"]["status"]["@id"],
-            output=report["RSFC-03-1"]["output"],
-            evidence=report["RSFC-03-1"]["evidence"],
-            success=success
-        )
+        for check in checks:
+            if "has_releases" in check["assessesIndicator"]["@id"]:
+                if check["output"] == "true":
+                    success = True
+                else:
+                    success = False
+                    
+                check_res = CheckResult(
+                    process=check["process"],
+                    status_id=check["status"]["@id"],
+                    output=check["output"],
+                    evidence=check["evidence"],
+                    success=success
+                )
+                
+                check_list.append(check_res)
+        
+        return check_list
     
     
     def software_has_license(self, url, branch_hash_or_tag):
         report = self.execute(url, branch_hash_or_tag)
+        checks = report["checks"]
+        check_list = []
         
-        if report["RSFC-15-1"]["output"] == "true":
-            success = True
-        else:
-            success = False
-    
-        return CheckResult(
-            process=report["RSFC-15-1"]["process"],
-            status_id=report["RSFC-15-1"]["status"]["@id"],
-            output=report["RSFC-15-1"]["output"],
-            evidence=report["RSFC-15-1"]["evidence"],
-            success=success
-        )
+        for check in checks:
+            if "software_has_license" in check["assessesIndicator"]["@id"]:
+                if check["output"] == "true":
+                    success = True
+                else:
+                    success = False
+                    
+                check_res = CheckResult(
+                    process=check["process"],
+                    status_id=check["status"]["@id"],
+                    output=check["output"],
+                    evidence=check["evidence"],
+                    success=success
+                )
+                
+                check_list.append(check_res)
+        
+        return check_list
     
     
     def descriptive_metadata(self, url, branch_hash_or_tag):
         report = self.execute(url, branch_hash_or_tag)
+        checks = report["checks"]
+        check_list = []
         
-        if report["RSFC-04-1"]["output"] == "true":
-            success = True
-        else:
-            success = False
-    
-        return CheckResult(
-            process=report["RSFC-04-1"]["process"],
-            status_id=report["RSFC-04-1"]["status"]["@id"],
-            output=report["RSFC-04-1"]["output"],
-            evidence=report["RSFC-04-1"]["evidence"],
-            success=success
-        )
+        for check in checks:
+            if "descriptive_metadata" in check["assessesIndicator"]["@id"]:
+                if check["output"] == "true":
+                    success = True
+                else:
+                    success = False
+                    
+                check_res = CheckResult(
+                    process=check["process"],
+                    status_id=check["status"]["@id"],
+                    output=check["output"],
+                    evidence=check["evidence"],
+                    success=success
+                )
+                
+                check_list.append(check_res)
+        
+        return check_list
     
     
     def versioning_standards_use(self, url, branch_hash_or_tag):
         report = self.execute(url, branch_hash_or_tag)
+        checks = report["checks"]
+        check_list = []
         
-        if report["RSFC-03-3"]["output"] == "true":
-            success = True
-        else:
-            success = False
-    
-        return CheckResult(
-            process=report["RSFC-03-3"]["process"],
-            status_id=report["RSFC-03-3"]["status"]["@id"],
-            output=report["RSFC-03-3"]["output"],
-            evidence=report["RSFC-03-3"]["evidence"],
-            success=success
-        )
+        for check in checks:
+            if "versioning_standards_use" in check["assessesIndicator"]["@id"]:
+                if check["output"] == "true":
+                    success = True
+                else:
+                    success = False
+                    
+                check_res = CheckResult(
+                    process=check["process"],
+                    status_id=check["status"]["@id"],
+                    output=check["output"],
+                    evidence=check["evidence"],
+                    success=success
+                )
+                
+                check_list.append(check_res)
+        
+        return check_list
     
     
     def version_control_use(self, url, branch_hash_or_tag):
         report = self.execute(url, branch_hash_or_tag)
+        checks = report["checks"]
+        check_list = []
         
-        if report["RSFC-17-2"]["output"] == "true":
-            success = True
-        else:
-            success = False
-    
-        return CheckResult(
-            process=report["RSFC-17-2"]["process"],
-            status_id=report["RSFC-17-2"]["status"]["@id"],
-            output=report["RSFC-17-2"]["output"],
-            evidence=report["RSFC-17-2"]["evidence"],
-            success=success
-        )
+        for check in checks:
+            if "version_control_use" in check["assessesIndicator"]["@id"]:
+                if check["output"] == "true":
+                    success = True
+                else:
+                    success = False
+                    
+                check_res = CheckResult(
+                    process=check["process"],
+                    status_id=check["status"]["@id"],
+                    output=check["output"],
+                    evidence=check["evidence"],
+                    success=success
+                )
+                
+                check_list.append(check_res)
+        
+        return check_list
 
     
     def software_has_tests(self, url, branch_hash_or_tag):
         report = self.execute(url, branch_hash_or_tag)
+        checks = report["checks"]
+        check_list = []
         
-        if report["RSFC-14-1"]["output"] == "true":
-            success = True
-        else:
-            success = False
-    
-        return CheckResult(
-            process=report["RSFC-14-1"]["process"],
-            status_id=report["RSFC-14-1"]["status"]["@id"],
-            output=report["RSFC-14-1"]["output"],
-            evidence=report["RSFC-14-1"]["evidence"],
-            success=success
-        )
+        for check in checks:
+            if "software_tests" in check["assessesIndicator"]["@id"]:
+                if check["output"] == "true":
+                    success = True
+                else:
+                    success = False
+                    
+                check_res = CheckResult(
+                    process=check["process"],
+                    status_id=check["status"]["@id"],
+                    output=check["output"],
+                    evidence=check["evidence"],
+                    success=success
+                )
+                
+                check_list.append(check_res)
+        
+        return check_list
     
     
     def software_has_citation(self, url, branch_hash_or_tag):
         report = self.execute(url, branch_hash_or_tag)
+        checks = report["checks"]
+        check_list = []
         
-        if report["RSFC-18-1"]["output"] == "true":
-            success = True
-        else:
-            success = False
-    
-        return CheckResult(
-            process=report["RSFC-18-1"]["process"],
-            status_id=report["RSFC-18-1"]["status"]["@id"],
-            output=report["RSFC-18-1"]["output"],
-            evidence=report["RSFC-18-1"]["evidence"],
-            success=success
-        )
+        for check in checks:
+            if "software_has_citation" in check["assessesIndicator"]["@id"]:
+                if check["output"] == "true":
+                    success = True
+                else:
+                    success = False
+                    
+                check_res = CheckResult(
+                    process=check["process"],
+                    status_id=check["status"]["@id"],
+                    output=check["output"],
+                    evidence=check["evidence"],
+                    success=success
+                )
+                
+                check_list.append(check_res)
+        
+        return check_list
     
     
     def repository_workflows(self, url, branch_hash_or_tag):
         report = self.execute(url, branch_hash_or_tag)
+        checks = report["checks"]
+        check_list = []
         
-        if report["RSFC-19-1"]["output"] == "true":
-            success = True
-        else:
-            success = False
-    
-        return CheckResult(
-            process=report["RSFC-19-1"]["process"],
-            status_id=report["RSFC-19-1"]["status"]["@id"],
-            output=report["RSFC-19-1"]["output"],
-            evidence=report["RSFC-19-1"]["evidence"],
-            success=success
-        )
+        for check in checks:
+            if "repository_workflows" in check["assessesIndicator"]["@id"]:
+                if check["output"] == "true":
+                    success = True
+                else:
+                    success = False
+                    
+                check_res = CheckResult(
+                    process=check["process"],
+                    status_id=check["status"]["@id"],
+                    output=check["output"],
+                    evidence=check["evidence"],
+                    success=success
+                )
+                
+                check_list.append(check_res)
+        
+        return check_list
     
     
     
     def archived_in_software_heritage(self, url, branch_hash_or_tag):
         report = self.execute(url, branch_hash_or_tag)
+        checks = report["checks"]
+        check_list = []
         
-        if report["RSFC-08-1"]["output"] == "true":
-            success = True
-        else:
-            success = False
-    
-        return CheckResult(
-            process=report["RSFC-08-1"]["process"],
-            status_id=report["RSFC-08-1"]["status"]["@id"],
-            output=report["RSFC-08-1"]["output"],
-            evidence=report["RSFC-08-1"]["evidence"],
-            success=success
-        )
+        for check in checks:
+            if "archived_in_software_heritage" in check["assessesIndicator"]["@id"]:
+                if check["output"] == "true":
+                    success = True
+                else:
+                    success = False
+                    
+                check_res = CheckResult(
+                    process=check["process"],
+                    status_id=check["status"]["@id"],
+                    output=check["output"],
+                    evidence=check["evidence"],
+                    success=success
+                )
+                
+                check_list.append(check_res)
+        
+        return check_list
