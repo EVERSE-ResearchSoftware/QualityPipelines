@@ -1,0 +1,17 @@
+{
+  "indicators": [
+      { "name": "descriptive_metadata", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/descriptive_metadata" },
+      { "name": "software_has_citation", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/software_has_citation" },
+      { "name": "software_has_license", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/software_has_license" },
+      { "name": "has_no_linting_issues", "plugin": "SuperLinter", "@id": "https://w3id.org/everse/i/indicators/has_no_linting_issues" },
+      { "name": "has_published_package", "plugin": "OpenSSFScorecard", "@id": "https://w3id.org/everse/i/indicators/has_published_package" },
+      { "name": "has_releases", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/has_releases" },
+      { "name": "repository_workflows", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/repository_workflows" },
+      { "name": "requirements_specified", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/requirements_specified" },
+      { "name": "persistent_and_unique_identifier", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/persistent_and_unique_identifier" },
+      { "name": "software_has_documentation", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/software_has_documentation" },
+      { "name": "version_control_use", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/version_control_use" },
+      { "name": "versioning_standards_use", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/versioning_standards_use" }    
+  ],
+    "comment": "Indicators for Prototype Tools - crucial and recommended as defined by EVERSE indicator to tier mapping group in January 2026, not implemented indicators are: archived_in_scholarly_repository, codemeta_completeness, dependency_management, no_critical_vulnerability, no_leaked_credentials."
+}
