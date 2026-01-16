@@ -1,0 +1,23 @@
+{
+   "indicators": [
+      { "name": "archived_in_software_heritage", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/archived_in_software_heritage" },	
+      { "name": "descriptive_metadata", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/descriptive_metadata" },
+      { "name": "software_has_citation", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/software_has_citation" },
+      { "name": "software_has_ci-tests", "plugin": "OpenSSFScorecard", "@id": "https://w3id.org/everse/i/indicators/software_has_ci-tests" },
+      { "name": "software_has_license", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/software_has_license" },
+      { "name": "has_no_linting_issues", "plugin": "SuperLinter", "@id": "https://w3id.org/everse/i/indicators/has_no_linting_issues" },
+      { "name": "has_published_package", "plugin": "OpenSSFScorecard", "@id": "https://w3id.org/everse/i/indicators/has_published_package" },
+      { "name": "has_releases", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/has_releases" },
+      { "name": "human_code_review_requirement", "plugin": "OpenSSFScorecard", "@id": "https://w3id.org/everse/i/indicators/human_code_review_requirement" },
+      { "name": "repository_workflows", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/repository_workflows" },
+      { "name": "requirements_specified", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/requirements_specified" },
+      { "name": "persistent_and_unique_identifier", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/persistent_and_unique_identifier" },
+      { "name": "software_has_documentation", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/software_has_documentation" },
+      { "name": "software_has_tests", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/software_has_tests" },
+      { "name": "version_control_use", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/version_control_use" },
+      { "name": "versioning_standards_use", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/versioning_standards_use" }    
+  ],
+    "comment": "Indicators for Research Software Infrastructure - crucial and recommended as defined by EVERSE indicator to tier mapping group in January 2026, not implemented indicators are: archived_in_scholarly_repository, codemeta_completeness, dependency_management, listed_in_registry, metadata_is_up_to_date, no_critical_vulnerability, no_leaked_credentials, static_analysis_common_vulnerabilities."
+}
+
+
