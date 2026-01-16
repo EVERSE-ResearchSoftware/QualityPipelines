@@ -8,7 +8,6 @@
       { "name": "has_no_linting_issues", "plugin": "SuperLinter", "@id": "https://w3id.org/everse/i/indicators/has_no_linting_issues" },
       { "name": "has_published_package", "plugin": "OpenSSFScorecard", "@id": "https://w3id.org/everse/i/indicators/has_published_package" },
       { "name": "has_releases", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/has_releases" },
-      { "name": "human_code_review_requirement", "plugin": "OpenSSFScorecard", "@id": "https://w3id.org/everse/i/indicators/human_code_review_requirement" },
       { "name": "repository_workflows", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/repository_workflows" },
       { "name": "requirements_specified", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/requirements_specified" },
       { "name": "persistent_and_unique_identifier", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/persistent_and_unique_identifier" },
@@ -17,7 +16,7 @@
       { "name": "version_control_use", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/version_control_use" },
       { "name": "versioning_standards_use", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/versioning_standards_use" }    
   ],
-    "comment": "Indicators for Research Software Infrastructure - crucial and recommended as defined by EVERSE indicator to tier mapping group in January 2026, not implemented indicators are: archived_in_scholarly_repository, codemeta_completeness, dependency_management, listed_in_registry, metadata_is_up_to_date, no_critical_vulnerability, no_leaked_credentials, static_analysis_common_vulnerabilities."
+    "comment": "Indicators for Research Software Infrastructure - crucial and recommended as defined by EVERSE indicator to tier mapping group in January 2026, not implemented indicators are: archived_in_scholarly_repository, dependency_management, listed_in_registry, metadata_is_up_to_date, no_critical_vulnerability, no_leaked_credentials, uses_tool_for_warnings_or_mistakes, static_analysis_common_vulnerabilities."
 }
 
 

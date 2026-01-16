@@ -1,8 +1,9 @@
 {
   "indicators": [
       { "name": "software_has_license", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/software_has_license" },
+
       { "name": "persistent_and_unique_identifier", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/persistent_and_unique_identifier" },
       { "name": "version_control_use", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/version_control_use" }
   ],
-  "comment": "Indicators for Analysis Code - crucial and recommended as defined by EVERSE indicator to tier mapping group in January 2026, not implemented indicators are: archived_in_scholarly_repository, dependency_management, no_leaked_credentials."
+  "comment": "Indicators for Analysis Code - crucial and recommended as defined by EVERSE indicator to tier mapping group in January 2026, not implemented indicators are: dependency_management, listed_in_registry, no_leaked_credentials."
 }
