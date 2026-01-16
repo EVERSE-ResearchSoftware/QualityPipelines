@@ -1,6 +1,6 @@
 {
    "indicators": [
-      { "name": "archived_in_software_heritage", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/archived_in_software_heritage" },	
+      { "name": "archived_in_software_heritage", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/archived_in_software_heritage" },	q
       { "name": "descriptive_metadata", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/descriptive_metadata" },
       { "name": "software_has_citation", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/software_has_citation" },
       { "name": "software_has_ci-tests", "plugin": "OpenSSFScorecard", "@id": "https://w3id.org/everse/i/indicators/software_has_ci-tests" },
@@ -18,3 +18,5 @@
   ],
     "comment": "Indicators for Research Software Infrastructure - crucial and recommended as defined by EVERSE indicator to tier mapping group in January 2026, not implemented indicators are: archived_in_scholarly_repository, dependency_management, listed_in_registry, metadata_is_up_to_date, no_critical_vulnerability, no_leaked_credentials, uses_tool_for_warnings_or_mistakes, static_analysis_common_vulnerabilities."
 }
+
+
