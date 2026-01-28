@@ -6,7 +6,7 @@ from resqui.version import version
 
 
 class APIClient:
-    endpoint_url = "db.dashverse.cloud"
+    endpoint_url = "api.dashverse.cloud"
 
     def __init__(self, bearer_token=None):
         if bearer_token is None:
@@ -23,7 +23,7 @@ class APIClient:
         }
 
     def post(self, payload):
-        conn = http.client.HTTPSConnection("db.dashverse.cloud")
+        conn = http.client.HTTPSConnection(self.endpoint_url)
         conn.request("POST", "/assessment", payload, self.headers)
         res = conn.getresponse()
         status = res.status
