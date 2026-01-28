@@ -58,10 +58,8 @@ class Summary:
                 "@type": "CheckResult",
                 "assessesIndicator": {"@id": indicator["@id"]},
                 "checkingSoftware": {
-                    "@type": "schema:SoftwareApplication",
                     "name": checking_software.name,
-                    "@id": checking_software.id,
-                    "softwareVersion": checking_software.version,
+                    "version": checking_software.version,
                 },
                 "process": result.process,
                 "status": {"@id": result.status_id},
@@ -73,32 +71,21 @@ class Summary:
     def to_json(self):
         return json.dumps(
             {
-                #                "@context": "https://w3id.org/everse/rsqa/0.0.1/",
-                #                "@type": "SoftwareQualityAssessment",
-                "name": "resqui Test Assessment",
-                "description": "",
-                "creator": [
-                    {
-                        "@type": "schema:Person",
-                        "name": self.author,
-                        "email": self.email,
-                    }
-                ],
+                "@context": "https://w3id.org/everse/rsqa/0.0.1/",
+                "@type": "SoftwareQualityAssessment",
                 "dateCreated": str(datetime.now()),
-                "license": {
-                    "@id": "https://creativecommons.org/publicdomain/zero/1.0/"
-                },
+                "license": "CC0-1.0",
+                "author": {"@type": "Person", "name": "Quality Pipeline"},
                 "assessedSoftware": {
-                    "@type": "schema:SoftwareApplication",
+                    "@type": "SoftwareApplication",
                     "name": self.project_name,
                     "softwareVersion": self.software_version,
                     "url": self.repo_url,
-                    "schema:identifier": {
-                        "@id": "https://doi.org/10.5281/zenodo.8224012"
-                    },
                 },
                 "checks": self.checks,
-            }, sort_keys=True, indent=4
+            },
+            sort_keys=True,
+            indent=4,
         )
 
     def write(self, filename):
