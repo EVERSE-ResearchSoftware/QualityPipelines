@@ -8,6 +8,8 @@ quality.
 Preferably inside a Python virtual environment:
 
 ```
+git clone https://github.com/EVERSE-ResearchSoftware/QualityPipelines.git
+cd QualityPipelines
 pip install .
 ```
 
