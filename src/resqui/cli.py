@@ -1,6 +1,6 @@
 """
 Usage:
-    resqui [options] -u <repository_url>
+    resqui [options]
     resqui indicators
 
 Options:
@@ -113,6 +113,10 @@ class GitInspector:
     def remote_https_url(self):
         return to_https(self.remote_url)
 
+    @property
+    def is_a_git_repository(self):
+        return os.path.isdir(os.path.join(self.path, ".git"))
+
 
 def resqui():
     args = docopt(__doc__, version=__version__)
@@ -131,6 +135,11 @@ def resqui():
     temp_dir = None
     if url is None:
         gitinspector = GitInspector()
+        if not gitinspector.is_a_git_repository:
+            print(
+                "Error: Not a Git repository. Either run resqui from within a repository or specify one with -u <url>"
+            )
+            exit(1)
     else:
         temp_dir = tempfile.mkdtemp()
         try:
@@ -151,12 +160,11 @@ def resqui():
     email = gitinspector.email
     software_version = gitinspector.version
 
+    if branch is None:
+        branch_hash_or_tag = gitinspector.current_commit_hash
+
     if temp_dir is not None:
         shutil.rmtree(temp_dir)
-
-    if branch is None:
-        gitinspector = GitInspector()
-        branch_hash_or_tag = gitinspector.current_commit_hash
 
     if github_token is not None:
         print("GitHub API token \033[92m✔\033[0m")
