@@ -1,6 +1,6 @@
 """
 Usage:
-    resqui [options]
+    resqui [options] -u <repository_url>
     resqui indicators
 
 Options:
