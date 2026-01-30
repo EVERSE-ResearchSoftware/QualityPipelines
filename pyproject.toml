@@ -35,7 +35,7 @@ dev = ["black"]
 resqui = "resqui.cli:resqui"
 
 [project.urls]
-Homepage = "https://github.com/VERSE-ResearchSoftware/QualityPipelines"
+Homepage = "https://github.com/EVERSE-ResearchSoftware/QualityPipelines"
 
 [tool.setuptools_scm]
 write_to = "src/resqui/version.py"
