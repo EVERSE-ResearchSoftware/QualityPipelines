@@ -17,6 +17,7 @@ class HowFairIs(IndicatorPlugin):
         self.executor.install(f"{self.python_package_name}=={self.version}")
 
     def has_license(self, url, branch_hash_or_tag):
+        url = url.removesuffix(".git")
         script = normalized(
             f"""
             from howfairis import Repo, Checker
