@@ -56,9 +56,8 @@ class RSFC(IndicatorPlugin):
         assessment_filename = "rsfc_assessment.json"
         assessment_fpath = os.path.join(tempdir, assessment_filename)
         if not os.path.isfile(os.path.join(tempdir, assessment_filename)):
-            raise FileNotFoundError(
-                f"Error: RSFC did not generate the expected assessment file named '{assessment_filename}'"
-            )
+            msg = f"Error: RSFC did not generate the expected assessment file named '{assessment_filename}'"
+            raise FileNotFoundError(msg)
 
         with open(assessment_fpath) as f:
             report = json.load(f)
