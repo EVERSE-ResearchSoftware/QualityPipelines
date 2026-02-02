@@ -1,6 +1,7 @@
 import json
 import tempfile
 import os
+import shutil
 
 from resqui.plugins.base import IndicatorPlugin
 from resqui.executors import DockerExecutor
@@ -42,7 +43,7 @@ class RSFC(IndicatorPlugin):
 
         tempdir = tempfile.mkdtemp()
 
-        url = url[:-4] if url.endswith(".git") else url
+        url = url.removesuffix(".git")
 
         run_args = [
             "--rm",
@@ -52,14 +53,17 @@ class RSFC(IndicatorPlugin):
 
         _ = self.executor.run(["--repo", url], run_args=run_args)
 
-        files = os.listdir(tempdir)
-        if len(files) < 1:
-            print("Error: RSFC did not generate any output files")
-            raise
+        assessment_filename = "rsfc_assessment.json"
+        assessment_fpath = os.path.join(tempdir, assessment_filename)
+        if not os.path.isfile(os.path.join(tempdir, assessment_filename)):
+            raise FileNotFoundError(
+                f"Error: RSFC did not generate the expected assessment file named '{assessment_filename}'"
+            )
 
-        report_path = os.path.join(tempdir, files[0])
-        with open(report_path) as f:
+        with open(assessment_fpath) as f:
             report = json.load(f)
+
+        shutil.rmtree(tempdir)
 
         self._cache[cache_key] = report
 
@@ -163,7 +167,6 @@ class RSFC(IndicatorPlugin):
 
     def software_has_license(self, url, branch_hash_or_tag):
         report = self.execute(url, branch_hash_or_tag)
-        print(report)
         checks = report["checks"]
         check_list = []
 
