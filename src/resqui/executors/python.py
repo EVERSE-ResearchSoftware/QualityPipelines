@@ -18,9 +18,10 @@ class PythonExecutor:
 
     """
 
-    def __init__(self, packages=None):
+    def __init__(self, packages=None, environment=None):
         """Instantiates a virtual environment in a temporary folder."""
         self.temp_dir = tempfile.mkdtemp()
+        self.environment = environment if environment is not None else {}
         venv.create(self.temp_dir, with_pip=True)
         if packages is None:
             return
@@ -56,10 +57,13 @@ class PythonExecutor:
 
     def execute(self, script):
         """Run the script in the virtual environment."""
+        env = os.environ.copy()
+        env.update(self.environment)
         return subprocess.run(
             [f"{self.temp_dir}/bin/python", "-c", script],
             capture_output=True,
             text=True,
+            env=env,
         )
 
     def __del__(self):
