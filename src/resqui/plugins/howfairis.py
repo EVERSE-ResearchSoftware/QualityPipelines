@@ -13,7 +13,9 @@ class HowFairIs(IndicatorPlugin):
 
     def __init__(self, context):
         self.context = context
-        self.executor = PythonExecutor()
+        self.executor = PythonExecutor(
+            environment={"GITHUB_ACTION_TOKEN": context.github_token}
+        )
         self.executor.install(f"{self.python_package_name}=={self.version}")
 
     def has_license(self, url, branch_hash_or_tag):
