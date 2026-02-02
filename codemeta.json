@@ -1,0 +1,120 @@
+{
+  "@context": "https://w3id.org/codemeta/3.0",
+  "@type": "SoftwareSourceCode",
+  "name": "resqui",
+  "identifier": "QualityPipelines",
+  "description": "A command line tool to check a bunch of indicators related to research software quality. Part of the EVERSE Software Quality Pipelines.",
+  "applicationCategory": "Software Quality Assessment",
+  "keywords": [
+    "research software",
+    "software quality",
+    "quality indicators",
+    "quality assessment",
+    "FAIR software",
+    "EVERSE",
+    "continuous integration",
+    "GitHub Actions"
+  ],
+  "url": "https://github.com/EVERSE-ResearchSoftware/QualityPipelines",
+  "codeRepository": "https://github.com/EVERSE-ResearchSoftware/QualityPipelines",
+  "issueTracker": "https://github.com/EVERSE-ResearchSoftware/QualityPipelines/issues",
+  "license": "https://spdx.org/licenses/MIT",
+  "version": "0.1.3",
+  "programmingLanguage": [
+    {
+      "@type": "ComputerLanguage",
+      "name": "Python",
+      "url": "https://www.python.org/"
+    }
+  ],
+  "runtimePlatform": [
+    "Python 3.x"
+  ],
+  "operatingSystem": [
+    "Linux",
+    "macOS",
+    "Windows"
+  ],
+  "softwareRequirements": [
+    "Python >= 3.9"
+  ],
+  "author": [
+    {
+      "@type": "Person",
+      "givenName": "Tamas",
+      "familyName": "Gal",
+      "email": "tamas.gal@fau.de",
+      "affiliation": {
+        "@type": "Organization",
+        "name": "Erlangen Centre for Astroparticle Physics"
+      }
+    }
+  ],
+  "maintainer": [
+    {
+      "@type": "Person",
+      "givenName": "Tamas",
+      "familyName": "Gal",
+      "email": "tamas.gal@fau.de"
+    }
+  ],
+  "contributor": [
+    {
+      "@type": "Organization",
+      "name": "EVERSE-ResearchSoftware"
+    }
+  ],
+  "funder": {
+    "@type": "Organization",
+    "name": "European Commission",
+    "identifier": "https://cordis.europa.eu/project/id/101129744"
+  },
+  "funding": "HORIZON-INFRA-2023-EOSC-01-02",
+  "developmentStatus": "active",
+  "isPartOf": {
+    "@type": "Project",
+    "name": "EVERSE",
+    "description": "European Virtual Institute for Research Software Excellence",
+    "url": "https://everse.software/"
+  },
+  "relatedLink": [
+    "https://everse.software/indicators/",
+    "https://w3id.org/everse/i/indicators/",
+    "https://everse.software/RSQKit/"
+  ],
+  "readme": "https://github.com/EVERSE-ResearchSoftware/QualityPipelines/blob/main/README.md",
+  "softwareHelp": "https://github.com/EVERSE-ResearchSoftware/QualityPipelines/blob/main/README.md",
+  "buildInstructions": "https://github.com/EVERSE-ResearchSoftware/QualityPipelines/blob/main/README.md#installation",
+  "softwareSuggestions": [
+    "docker",
+    "git"
+  ],
+  "targetProduct": [
+    {
+      "@type": "CommandLineApplication",
+      "name": "resqui",
+      "description": "Command line tool for research software quality assessment"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "resqui GitHub Action",
+      "description": "GitHub Action for automated quality checks",
+      "applicationCategory": "Continuous Integration"
+    }
+  ],
+  "hasFeature": [
+    "Software quality indicator checking",
+    "License detection",
+    "Citation file validation",
+    "Configurable indicator plugins",
+    "JSON output format",
+    "GitHub API integration",
+    "Docker executor support",
+    "Python virtual environment execution",
+    "GitHub Actions workflow",
+    "DashVerse integration for publishing results"
+  ],
+  "dateCreated": "2024",
+  "dateModified": "2026",
+  "contIntegration": "https://github.com/EVERSE-ResearchSoftware/QualityPipelines/actions"
+}
