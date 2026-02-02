@@ -5,9 +5,9 @@ title: resqui
 authors:
   - family-names: Gal
     given-names: Tamas
-    orcid: https://orcid.org/https://orcid.org/0000-0001-7821-8673
+    orcid: https://orcid.org/0000-0001-7821-8673
     affiliation: "Erlangen Centre for Astroparticle Physics, Friedrich-Alexander-Universität Erlangen-Nürnberg"
-  - EVERSE
+  - name: "EVERSE"
 repository-code: https://github.com/EVERSE-ResearchSoftware/QualityPipelines
 url: https://github.com/EVERSE-ResearchSoftware/QualityPipelines
 abstract: A tool to check indicators related to research software quality.
