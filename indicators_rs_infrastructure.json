@@ -5,7 +5,6 @@
       { "name": "software_has_citation", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/software_has_citation" },
       { "name": "has_ci_tests", "plugin": "OpenSSFScorecard", "@id": "https://w3id.org/everse/i/indicators/software_has_ci-tests" },
       { "name": "software_has_license", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/software_has_license" },
-      { "name": "has_no_linting_issues", "plugin": "SuperLinter", "@id": "https://w3id.org/everse/i/indicators/has_no_linting_issues" },
       { "name": "has_published_package", "plugin": "OpenSSFScorecard", "@id": "https://w3id.org/everse/i/indicators/has_published_package" },
       { "name": "has_releases", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/has_releases" },
       { "name": "repository_workflows", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/repository_workflows" },
