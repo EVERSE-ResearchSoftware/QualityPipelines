@@ -160,8 +160,7 @@ def resqui():
     email = gitinspector.email
     software_version = gitinspector.version
 
-    if branch is None:
-        branch_hash_or_tag = gitinspector.current_commit_hash
+    branch_hash_or_tag = gitinspector.current_commit_hash if branch is None else branch
 
     if temp_dir is not None:
         shutil.rmtree(temp_dir)
