@@ -14,5 +14,4 @@ jobs:
       - name: Run resqui action
         uses: ./
         with:
-          url: "https://github.com/EVERSE-ResearchSoftware/QualityPipelines"
           config: "configurations/basic.json"
