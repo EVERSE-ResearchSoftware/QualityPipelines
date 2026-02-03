@@ -22,14 +22,15 @@ Usage:
     resqui indicators
 
 Options:
-    -u <repository_url>  URL of the repository to be analyzed.
-    -c <config_file>     Path to the configuration file.
-    -o <output_file>     Path to the output file [default: resqui_summary.json].
-    -t <github_token>    GitHub API token.
-    -b <branch>          The Git branch to be checked.
-    -v                   Verbose output.
-    --version            Show the version of the script.
-    --help               Show this help message.
+    -u <repository_url>   URL of the repository to be analyzed.
+    -c <config_file>      Path to the configuration file.
+    -o <output_file>      Path to the output file [default: resqui_summary.json].
+    -t <github_token>     GitHub API token.
+    -d <dashverse_token>  DashVerse API token.
+    -b <branch>           The Git branch to be checked.
+    -v                    Verbose output.
+    --version             Show the version of the script.
+    --help                Show this help message.
 ```
 
 ### Configuration file (optional)
@@ -56,7 +57,8 @@ with the content below. It also needs a new **environment** called **resqui** in
 your GitHub repository settings under
 `https://github.com/USER_OR_GROUP/PROJECT/settings/environments` with a secret
 environment variable named `DASHVERSE_TOKEN` which is needed for publishing the
-pipeline results to the DashVerse instance.
+pipeline results to the DashVerse instance. Alternatively, the `-d <dashverse_token>`
+can be used to pass the token to the command line tool.
 
 Note: the CI action will be triggered on each "push". Make sure to **Allow all
 actions and reusable workflows** in the repository settings under
@@ -104,19 +106,22 @@ When running `resqui` as a GitHub action, the automatically generated token from
 job will be used.
 
 ```
-$ resqui -c example.json -t $RESQUI_GITHUB_TOKEN
+$ resqui -c configurations/basic.json -v -t $RESQUI_GITHUB_TOKEN -d $DASHVERSE_TOKEN
+Loading configuration from 'configurations/basic.json'.
 GitHub API token ✔
 Repository URL: https://github.com/EVERSE-ResearchSoftware/QualityPipelines.git
 Project name: QualityPipelines
 Author: Tamas Gal
 Email: himself@tamasgal.com
-Version: v0.1.0-95-gc1dacb1
-Branch, tag or commit hash: c1dacb1197005e9bce20063b2215bdfd7f9939d9
+Version: v0.1.6
+Branch, tag or commit hash: dea5fe13df68e0f4541c4425823752f4b33f4b7e
 Checking indicators ...
-    has_license/HowFairIs (1.2s): ✖
-    has_citation/CFFConvert (1.0s): ✖
+  has_license/HowFairIs (0.9s):
+    Found license file: 'LICENSE'.✔
+  has_citation/CFFConvert (0.3s):
+    Found valid CITATION.cff file in repository root.✔
 Summary has been written to resqui_summary.json
-Publishing summary  ✔
+Publishing summary ✔
 ```
 
 ### Output File
@@ -127,9 +132,15 @@ The current output format is a `JSON`, based on the Schema presented here: https
 {
     "@context": "https://w3id.org/everse/rsqa/0.0.1/",
     "@type": "SoftwareQualityAssessment",
-    "dateCreated": "2025-07-16 09:17:34.280112",
-    "license": {
-        "@id": "https://creativecommons.org/publicdomain/zero/1.0/"
+    "assessedSoftware": {
+        "@type": "SoftwareApplication",
+        "name": "QualityPipelines",
+        "softwareVersion": "v0.1.6",
+        "url": "https://github.com/EVERSE-ResearchSoftware/QualityPipelines.git"
+    },
+    "author": {
+        "@type": "Person",
+        "name": "Quality Pipeline"
     },
     "checks": [
         {
@@ -138,17 +149,15 @@ The current output format is a `JSON`, based on the Schema presented here: https
                 "@id": "https://w3id.org/everse/i/indicators/license"
             },
             "checkingSoftware": {
-                "@type": "schema:SoftwareApplication",
                 "name": "HowFairIs",
-                "@id": "https://w3id.org/everse/tools/howfairis",
-                "softwareVersion": "0.14.2"
+                "version": "0.14.2"
             },
+            "evidence": "Found license file: 'LICENSE'.",
+            "output": "valid",
             "process": "Searches for a file named 'LICENSE' or 'LICENSE.md' in the repository root.",
             "status": {
                 "@id": "schema:CompletedActionStatus"
-            },
-            "output": "valid",
-            "evidence": "Found license file: 'LICENSE'."
+            }
         },
         {
             "@type": "CheckResult",
@@ -156,21 +165,22 @@ The current output format is a `JSON`, based on the Schema presented here: https
                 "@id": "https://w3id.org/everse/i/indicators/citation"
             },
             "checkingSoftware": {
-                "@type": "schema:SoftwareApplication",
                 "name": "CFFConvert",
-                "@id": "https://w3id.org/everse/tools/cffconvert",
-                "softwareVersion": "2.0.0"
+                "version": "2.0.0"
             },
+            "evidence": "Found valid CITATION.cff file in repository root.",
+            "output": "valid",
             "process": "Searches for a 'CITATION.cff' file in the repository root and validates its syntax.",
             "status": {
                 "@id": "schema:CompletedActionStatus"
-            },
-            "output": "invalid",
-            "evidence": "No valid CITATION.cff file found in repository root."
+            }
         }
-    ]
+    ],
+    "dateCreated": "2026-02-03 11:12:54.980348",
+    "license": "CC0-1.0"
 }
 ```
+
 ## Indicator Plugins
 
 An indicator plugin is represented by a subclass of
