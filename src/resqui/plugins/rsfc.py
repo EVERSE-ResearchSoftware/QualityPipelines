@@ -11,11 +11,8 @@ from resqui.core import CheckResult
 class RSFC(IndicatorPlugin):
     name = "RSFC"
     id = "https://w3id.org/everse/tools/rsfc"
-    # TODO: change back once https://github.com/oeg-upm/rsfc/issues/66 is fixed
-    # version = "0.1.0"
-    # image_url = f"docker.io/amonterodx/rsfc:{version}"
-    version = "v0.1.1-155198"
-    image_url = f"docker.io/tamasgal/rsfc:{version}"
+    version = "0.1.1"
+    image_url = f"docker.io/amonterodx/rsfc:{version}"
     indicators = [
         "persistent_and_unique_identifier",
         "requirements_specified",
