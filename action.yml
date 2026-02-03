@@ -2,7 +2,7 @@ name: 'Run resqui'
 description: 'Installs resqui from GitHub and runs it with an optional config file.'
 inputs:
   config:
-    description: 'Path to the configuration file (e.g., example.json)'
+    description: 'Path to the configuration file (e.g., configurations/basic.json)'
     required: false
   github_token:
     description: 'GitHub token required for some indicator plugins.'

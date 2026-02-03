@@ -13,7 +13,7 @@ test:
 	python3 run_tests.py
 
 example:
-	resqui -c example.json
+	resqui -c configurations/basic.json
 
 black:
 	black src/$(PKGNAME)
