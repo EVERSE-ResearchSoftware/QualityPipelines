@@ -12,6 +12,7 @@ class Context:
     """A basic context to hold"""
 
     github_token: Optional[str] = None
+    dashverse_token: Optional[str] = None
 
 
 @dataclass
@@ -92,6 +93,6 @@ class Summary:
         with open(filename, "w") as f:
             f.write(self.to_json())
 
-    def upload(self):
-        api = APIClient()
+    def upload(self, dashverse_token=None):
+        api = APIClient(dashverse_token)
         api.post(self.to_json())

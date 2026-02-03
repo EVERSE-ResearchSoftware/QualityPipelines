@@ -4,14 +4,15 @@ Usage:
     resqui indicators
 
 Options:
-    -u <repository_url>  URL of the repository to be analyzed.
-    -c <config_file>     Path to the configuration file.
-    -o <output_file>     Path to the output file [default: resqui_summary.json].
-    -t <github_token>    GitHub API token.
-    -b <branch>          The Git branch to be checked.
-    -v                   Verbose output.
-    --version            Show the version of the script.
-    --help               Show this help message.
+    -u <repository_url>   URL of the repository to be analyzed.
+    -c <config_file>      Path to the configuration file.
+    -o <output_file>      Path to the output file [default: resqui_summary.json].
+    -t <github_token>     GitHub API token.
+    -d <dashverse_token>  DashVerse API token.
+    -b <branch>           The Git branch to be checked.
+    -v                    Verbose output.
+    --version             Show the version of the script.
+    --help                Show this help message.
 """
 
 import itertools
@@ -130,6 +131,7 @@ def resqui():
     url = args["-u"]
     branch = args["-b"]
     github_token = args["-t"]
+    dashverse_token = args["-d"]
     verbose = args["-v"]
 
     temp_dir = None
@@ -170,7 +172,7 @@ def resqui():
     else:
         print("GitHub API token \033[91m✖\033[0m")
 
-    context = Context(github_token=github_token)
+    context = Context(github_token=github_token, dashverse_token=dashverse_token)
 
     print(f"Repository URL: {url}")
     print(f"Project name: {project_name}")
@@ -222,7 +224,7 @@ def resqui():
     print("Publishing summary ", end="")
     sys.stdout.flush()
     try:
-        summary.upload()
+        summary.upload(context.dashverse_token)
     except (RuntimeError, ValueError) as e:
         print(f"\033[91m✖\033[0m {e}")
     else:
