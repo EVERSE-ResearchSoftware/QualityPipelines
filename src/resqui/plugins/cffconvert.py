@@ -38,7 +38,7 @@ class CFFConvert(IndicatorPlugin):
 
         return CheckResult(
             process="Searches for a 'CITATION.cff' file in the repository root and validates its syntax.",
-            status_id="schema:CompletedActionStatus",
+            status_id="Pass" if success else "Fail",
             output=output,
             evidence=evidence,
             success=success,

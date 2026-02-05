@@ -37,8 +37,6 @@ class SuperLinter(IndicatorPlugin):
             raise
 
         run_args = [
-            #            "-e",
-            #            "LOG_LEVEL=DEBUG",
             "-e",
             "RUN_LOCAL=true",
             "-e",
@@ -60,15 +58,9 @@ class SuperLinter(IndicatorPlugin):
             evidence = "No linting errors have been detected."
             success = True
 
-        # print("STDOUT")
-        # print(p.stdout)
-        # print()
-        # print("STDERR")
-        # print(p.stderr)
-
         return CheckResult(
             process="Searches for linting errors.",
-            status_id="schema:CompletedActionStatus",
+            status_id="Pass" if success else "Fail",
             output=output,
             evidence=evidence,
             success=success,

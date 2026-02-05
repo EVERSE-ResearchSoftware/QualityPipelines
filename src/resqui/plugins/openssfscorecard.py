@@ -48,9 +48,6 @@ class OpenSSFScorecard(IndicatorPlugin):
             f"gcr.io/openssf/scorecard:{self.version}",
             "--repo",
             url,
-            # TODO: commit hash is not used currently
-            # "--commit",
-            # commit_hash,
             "--format",
             "json",
         ]
@@ -95,7 +92,7 @@ class OpenSSFScorecard(IndicatorPlugin):
 
         return CheckResult(
             process="Calculates the CI-Tests score.",
-            status_id="schema:CompletedActionStatus",
+            status_id="Pass" if success else "Fail",
             output=output,
             evidence=evidence,
             success=success,
@@ -116,7 +113,7 @@ class OpenSSFScorecard(IndicatorPlugin):
 
         return CheckResult(
             process="Calculates the Code-Review score.",
-            status_id="schema:CompletedActionStatus",
+            status_id="Pass" if success else "Fail",
             output=output,
             evidence=evidence,
             success=success,
@@ -137,7 +134,7 @@ class OpenSSFScorecard(IndicatorPlugin):
 
         return CheckResult(
             process="Calculates the Packaging score.",
-            status_id="schema:CompletedActionStatus",
+            status_id="Pass" if success else "Fail",
             output=output,
             evidence=evidence,
             success=success,

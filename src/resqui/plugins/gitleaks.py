@@ -56,7 +56,7 @@ class Gitleaks(IndicatorPlugin):
 
         return CheckResult(
             process="Searches for security leaks in the full repository history.",
-            status_id="schema:CompletedActionStatus",
+            status_id="Pass" if success else "Fail",
             output=output,
             evidence=evidence,
             success=success,

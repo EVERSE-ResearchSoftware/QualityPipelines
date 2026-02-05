@@ -39,7 +39,7 @@ class HowFairIs(IndicatorPlugin):
 
         return CheckResult(
             process="Searches for a file named 'LICENSE' or 'LICENSE.md' in the repository root.",
-            status_id="schema:CompletedActionStatus",
+            status_id="Pass" if success else "Fail",
             output=output,
             evidence=evidence,
             success=success,
