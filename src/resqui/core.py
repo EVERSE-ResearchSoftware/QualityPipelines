@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from datetime import datetime
+from datetime import datetime, timezone
 from dataclasses import dataclass
 from typing import Optional
 import json
@@ -74,7 +74,7 @@ class Summary:
             {
                 "@context": "https://w3id.org/everse/rsqa/0.0.1/",
                 "@type": "SoftwareQualityAssessment",
-                "dateCreated": str(datetime.now()),
+                "dateCreated": datetime.now(timezone.utc).isoformat(),
                 "license": "CC0-1.0",
                 "author": {"@type": "Person", "name": "Quality Pipeline"},
                 "assessedSoftware": {
