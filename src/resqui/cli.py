@@ -28,7 +28,7 @@ import tempfile
 from resqui.core import Context, Summary
 from resqui.config import Configuration
 from resqui.tools import indented, to_https, project_name_from_url, ensure_list
-from resqui.plugins import IndicatorPlugin
+from resqui.plugins import IndicatorPlugin, PluginInitError
 from resqui.docopt import docopt
 from resqui.version import __version__
 
@@ -200,7 +200,11 @@ def resqui():
             plugin_module = importlib.import_module(base_package + ".plugins")
             plugin_class = getattr(plugin_module, plugin_class_name)
             with Spinner(print_time=False):
-                plugin_instances[plugin_class_name] = plugin_class(context)
+                try:
+                    plugin_instances[plugin_class_name] = plugin_class(context)
+                except PluginInitError as e:
+                    print(f"⚠️  {e} (skipping its indicators)")
+                    continue
 
         plugin_instance = plugin_instances[plugin_class_name]
         plugin_method = indicator["name"]

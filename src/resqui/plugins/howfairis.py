@@ -1,4 +1,4 @@
-from resqui.plugins.base import IndicatorPlugin
+from resqui.plugins.base import IndicatorPlugin, PluginInitError
 from resqui.executors import PythonExecutor
 from resqui.core import CheckResult
 from resqui.tools import normalized
@@ -13,6 +13,8 @@ class HowFairIs(IndicatorPlugin):
 
     def __init__(self, context):
         self.context = context
+        if not context.github_token:
+            raise PluginInitError("missing GITHUB_ACTION_TOKEN")
         self.executor = PythonExecutor(
             environment={"GITHUB_ACTION_TOKEN": context.github_token}
         )

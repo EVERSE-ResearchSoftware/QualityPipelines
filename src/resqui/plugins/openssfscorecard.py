@@ -1,7 +1,7 @@
 import json
 import subprocess
 
-from resqui.plugins.base import IndicatorPlugin
+from resqui.plugins.base import IndicatorPlugin, PluginInitError
 from resqui.core import CheckResult
 
 
@@ -17,6 +17,8 @@ class OpenSSFScorecard(IndicatorPlugin):
 
     def __init__(self, context):
         self.context = context
+        if not context.github_token:
+            raise PluginInitError("missing GITHUB_ACTION_TOKEN")
         self.instantiate()
         self._cache = {}
 
