@@ -3,6 +3,12 @@
 A command line tool to check a bunch of indicators related to research software
 quality.
 
+## Requirements
+
+The `resqui` tool itself only requires **Python 3.9+**. The indicator plugins
+will be executed in either a Docker container or a Python sandbox, which means
+that **Docker** or newer versions of Python might be required as well.
+
 ## Installation
 
 Preferably inside a Python virtual environment:
