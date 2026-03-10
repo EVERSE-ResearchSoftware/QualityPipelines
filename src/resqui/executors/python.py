@@ -5,6 +5,7 @@ import shutil
 import subprocess
 
 from resqui.tools import normalized
+from resqui.executors.base import ExecutorInitError
 
 
 class PythonExecutor:
@@ -22,11 +23,14 @@ class PythonExecutor:
         """Instantiates a virtual environment in a temporary folder."""
         self.temp_dir = tempfile.mkdtemp()
         self.environment = environment if environment is not None else {}
-        venv.create(self.temp_dir, with_pip=True)
-        if packages is None:
-            return
-        for package in packages:
-            self.install(package)
+        try:
+            venv.create(self.temp_dir, with_pip=True)
+            if packages is None:
+                return
+            for package in packages:
+                self.install(package)
+        except (FileNotFoundError, subprocess.CalledProcessError) as e:
+            raise ExecutorInitError(f"failed to initialise Python executor: {e}")
 
     def install(self, package):
         try:
@@ -36,9 +40,8 @@ class PythonExecutor:
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
             )
-        except subprocess.CalledProcessError as e:
-            print(f"Error installing {package} with pip: {e}")
-            raise
+        except (FileNotFoundError, subprocess.CalledProcessError) as e:
+            raise ExecutorInitError(f"failed to initialise Python executor: {e}")
 
     def is_installed(self, package_name, version=None):
         out = self.execute(

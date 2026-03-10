@@ -1,4 +1,5 @@
 import subprocess
+from resqui.executors.base import ExecutorInitError
 
 
 class DockerExecutor:
@@ -8,16 +9,18 @@ class DockerExecutor:
         self.url = image_url
         if pull_args is None:
             pull_args = []
+        command = ["docker", "pull"] + pull_args + [self.url]
         try:
             subprocess.run(
-                ["docker", "pull"] + pull_args + [self.url],
+                command,
                 check=True,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
             )
-        except subprocess.CalledProcessError as e:
-            print(f"Error pulling the Docker image from {self.url}: {e}")
-            raise
+        except subprocess.CalledProcessError:
+            raise ExecutorInitError(
+                f"failed to initialise Docker executor: '{' '.join(command)}'"
+            )
 
     def run(self, command, run_args=None):
         """
