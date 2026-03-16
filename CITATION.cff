@@ -8,10 +8,6 @@ authors:
     given-names: Tamas
     orcid: https://orcid.org/0000-0001-7821-8673
     affiliation: "Erlangen Centre for Astroparticle Physics, Friedrich-Alexander-Universität Erlangen-Nürnberg"
-  - family-names: Vuillaume
-    given-names: Thomas
-    orcid: https://orcid.org/0000-0002-5686-2078
-    affiliation: "LAPP, Université Savoie Mont-Blanc, CNRS"
 repository-code: https://github.com/EVERSE-ResearchSoftware/QualityPipelines
 url: https://github.com/EVERSE-ResearchSoftware/QualityPipelines
 abstract: A tool to check indicators related to research software quality.
