@@ -14,6 +14,12 @@ that **Docker** or newer versions of Python might be required as well.
 Preferably inside a Python virtual environment:
 
 ```
+pip install resqui
+```
+
+Alternatively, install from source (development or latest unreleased changes):
+
+```
 git clone https://github.com/EVERSE-ResearchSoftware/QualityPipelines.git
 cd QualityPipelines
 pip install .
