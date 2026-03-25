@@ -47,10 +47,11 @@ Options:
 
 ### Configuration file (optional)
 
-The preliminary configuration file format is JSON and consists a list
+The configuration file format is JSON and consists of a list
 of indicators and the plugins to be used. The `name` field matches the
 actual method of the class named `plugin`. If no configuration file is
-provided, a default set of indicators will be used.
+provided, a default set of indicators will be used from `configurations/example.json`.
+There are further configurations stored in the `configurations` folder, currently [one per software tier](https://everse.software/RSQKit/three_tier_view).
 
 ```json
 {
@@ -109,7 +110,7 @@ jobs:
 
 ### Command line tool: `resqui`
 
-The `resqui` command line tool can be used to generate and publish a report.
+The `resqui` command line tool can be used to generate and publish a report. If no repository is parsed, the tool runs on the current directory.
 Some indicator plugins require a GitHub API access token, which can be passed via `-t`.
 A personal access token is can be generated on the GitHub
 website: https://github.com/settings/personal-access-tokens
@@ -118,7 +119,7 @@ When running `resqui` as a GitHub action, the automatically generated token from
 job will be used.
 
 ```
-$ resqui -c configurations/basic.json -v -t $RESQUI_GITHUB_TOKEN -d $DASHVERSE_TOKEN
+$ resqui -u https://github.com/EVERSE-ResearchSoftware/QualityPipelines.git -c configurations/basic.json -v -t $RESQUI_GITHUB_TOKEN -d $DASHVERSE_TOKEN
 Loading configuration from 'configurations/basic.json'.
 GitHub API token ✔
 Repository URL: https://github.com/EVERSE-ResearchSoftware/QualityPipelines.git
@@ -139,6 +140,8 @@ Publishing summary ✔
 ### Output File
 
 The current output format is a `JSON`, based on the Schema presented here: https://github.com/EVERSE-ResearchSoftware/schemas/blob/main/assessment/dev/example.json
+
+The output file is locally stored in `./resqui_summary.json`.
 
 ```json
 {
@@ -193,7 +196,8 @@ The current output format is a `JSON`, based on the Schema presented here: https
 }
 ```
 
-## Indicator Plugins
+## Developer Information
+###Indicator Plugins
 
 An indicator plugin is represented by a subclass of
 `resqui.plugins.IndicatorPlugin` and uses either a
@@ -205,7 +209,7 @@ there is no other inheritence magic behind that.
 Each indicator is implemented as a member function with the same name (e.g. `has_license`).
 The method should return an instance of `CheckResult` or a list of those.
 
-### Mandatory Attributes
+#### Mandatory Attributes
 
 Each indicator plugin should define a set of class attributes:
 
@@ -214,16 +218,16 @@ Each indicator plugin should define a set of class attributes:
 - `id`: URL of the tool description on w3id.org
 - `indicators`: a list of indicators, matching the actual method names
 
-### Executors
+#### Executors
 
-#### `PythonExecutor`
+##### `PythonExecutor`
 
 The Python executor manages a virtual environment and installs the required
 packages via `pip`. A script can be passed to `.execute()` which returns the
 result as an instance of `subprocess.CompletedProcess` that is executed inside
 the virtual environment.
 
-#### `DockerExecutor`
+##### `DockerExecutor`
 
 The Docker executor pulls the required image and allows to run scripts inside a
 container spawned from that very image. The command is passed to `.run()` with
