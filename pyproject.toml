@@ -30,6 +30,7 @@ dynamic = ["version"]
 
 [project.optional-dependencies]
 dev = ["black"]
+docs = ["mkdocs", "mkdocstrings[python]"]
 
 [project.scripts]
 resqui = "resqui.cli:resqui"
