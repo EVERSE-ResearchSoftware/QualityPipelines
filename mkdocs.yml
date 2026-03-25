@@ -1,0 +1,35 @@
+site_name: resqui
+site_description: EVERSE Research Software Quality Indicators
+site_url: https://everse-researchsoftware.github.io/QualityPipelines
+repo_url: https://github.com/EVERSE-ResearchSoftware/QualityPipelines
+repo_name: EVERSE-ResearchSoftware/QualityPipelines
+
+theme:
+  name: readthedocs
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            show_source: true
+            show_root_heading: true
+            docstring_style: google
+
+nav:
+  - Home: index.md
+  - Tutorials:
+    - Your First Assessment: tutorials/first-assessment.md
+  - How-to Guides:
+    - Write a Custom Configuration: how-to/custom-configuration.md
+    - Add an Indicator Plugin: how-to/add-a-plugin.md
+    - Integrate in GitHub Actions: how-to/ci-integration.md
+  - Reference:
+    - CLI: reference/cli.md
+    - Configuration Format: reference/configuration.md
+    - API: reference/api.md
+  - Explanation:
+    - Architecture: explanation/architecture.md
+    - Indicators: explanation/indicators.md
