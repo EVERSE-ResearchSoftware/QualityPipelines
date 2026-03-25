@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: resqui usage and configuration
+    url: https://github.com/EVERSE-ResearchSoftware/QualityPipelines/blob/main/README.md
+    about: Check the CLI options, configuration file format, output schema, and example commands before opening an issue.
+  - name: GitHub Action setup
+    url: https://github.com/EVERSE-ResearchSoftware/QualityPipelines/blob/main/README.md#github-action
+    about: Use this if your question is about wiring the action into .github/workflows/ or providing DASHVERSE_TOKEN and GITHUB_TOKEN.
