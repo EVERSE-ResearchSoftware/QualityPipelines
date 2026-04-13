@@ -12,6 +12,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run resqui action
-        uses: ./
+        uses: EVERSE-ResearchSoftware/resqui-github-action@main
         with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           config: "configurations/basic.json"
