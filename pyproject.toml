@@ -35,6 +35,7 @@ docs = ["mkdocs", "mkdocstrings[python]"]
 [tool.coverage.run]
 source = ["src/resqui"]
 branch = true
+omit = ["src/resqui/docopt.py"]
 
 [tool.coverage.report]
 show_missing = true
