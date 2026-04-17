@@ -11,7 +11,7 @@ from resqui.core import CheckResult
 class RSFC(IndicatorPlugin):
     name = "RSFC"
     id = "https://w3id.org/everse/tools/rsfc"
-    version = "0.1.1"
+    version = "0.1.5"
     image_url = f"docker.io/amonterodx/rsfc:{version}"
     indicators = [
         "persistent_and_unique_identifier",
@@ -26,6 +26,7 @@ class RSFC(IndicatorPlugin):
         "software_has_tests",
         "repository_workflows",
         "archived_in_software_heritage",
+        "has_contribution_guidelines"
     ]
 
     def __init__(self, context):
@@ -336,6 +337,30 @@ class RSFC(IndicatorPlugin):
 
         for check in checks:
             if "archived_in_software_heritage" in check["assessesIndicator"]["@id"]:
+                if check["output"] == "true":
+                    success = True
+                else:
+                    success = False
+
+                check_res = CheckResult(
+                    process=check["process"],
+                    status_id=check["status"]["@id"],
+                    output=check["output"],
+                    evidence=check["evidence"],
+                    success=success,
+                )
+
+                check_list.append(check_res)
+
+        return check_list
+    
+    def has_contribution_guidelines(self, url, branch_hash_or_tag):
+        report = self.execute(url, branch_hash_or_tag)
+        checks = report["checks"]
+        check_list = []
+
+        for check in checks:
+            if "has_contribution_guidelines" in check["assessesIndicator"]["@id"]:
                 if check["output"] == "true":
                     success = True
                 else:
