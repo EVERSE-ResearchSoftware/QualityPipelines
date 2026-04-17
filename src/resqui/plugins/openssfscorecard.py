@@ -144,3 +144,103 @@ class OpenSSFScorecard(IndicatorPlugin):
             evidence=evidence,
             success=success,
         )
+
+    def project_is_active(self, url, branch_hash_or_tag):
+        results = self.execute(url, branch_hash_or_tag)
+        score = self.get_score(results, "Maintained")
+        if score >= 5:
+            output = "true"
+            evidence = f"Maintained score is 5 or higher ({score})."
+            success = True
+        else:
+            output = "false"
+            evidence = f"Maintained score is less than 5 ({score})."
+            success = False
+
+        return CheckResult(
+            process="Calculates the Maintained score.",
+            status_id="schema:CompletedActionStatus",
+            output=output,
+            evidence=evidence,
+            success=success,
+        )
+        
+    def static_analysis_common_vulnerabilities(self, url, branch_hash_or_tag):
+        results = self.execute(url, branch_hash_or_tag)
+        score = self.get_score(results, "SAST")
+        if score >= 5:
+            output = "true"
+            evidence = f"SAST score is 5 or higher ({score})."
+            success = True
+        else:
+            output = "false"
+            evidence = f"SAST score is less than 5 ({score})."
+            success = False
+
+        return CheckResult(
+            process="Calculates the SAST score.",
+            status_id="schema:CompletedActionStatus",
+            output=output,
+            evidence=evidence,
+            success=success,
+        )
+        
+    def dependency_management(self, url, branch_hash_or_tag):
+        results = self.execute(url, branch_hash_or_tag)
+        score = self.get_score(results, "Dependency-Update-Tool")
+        if score >= 5:
+            output = "true"
+            evidence = f"Dependency-Update-Tool score is 5 or higher ({score})."
+            success = True
+        else:
+            output = "false"
+            evidence = f"Dependency-Update-Tool score is less than 5 ({score})."
+            success = False
+
+        return CheckResult(
+            process="Calculates the Dependency-Update-Tool score.",
+            status_id="schema:CompletedActionStatus",
+            output=output,
+            evidence=evidence,
+            success=success,
+        )
+        
+    def no_critical_vulnerability(self, url, branch_hash_or_tag):
+        results = self.execute(url, branch_hash_or_tag)
+        score = self.get_score(results, "Vulnerabilities")
+        if score >= 5:
+            output = "true"
+            evidence = f"Vulnerabilities score is 5 or higher ({score})."
+            success = True
+        else:
+            output = "false"
+            evidence = f"Vulnerabilities score is less than 5 ({score})."
+            success = False
+
+        return CheckResult(
+            process="Calculates the Vulnerabilities score.",
+            status_id="schema:CompletedActionStatus",
+            output=output,
+            evidence=evidence,
+            success=success,
+        )
+        
+    def uses_fuzzing(self, url, branch_hash_or_tag):
+        results = self.execute(url, branch_hash_or_tag)
+        score = self.get_score(results, "Fuzzing")
+        if score >= 5:
+            output = "true"
+            evidence = f"Fuzzing score is 5 or higher ({score})."
+            success = True
+        else:
+            output = "false"
+            evidence = f"Fuzzing score is less than 5 ({score})."
+            success = False
+
+        return CheckResult(
+            process="Calculates the Fuzzing score.",
+            status_id="schema:CompletedActionStatus",
+            output=output,
+            evidence=evidence,
+            success=success,
+        )
