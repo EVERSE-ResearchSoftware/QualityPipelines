@@ -8,7 +8,7 @@ from resqui.core import CheckResult
 class OpenSSFScorecard(IndicatorPlugin):
     name = "OpenSSF Scorecard"
     id = "https://github.com/ossf/scorecard"
-    version = "v5.1.1"
+    version = "v5.4.0"
     indicators = [
         "has_ci_tests",
         "human_code_review_requirement",
