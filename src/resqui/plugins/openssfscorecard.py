@@ -1,6 +1,6 @@
 import json
 import subprocess
-
+from pprint import pprint
 from resqui.plugins.base import IndicatorPlugin, PluginInitError
 from resqui.core import CheckResult
 
@@ -13,6 +13,11 @@ class OpenSSFScorecard(IndicatorPlugin):
         "has_ci_tests",
         "human_code_review_requirement",
         "has_published_package",
+        "dependency_management",
+        "uses_fuzzing",
+        "no_critical_vulnerability",
+        "static_analysis_common_vulnerabilities",
+        "project_is_active"
     ]
 
     def __init__(self, context):
@@ -40,6 +45,9 @@ class OpenSSFScorecard(IndicatorPlugin):
             return self._cache[cache_key]
 
         url = url[:-4] if url.endswith(".git") else url
+        
+        check_values = ["CI-Tests", "SAST", "Maintained", "Fuzzing", "Dependency-Update-Tool", "Vulnerabilities", "Code-Review", "Packaging"]
+        check_args = [arg for check in check_values for arg in ("--checks", check)]
 
         cmd = [
             "docker",
@@ -48,6 +56,8 @@ class OpenSSFScorecard(IndicatorPlugin):
             "-e",
             f"GITHUB_AUTH_TOKEN={self.context.github_token}",
             f"gcr.io/openssf/scorecard:{self.version}",
+            *check_args,
+            "--show-details",
             "--repo",
             url,
             # TODO: commit hash is not used currently
@@ -80,23 +90,23 @@ class OpenSSFScorecard(IndicatorPlugin):
             raise ValueError("No checks found in results.")
         for check in checks:
             if check["name"] == check_name:
-                return check["score"]
+                return check
         raise ValueError(f"Check '{check_name}' not found in results.")
 
     def has_ci_tests(self, url, branch_hash_or_tag):
         results = self.execute(url, branch_hash_or_tag)
-        score = self.get_score(results, "CI-Tests")
-        if score >= 5:
+        check = self.get_score(results, "CI-Tests")
+        if check["score"] > 0:
             output = "true"
-            evidence = f"CI-Tests score is 5 or higher ({score})."
+            evidence = check["reason"]
             success = True
         else:
             output = "false"
-            evidence = f"CI-Tests score is less than 5 ({score})."
+            evidence = check["reason"]
             success = False
 
         return CheckResult(
-            process="Calculates the CI-Tests score.",
+            process="Checks if there are PRs checked by CI-Tests",
             status_id="schema:CompletedActionStatus",
             output=output,
             evidence=evidence,
@@ -105,19 +115,19 @@ class OpenSSFScorecard(IndicatorPlugin):
 
     def human_code_review_requirement(self, url, branch_hash_or_tag):
         results = self.execute(url, branch_hash_or_tag)
-        score = self.get_score(results, "Code-Review")
+        check = self.get_score(results, "Code-Review")
 
-        if score >= 5:
+        if check["score"] >= 5:
             output = "true"
-            evidence = f"Code-Review score is 5 or higher ({score})."
+            evidence = check["reason"]
             success = True
         else:
             output = "false"
-            evidence = f"Code-Review score is less than 5 ({score})."
+            evidence = check["reason"]
             success = False
 
         return CheckResult(
-            process="Calculates the Code-Review score.",
+            process="Checks if at least half of the changesets in the repository are approved",
             status_id="schema:CompletedActionStatus",
             output=output,
             evidence=evidence,
@@ -126,19 +136,19 @@ class OpenSSFScorecard(IndicatorPlugin):
 
     def has_published_package(self, url, branch_hash_or_tag):
         results = self.execute(url, branch_hash_or_tag)
-        score = self.get_score(results, "Packaging")
+        check = self.get_score(results, "Packaging")
 
-        if score >= 5:
+        if check["score"] > 0:
             output = "true"
-            evidence = f"Packaging score is 5 or higher ({score})."
+            evidence = check["details"]
             success = True
         else:
             output = "false"
-            evidence = f"Packaging score is less than 5 ({score})."
+            evidence = check["details"]
             success = False
 
         return CheckResult(
-            process="Calculates the Packaging score.",
+            process="Checks if there are workflows for package releasing (i.e PyPI)",
             status_id="schema:CompletedActionStatus",
             output=output,
             evidence=evidence,
@@ -147,18 +157,18 @@ class OpenSSFScorecard(IndicatorPlugin):
 
     def project_is_active(self, url, branch_hash_or_tag):
         results = self.execute(url, branch_hash_or_tag)
-        score = self.get_score(results, "Maintained")
-        if score >= 5:
+        check = self.get_score(results, "Maintained")
+        if check["score"] >= 3:
             output = "true"
-            evidence = f"Maintained score is 5 or higher ({score})."
+            evidence = check["reason"]
             success = True
         else:
             output = "false"
-            evidence = f"Maintained score is less than 5 ({score})."
+            evidence = check["reason"]
             success = False
 
         return CheckResult(
-            process="Calculates the Maintained score.",
+            process="Checks if there are commits and issue activity in the last 90 days",
             status_id="schema:CompletedActionStatus",
             output=output,
             evidence=evidence,
@@ -167,18 +177,18 @@ class OpenSSFScorecard(IndicatorPlugin):
         
     def static_analysis_common_vulnerabilities(self, url, branch_hash_or_tag):
         results = self.execute(url, branch_hash_or_tag)
-        score = self.get_score(results, "SAST")
-        if score >= 5:
+        check = self.get_score(results, "SAST")
+        if check["score"] > 0:
             output = "true"
-            evidence = f"SAST score is 5 or higher ({score})."
+            evidence = check["details"]
             success = True
         else:
             output = "false"
-            evidence = f"SAST score is less than 5 ({score})."
+            evidence = check["details"]
             success = False
 
         return CheckResult(
-            process="Calculates the SAST score.",
+            process="Checks if there are commits checked with a SAST tool",
             status_id="schema:CompletedActionStatus",
             output=output,
             evidence=evidence,
@@ -187,18 +197,18 @@ class OpenSSFScorecard(IndicatorPlugin):
         
     def dependency_management(self, url, branch_hash_or_tag):
         results = self.execute(url, branch_hash_or_tag)
-        score = self.get_score(results, "Dependency-Update-Tool")
-        if score >= 5:
+        check = self.get_score(results, "Dependency-Update-Tool")
+        if check["score"] > 0:
             output = "true"
-            evidence = f"Dependency-Update-Tool score is 5 or higher ({score})."
+            evidence = check["details"]
             success = True
         else:
             output = "false"
-            evidence = f"Dependency-Update-Tool score is less than 5 ({score})."
+            evidence = check["details"]
             success = False
 
         return CheckResult(
-            process="Calculates the Dependency-Update-Tool score.",
+            process="Checks if there is a dependency update tool in the repository",
             status_id="schema:CompletedActionStatus",
             output=output,
             evidence=evidence,
@@ -207,18 +217,17 @@ class OpenSSFScorecard(IndicatorPlugin):
         
     def no_critical_vulnerability(self, url, branch_hash_or_tag):
         results = self.execute(url, branch_hash_or_tag)
-        score = self.get_score(results, "Vulnerabilities")
-        if score >= 5:
+        check = self.get_score(results, "Vulnerabilities")
+        if check["score"] >= 7:
             output = "true"
-            evidence = f"Vulnerabilities score is 5 or higher ({score})."
+            evidence = check["details"]
             success = True
         else:
             output = "false"
-            evidence = f"Vulnerabilities score is less than 5 ({score})."
-            success = False
+            evidence = check["details"]
 
         return CheckResult(
-            process="Calculates the Vulnerabilities score.",
+            process="Checks if there are vulnerabilities in the repository",
             status_id="schema:CompletedActionStatus",
             output=output,
             evidence=evidence,
@@ -227,18 +236,18 @@ class OpenSSFScorecard(IndicatorPlugin):
         
     def uses_fuzzing(self, url, branch_hash_or_tag):
         results = self.execute(url, branch_hash_or_tag)
-        score = self.get_score(results, "Fuzzing")
-        if score >= 5:
+        check = self.get_score(results, "Fuzzing")
+        if check["score"] > 0:
             output = "true"
-            evidence = f"Fuzzing score is 5 or higher ({score})."
+            evidence = check["details"]
             success = True
         else:
             output = "false"
-            evidence = f"Fuzzing score is less than 5 ({score})."
+            evidence = check["details"]
             success = False
 
         return CheckResult(
-            process="Calculates the Fuzzing score.",
+            process="Checks if the project integrates fuzzing",
             status_id="schema:CompletedActionStatus",
             output=output,
             evidence=evidence,
