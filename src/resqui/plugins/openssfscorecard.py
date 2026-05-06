@@ -1,6 +1,5 @@
 import json
 import subprocess
-from pprint import pprint
 from resqui.plugins.base import IndicatorPlugin, PluginInitError
 from resqui.core import CheckResult
 
