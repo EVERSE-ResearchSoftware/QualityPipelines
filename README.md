@@ -1,236 +1,28 @@
-# resqui
+# EVERSE Software Quality Pipelines
 
-A command line tool to check a bunch of indicators related to research software
-quality.
+The EVERSE Software Quality Pipelines provide
 
-## Requirements
+1) the command line tool `resqui` to check a configurable set of software quality indicators on research software via external plugins (tools); 
+2) GitHub Action to run the pipeline on a github repository.
 
-The `resqui` tool itself only requires **Python 3.9+**. The indicator plugins
-will be executed in either a Docker container or a Python sandbox, which means
-that **Docker** or newer versions of Python might be required as well.
+## Documentation
 
-## Installation
+### Quality Pipelines
 
-Preferably inside a Python virtual environment:
+- Documentation of the quality pipelines are available at [Github Pages](https://everse.software/QualityPipelines/);
+- Documentation on the GitHub Action at [this repository](https://github.com/EVERSE-ResearchSoftware/resqui-github-action).
 
-```
-pip install resqui
-```
+### EVERSE Services
 
-Alternatively, install from source (development or latest unreleased changes):
+EVERSE provides a set of services to assess and improve the quality of research software, visit the [EVERSE homepage](https://everse.software) for more information.
 
-```
-git clone https://github.com/EVERSE-ResearchSoftware/QualityPipelines.git
-cd QualityPipelines
-pip install .
-```
+A simplified workflow to improve the software quality is: 
+Find the practices on `RSQKit` (1), get an overview on tools and services to measure and improve the quality on the `TechRadar` (2), run an assessment on your own or your groups software via resqui (3) and display the results on `DashVERSE` (4), assess and repeat from (1).
 
-## Usage
+More information the services can be found at:
 
-```
-$ resqui -h
-Usage:
-    resqui [options]
-    resqui indicators
+1) Research Software Quality Kit - [RSQKit](https://everse.software/services/rsqkit/)
+2) Technology Radar - [TechRadar](https://everse.software/services/techradar/)
+3) Quality Pipelines - `resqui` which is this project
+4) Software Quality Dashboards - [DashVERSE](https://everse.software/services/dashverse/)
 
-Options:
-    -u <repository_url>   URL of the repository to be analyzed.
-    -c <config_file>      Path to the configuration file.
-    -o <output_file>      Path to the output file [default: resqui_summary.json].
-    -t <github_token>     GitHub API token.
-    -d <dashverse_token>  DashVerse API token.
-    -b <branch>           The Git branch to be checked.
-    -v                    Verbose output.
-    --version             Show the version of the script.
-    --help                Show this help message.
-```
-
-### Configuration file (optional)
-
-The configuration file format is JSON and consists of a list
-of indicators and the plugins to be used. The `name` field matches the
-actual method of the class named `plugin`. If no configuration file is
-provided, a default set of indicators will be used from `configurations/example.json`.
-There are further configurations stored in the `configurations` folder, currently [one per software tier](https://everse.software/RSQKit/three_tier_view).
-
-```json
-{
-  "indicators": [
-	  { "name": "has_license", "plugin": "HowFairIs", "@id": "https://w3id.org/everse/i/indicators/license" },
-	  { "name": "has_citation", "plugin": "CFFConvert", "@id": "https://w3id.org/everse/i/indicators/citation" }
-  ]
-}
-```
-
-## GitHub Action
-
-**resqui** offers a GitHub action which can be installed by creating a dedicated
-configuration file in the `.github/workflows` folder, named e.g. `resqui.yml`
-with the content below. It also needs a new **environment** called **resqui** in
-your GitHub repository settings under
-`https://github.com/USER_OR_GROUP/PROJECT/settings/environments` with a secret
-environment variable named `DASHVERSE_TOKEN` which is needed for publishing the
-pipeline results to the DashVerse instance. Alternatively, the `-d <dashverse_token>`
-can be used to pass the token to the command line tool.
-
-Note: the CI action will be triggered on each "push". Make sure to **Allow all
-actions and reusable workflows** in the repository settings under
-`https://github.com/USER_OR_GROUP/PROJECT/settings/actions`.
-
-### `.github/workflows/resqui.yml` Example
-
-``` yaml
-name: Run Resqui CI
-
-on:
-  push:
-
-jobs:
-  run-resqui:
-    runs-on: ubuntu-latest
-    # make sure to match the environment's name
-    environment: resqui
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Run resqui action
-        uses: EVERSE-ResearchSoftware/QualityPipelines@main
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          dashverse_token: ${{ secrets.DASHVERSE_TOKEN }}
-          # a configuartion file is optional and can be placed at the root of the repository
-          # config: .resqui.json
-```
-
-
-
-### Command line tool: `resqui`
-
-The `resqui` command line tool can be used to generate and publish a report. If no repository is parsed, the tool runs on the current directory.
-Some indicator plugins require a GitHub API access token, which can be passed via `-t`.
-A personal access token is can be generated on the GitHub
-website: https://github.com/settings/personal-access-tokens
-Be aware that some GitHub organisations might disallow tokens with no expiration date.
-When running `resqui` as a GitHub action, the automatically generated token from the CI
-job will be used.
-
-```
-$ resqui -u https://github.com/EVERSE-ResearchSoftware/QualityPipelines.git -c configurations/basic.json -v -t $RESQUI_GITHUB_TOKEN -d $DASHVERSE_TOKEN
-Loading configuration from 'configurations/basic.json'.
-GitHub API token ✔
-Repository URL: https://github.com/EVERSE-ResearchSoftware/QualityPipelines.git
-Project name: QualityPipelines
-Author: Tamas Gal
-Email: himself@tamasgal.com
-Version: v0.1.6
-Branch, tag or commit hash: dea5fe13df68e0f4541c4425823752f4b33f4b7e
-Checking indicators ...
-  has_license/HowFairIs (0.9s):
-    Found license file: 'LICENSE'.✔
-  has_citation/CFFConvert (0.3s):
-    Found valid CITATION.cff file in repository root.✔
-Summary has been written to resqui_summary.json
-Publishing summary ✔
-```
-
-### Output File
-
-The current output format is a `JSON`, based on the Schema presented here: https://github.com/EVERSE-ResearchSoftware/schemas/blob/main/assessment/dev/example.json
-
-The output file is locally stored in `./resqui_summary.json`.
-
-```json
-{
-    "@context": "https://w3id.org/everse/rsqa/0.0.1/",
-    "@type": "SoftwareQualityAssessment",
-    "assessedSoftware": {
-        "@type": "SoftwareApplication",
-        "name": "QualityPipelines",
-        "softwareVersion": "v0.1.6",
-        "url": "https://github.com/EVERSE-ResearchSoftware/QualityPipelines.git"
-    },
-    "author": {
-        "@type": "Person",
-        "name": "Quality Pipeline"
-    },
-    "checks": [
-        {
-            "@type": "CheckResult",
-            "assessesIndicator": {
-                "@id": "https://w3id.org/everse/i/indicators/license"
-            },
-            "checkingSoftware": {
-                "name": "HowFairIs",
-                "version": "0.14.2"
-            },
-            "evidence": "Found license file: 'LICENSE'.",
-            "output": "valid",
-            "process": "Searches for a file named 'LICENSE' or 'LICENSE.md' in the repository root.",
-            "status": {
-                "@id": "schema:CompletedActionStatus"
-            }
-        },
-        {
-            "@type": "CheckResult",
-            "assessesIndicator": {
-                "@id": "https://w3id.org/everse/i/indicators/citation"
-            },
-            "checkingSoftware": {
-                "name": "CFFConvert",
-                "version": "2.0.0"
-            },
-            "evidence": "Found valid CITATION.cff file in repository root.",
-            "output": "valid",
-            "process": "Searches for a 'CITATION.cff' file in the repository root and validates its syntax.",
-            "status": {
-                "@id": "schema:CompletedActionStatus"
-            }
-        }
-    ],
-    "dateCreated": "2026-02-03 11:12:54.980348",
-    "license": "CC0-1.0"
-}
-```
-
-## Developer Information
-###Indicator Plugins
-
-An indicator plugin is represented by a subclass of
-`resqui.plugins.IndicatorPlugin` and uses either a
-`resqui.plugins.PythonExecutor` or a `resqui.plugins.DockerExecutor` to run the
-software to determine the indicator values.
-The subclassing is mainly used to identify plugins during runtime,
-there is no other inheritence magic behind that.
-
-Each indicator is implemented as a member function with the same name (e.g. `has_license`).
-The method should return an instance of `CheckResult` or a list of those.
-
-#### Mandatory Attributes
-
-Each indicator plugin should define a set of class attributes:
-
-- `name`: currently matches the class name
-- `version`: dot-separated numbers
-- `id`: URL of the tool description on w3id.org
-- `indicators`: a list of indicators, matching the actual method names
-
-#### Executors
-
-##### `PythonExecutor`
-
-The Python executor manages a virtual environment and installs the required
-packages via `pip`. A script can be passed to `.execute()` which returns the
-result as an instance of `subprocess.CompletedProcess` that is executed inside
-the virtual environment.
-
-##### `DockerExecutor`
-
-The Docker executor pulls the required image and allows to run scripts inside a
-container spawned from that very image. The command is passed to `.run()` with
-optional argments that are passed to the `docker run` command. The result is
-returned similar to the `PythonExecutor` as an instance of
-`subprocess.CompletedProcess`.
