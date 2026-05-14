@@ -9,8 +9,36 @@ The EVERSE Software Quality Pipelines provide
 
 ### Quality Pipelines
 
-- Documentation of the quality pipelines are available at [Github Pages](https://everse.software/QualityPipelines/);
-- Documentation on the GitHub Action at [this repository](https://github.com/EVERSE-ResearchSoftware/resqui-github-action).
+1) `resqui`
+`resqui` is installed - preferable within a Python virtual environment - as follows:
+
+```
+git clone https://github.com/EVERSE-ResearchSoftware/QualityPipelines.git
+cd QualityPipelines
+pip install .
+```
+and can be executed with these options:
+
+```
+$ resqui -h
+Usage:
+    resqui [options]
+    resqui indicators
+
+Options:
+    -u <repository_url>   URL of the repository to be analyzed.
+    -c <config_file>      Path to the configuration file.
+    -o <output_file>      Path to the output file [default: resqui_summary.json].
+    -t <github_token>     GitHub API token.
+    -d <dashverse_token>  DashVerse API token.
+    -b <branch>           The Git branch to be checked.
+    -v                    Verbose output.
+    --version             Show the version of the script.
+    --help                Show this help message.
+ ```
+The complete documentation of the quality pipelines are available at the project's [Github Pages](https://everse.software/QualityPipelines/);
+
+2) The GitHub Action to include in CI/CDs pipeline is available in [this repository](https://github.com/EVERSE-ResearchSoftware/resqui-github-action).
 
 ### EVERSE Services
 
