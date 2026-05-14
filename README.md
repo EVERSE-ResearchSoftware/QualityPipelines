@@ -9,8 +9,7 @@ The EVERSE Software Quality Pipelines provide
 
 ### Quality Pipelines
 
-1) `resqui`
-`resqui` is installed - preferable within a Python virtual environment - as follows:
+1) `resqui`  is installed - preferable within a Python virtual environment - as follows:
 
 ```
 git clone https://github.com/EVERSE-ResearchSoftware/QualityPipelines.git
