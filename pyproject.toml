@@ -29,8 +29,20 @@ readme = { file = "README.md", content-type = "text/markdown" }
 dynamic = ["version"]
 
 [project.optional-dependencies]
-dev = ["black"]
+dev = ["black", "coverage[toml]"]
 docs = ["mkdocs", "mkdocstrings[python]"]
+
+[tool.coverage.run]
+source = ["src/resqui"]
+branch = true
+omit = ["src/resqui/docopt.py"]
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
+
+[tool.coverage.html]
+directory = "htmlcov"
 
 [project.scripts]
 resqui = "resqui.cli:resqui"

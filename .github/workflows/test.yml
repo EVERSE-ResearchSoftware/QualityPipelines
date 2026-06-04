@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
@@ -30,8 +30,15 @@ jobs:
       - name: Install development dependencies
         run: make install-dev
 
-      - name: Run tests
-        run: make test
+      - name: Run tests with coverage
+        run: make coverage
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        if: matrix.python-version == '3.13'
+        with:
+          name: coverage-report
+          path: htmlcov/
 
       - name: Run example
         run: venv/bin/resqui -c configurations/basic.json -t ${{ secrets.GITHUB_TOKEN }}
