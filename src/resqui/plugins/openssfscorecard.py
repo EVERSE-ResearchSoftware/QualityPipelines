@@ -16,12 +16,8 @@ class OpenSSFScorecard(IndicatorPlugin):
         "uses_fuzzing",
         "no_critical_vulnerability",
         "static_analysis_common_vulnerabilities",
-<<<<<<< HEAD
         "project_is_active",
         "has_no_binary_artifacts"
-=======
-        "project_is_active"
->>>>>>> upstream/main
     ]
 
     def __init__(self, context):
@@ -50,11 +46,7 @@ class OpenSSFScorecard(IndicatorPlugin):
 
         url = url[:-4] if url.endswith(".git") else url
         
-<<<<<<< HEAD
         check_values = ["CI-Tests", "SAST", "Maintained", "Fuzzing", "Dependency-Update-Tool", "Vulnerabilities", "Code-Review", "Packaging", "Binary-Artifacts"]
-=======
-        check_values = ["CI-Tests", "SAST", "Maintained", "Fuzzing", "Dependency-Update-Tool", "Vulnerabilities", "Code-Review", "Packaging"]
->>>>>>> upstream/main
         check_args = [arg for check in check_values for arg in ("--checks", check)]
 
         cmd = [
@@ -260,7 +252,6 @@ class OpenSSFScorecard(IndicatorPlugin):
             output=output,
             evidence=evidence,
             success=success,
-<<<<<<< HEAD
         )
         
     def has_no_binary_artifacts(self, url, branch_hash_or_tag):
@@ -281,6 +272,4 @@ class OpenSSFScorecard(IndicatorPlugin):
             output=output,
             evidence=evidence,
             success=success,
-=======
->>>>>>> upstream/main
         )
