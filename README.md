@@ -1,5 +1,8 @@
 # EVERSE Software Quality Pipelines
 
+![PyPI - Version](https://img.shields.io/pypi/v/resqui)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20553350.svg)](https://doi.org/10.5281/zenodo.20553350)
+
 The EVERSE Software Quality Pipelines provide
 
 1) the command line tool `resqui` to check a configurable set of software quality indicators on research software via external plugins (tools); 
@@ -9,7 +12,15 @@ The EVERSE Software Quality Pipelines provide
 
 ### Quality Pipelines
 
-1) `resqui`  is installed - preferable within a Python virtual environment - as follows:
+1) `resqui`  can be installed - preferably within a Python virtual environment
+
+- using pip:
+
+```
+pip install resqui
+```
+
+- or from source:
 
 ```
 git clone https://github.com/EVERSE-ResearchSoftware/QualityPipelines.git
