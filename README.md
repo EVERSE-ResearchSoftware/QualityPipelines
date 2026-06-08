@@ -36,7 +36,7 @@ Usage:
     resqui indicators
 
 Options:
-    -u <repository_url>   URL of the repository to be analyzed.
+    -u <repository_url>   URL of the repository to be analyzed (Zenodo DOIs and URLs accepted)
     -c <config_file>      Path to the configuration file.
     -o <output_file>      Path to the output file [default: resqui_summary.json].
     -t <github_token>     GitHub API token.
