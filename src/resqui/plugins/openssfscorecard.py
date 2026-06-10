@@ -51,7 +51,7 @@ class OpenSSFScorecard(IndicatorPlugin):
         cmd = [
             "docker",
             "run",
-            "--rm", # added --rm argument for eliminate the docker container after its processing
+            "--rm", 
             "-e",
             f"GITHUB_AUTH_TOKEN={self.context.github_token}",
             f"gcr.io/openssf/scorecard:{self.version}",

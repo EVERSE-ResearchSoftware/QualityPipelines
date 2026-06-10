@@ -22,15 +22,7 @@ class Gitleaks(IndicatorPlugin):
     def has_no_security_leak(self, url, branch_hash_or_tag):
         report_fname = "report.json"
 
-        # Previous implementation:
-        # temp_dir = tempfile.mkdtemp()
-        # run_args = ["-v", f"{temp_dir}:/path"]
-        # p = self.executor.run(
-        #     ["git", "/path", "-r", f"/path/{report_fname}"], run_args=run_args
-        # )
 
-        # Implementacion para SQOO: el workspace puede vivir en un volumen Docker
-        # compartido para que el worker y el contenedor del plugin vean la misma ruta.
         with create_workspace(prefix="resqui-gitleaks-") as workspace:
             try:
                 subprocess.run(
@@ -46,7 +38,6 @@ class Gitleaks(IndicatorPlugin):
             plugin_path = workspace.container_path("/path")
             report_path = f"{plugin_path}/{report_fname}"
             
-            #run_args = workspace.docker_mount_args("/path")
             run_args = ["--rm", *workspace.docker_mount_args("/path")]
             
             p = self.executor.run(
