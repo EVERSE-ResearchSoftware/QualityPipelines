@@ -14,6 +14,7 @@ class Workspace:
     """Workspace visible to resqui and, optionally, Docker plugin containers."""
 
     local_path: str
+    
     shared_root: Optional[str] = None
     docker_volume: Optional[str] = None
 
