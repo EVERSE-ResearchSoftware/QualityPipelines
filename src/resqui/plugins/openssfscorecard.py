@@ -61,7 +61,7 @@ class OpenSSFScorecard(IndicatorPlugin):
             url,
             # TODO: commit hash is not used currently
             # "--commit",
-            ## commit_hash,
+            # commit_hash,
             "--format",
             "json",
         ]
