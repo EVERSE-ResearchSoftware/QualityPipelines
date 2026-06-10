@@ -1,5 +1,6 @@
 import os
 import shutil
+from typing import Optional
 import tempfile
 from dataclasses import dataclass
 
@@ -13,8 +14,8 @@ class Workspace:
     """Workspace visible to resqui and, optionally, Docker plugin containers."""
 
     local_path: str
-    shared_root: str | None = None
-    docker_volume: str | None = None
+    shared_root: Optional[str] = None
+    docker_volume: Optional[str] = None
 
     @property
     def is_shared(self) -> bool:
