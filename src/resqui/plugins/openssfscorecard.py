@@ -51,7 +51,7 @@ class OpenSSFScorecard(IndicatorPlugin):
         cmd = [
             "docker",
             "run",
-            "--rm",
+            "--rm", 
             "-e",
             f"GITHUB_AUTH_TOKEN={self.context.github_token}",
             f"gcr.io/openssf/scorecard:{self.version}",
@@ -195,6 +195,7 @@ class OpenSSFScorecard(IndicatorPlugin):
         )
         
     def dependency_management(self, url, branch_hash_or_tag):
+        success=False
         results = self.execute(url, branch_hash_or_tag)
         check = self.get_score(results, "Dependency-Update-Tool")
         if check["score"] > 0:
@@ -215,6 +216,7 @@ class OpenSSFScorecard(IndicatorPlugin):
         )
         
     def no_critical_vulnerability(self, url, branch_hash_or_tag):
+        success=False
         results = self.execute(url, branch_hash_or_tag)
         check = self.get_score(results, "Vulnerabilities")
         if check["score"] >= 7:
@@ -234,6 +236,7 @@ class OpenSSFScorecard(IndicatorPlugin):
         )
         
     def uses_fuzzing(self, url, branch_hash_or_tag):
+        success=False
         results = self.execute(url, branch_hash_or_tag)
         check = self.get_score(results, "Fuzzing")
         if check["score"] > 0:
