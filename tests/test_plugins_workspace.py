@@ -46,7 +46,7 @@ class TestPluginSharedWorkspace(unittest.TestCase):
                     plugin.has_no_security_leak("https://github.com/example/repo", "main")
 
         command, run_args = plugin.executor.calls[0]
-        self.assertEqual(run_args, ["-v", f"sqoo_resqui_work:{root}"])
+        self.assertEqual(run_args, ["--rm", "-v", f"sqoo_resqui_work:{root}"])
         self.assertTrue(command[1].startswith(root))
         self.assertTrue(command[3].startswith(root))
 
@@ -61,6 +61,7 @@ class TestPluginSharedWorkspace(unittest.TestCase):
                     plugin.has_no_linting_issues("https://github.com/example/repo", "main")
 
         _, run_args = plugin.executor.calls[0]
+        self.assertIn("--rm", run_args)
         self.assertIn("-v", run_args)
         self.assertIn(f"sqoo_resqui_work:{root}", run_args)
         self.assertIn("-e", run_args)
