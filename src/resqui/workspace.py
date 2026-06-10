@@ -47,7 +47,7 @@ class Workspace:
 def create_workspace(prefix: str = "resqui-") -> Workspace:
     """Create a temporary workspace for local and Docker-backed plugin runs.
 
-    By default, this behaves like tempfile.mkdtemp(). In SQOO worker mode, set
+    By default, this behaves like tempfile.mkdtemp(). In worker mode, set
     RESQUI_SHARED_WORKDIR and RESQUI_DOCKER_WORK_VOLUME so plugin containers can
     mount the same Docker volume that the worker uses.
     """
