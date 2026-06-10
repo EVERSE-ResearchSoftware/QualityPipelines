@@ -42,7 +42,7 @@ class RSFC(IndicatorPlugin):
 
         assessment_filename = "rsfc_assessment.json"
 
-        # Implementacion anterior sustituida para SQOO:
+        # Previous implementation:
         # tempdir = tempfile.mkdtemp()
         # run_args = [
         #     "--rm",
@@ -52,8 +52,8 @@ class RSFC(IndicatorPlugin):
         # _ = self.executor.run(["--repo", url], run_args=run_args)
         # assessment_fpath = os.path.join(tempdir, assessment_filename)
 
-        # Implementacion para SQOO: en modo worker se monta el volumen compartido
-        # y se cambia el workdir para que RSFC escriba dentro del workspace aislado.
+        # implementation for SQOO: if it is in worker mode the shared volume is mount
+        # and the workdir is changed and RSFC write inside the workspace
         with create_workspace(prefix="resqui-rsfc-") as workspace:
             if workspace.is_shared:
                 container_workspace = workspace.container_path("/rsfc")

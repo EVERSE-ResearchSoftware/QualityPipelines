@@ -51,7 +51,7 @@ class OpenSSFScorecard(IndicatorPlugin):
         cmd = [
             "docker",
             "run",
-            "--rm",
+            "--rm", # added --rm argument for eliminate the docker container after its processing
             "-e",
             f"GITHUB_AUTH_TOKEN={self.context.github_token}",
             f"gcr.io/openssf/scorecard:{self.version}",
@@ -61,7 +61,7 @@ class OpenSSFScorecard(IndicatorPlugin):
             url,
             # TODO: commit hash is not used currently
             # "--commit",
-            # commit_hash,
+            ## commit_hash,
             "--format",
             "json",
         ]

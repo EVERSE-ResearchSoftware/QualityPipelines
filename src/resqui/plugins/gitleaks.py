@@ -22,7 +22,7 @@ class Gitleaks(IndicatorPlugin):
     def has_no_security_leak(self, url, branch_hash_or_tag):
         report_fname = "report.json"
 
-        # Implementacion anterior sustituida para SQOO:
+        # Previous implementation:
         # temp_dir = tempfile.mkdtemp()
         # run_args = ["-v", f"{temp_dir}:/path"]
         # p = self.executor.run(

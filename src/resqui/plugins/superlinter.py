@@ -21,7 +21,7 @@ class SuperLinter(IndicatorPlugin):
         self.executor = DockerExecutor(self.image_url, pull_args=pull_args)
 
     def has_no_linting_issues(self, url, branch):
-        # Implementacion anterior sustituida para SQOO:
+        # Previous implementation:
         # temp_dir = tempfile.mkdtemp()
         # run_args = [
         #     "-e",
@@ -33,8 +33,8 @@ class SuperLinter(IndicatorPlugin):
         # ]
         # p = self.executor.run([], run_args=run_args)
 
-        # Implementacion para SQOO: el workspace compartido evita montar rutas
-        # /tmp internas del worker que el Docker daemon del host no puede ver.
+        # implementation for SQOO: the shared workspace avoids mounting
+        # internal /tmp paths from the worker that the host Docker daemon cannot see.
         with create_workspace(prefix="resqui-superlinter-") as workspace:
             try:
                 subprocess.run(
@@ -51,7 +51,7 @@ class SuperLinter(IndicatorPlugin):
             run_args = [
                 #            "-e",
                 #            "LOG_LEVEL=DEBUG",
-                "--rm",
+                "--rm",      # argument added to remove the container after the processing
                 "-e",
                 "RUN_LOCAL=true",
                 "-e",
