@@ -1,5 +1,6 @@
 import unittest
 from resqui.tools import (
+    is_zenodo_url,
     normalized,
     indented,
     is_commit_hash,
@@ -7,6 +8,7 @@ from resqui.tools import (
     to_https,
     project_name_from_url,
     ensure_list,
+    url_branch_from_full_url,
 )
 
 VALID_HASH = "a" * 40
@@ -84,6 +86,18 @@ class TestConstructFullUrl(unittest.TestCase):
         self.assertNotIn(".git", url)
 
 
+class TestUrlBranchFromFullUrl(unittest.TestCase):
+    BASE = "https://github.com/user/repo"
+
+    def test_branch(self):
+        url = url_branch_from_full_url(f"{self.BASE}/tree/main")
+        self.assertIn("main", url)
+
+    def test_commit_hash(self):
+        url = url_branch_from_full_url(f"{self.BASE}/commit/{VALID_HASH}")
+        self.assertIn(VALID_HASH, url)
+
+
 class TestToHttps(unittest.TestCase):
     def test_https_unchanged(self):
         url = "https://github.com/user/repo"
@@ -132,3 +146,14 @@ class TestEnsureList(unittest.TestCase):
 
     def test_none_is_wrapped(self):
         self.assertEqual(ensure_list(None), [None])
+
+
+class TestIsZenodoUrl(unittest.TestCase):
+    def test_doi_url(self):
+        self.assertTrue(is_zenodo_url("https://doi.org/10.5281/zenodo.87654321"))
+
+    def test_zenodo_url(self):
+        self.assertTrue(is_zenodo_url("https://zenodo.org/records/87654321"))
+
+    def test_other_url(self):
+        self.assertFalse(is_zenodo_url("https://example.com/"))

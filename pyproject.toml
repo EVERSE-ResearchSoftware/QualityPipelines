@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "resqui"
 authors = [{ name = "Tamas Gal", email = "tamas.gal@fau.de" }]
 maintainers = [{ name = "Tamas Gal", email = "tamas.gal@fau.de" }]
-dependencies = ["setuptools_scm"]
+dependencies = ["setuptools_scm", "requests"]
 requires-python = ">=3.9"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
