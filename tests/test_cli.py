@@ -415,6 +415,47 @@ class TestResquiMainPath(unittest.TestCase):
             with self.assertRaises(sp.CalledProcessError):
                 resqui()
 
+    def test_clone_zenodo_url_path(self):
+        def mock_requests_get(url, headers=None):
+            if url == "https://doi.org/10.5281/zenodo.18713816":
+                mock_response = MagicMock()
+                mock_response.headers = {
+                    "Link": '<https://zenodo.org/api/records/20553350> ; rel="describedby" ; type="application/json"'
+                }
+                return mock_response
+
+            elif (
+                url == "https://zenodo.org/api/records/20553350"
+                and headers.get("Accept") == "application/json"
+            ):
+                mock_response = MagicMock()
+                mock_response.json.return_value = {
+                    "metadata": {
+                        "related_identifiers": [
+                            {
+                                "identifier": "https://github.com/EVERSE-ResearchSoftware/QualityPipelines/tree/v0.2.0",
+                                "relation": "isSupplementTo",
+                                "resource_type": "software",
+                                "scheme": "url",
+                            }
+                        ]
+                    }
+                }
+                return mock_response
+
+            else:
+                raise ValueError(f"Unsupported URL '{url}' and headers '{headers}'")
+
+        with self._patches(
+            argv=["resqui", "-u", "https://doi.org/10.5281/zenodo.18713816"],
+            **{
+                "requests.get": MagicMock(side_effect=mock_requests_get),
+                "resqui.cli.subprocess.run": MagicMock(),
+            },
+        ):
+            resqui()
+        self.summary.write.assert_called_once()
+
 
 class TestPrintIndicatorPluginsNoIndicators(unittest.TestCase):
     """Cover the '(none)' branch for a plugin that declares no indicators."""
