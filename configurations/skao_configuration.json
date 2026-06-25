@@ -1,0 +1,8 @@
+{
+  "indicators": [
+      { "name": "software_has_documentation", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/software_has_documentation" },
+      { "name": "has_license", "plugin": "HowFairIs", "@id": "https://w3id.org/everse/i/indicators/software_has_license" },
+      { "name": "requirements_specified", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/requirements_specified" }
+  ],
+  "comment": "Indicators for SKAO  as defined by the community perspective https://everse.software/indicators/website/community.html"
+}

@@ -1,0 +1,10 @@
+{
+  "indicators": [
+      { "name": "descriptive_metadata", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/descriptive_metadata" },
+      { "name": "has_license", "plugin": "HowFairIs", "@id": "https://w3id.org/everse/i/indicators/software_has_license" },
+      { "name": "has_releases", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/has_releases" },
+      { "name": "version_control_use", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/version_control_use" },
+      { "name": "has_published_package", "plugin": "OpenSSFScorecard", "@id": "https://w3id.org/everse/i/indicators/has_published_package" }
+  ],
+  "comment": "Indicators for ESCAPE Cluster (OSSR)  as defined by the community perspective https://everse.software/indicators/website/community.html, not implemented indicators are: has a container file"
+}

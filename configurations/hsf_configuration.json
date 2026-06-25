@@ -1,0 +1,14 @@
+{
+  "indicators": [
+      { "name": "project_is_active", "plugin": "OpenSSFScorecard", "@id": "https://w3id.org/everse/i/indicators/project_is_active" },
+      { "name": "versioning_standards_use", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/versioning_standards_use" },
+      { "name": "software_has_documentation", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/software_has_documentation" },
+      { "name": "has_license", "plugin": "HowFairIs", "@id": "https://w3id.org/everse/i/indicators/software_has_license" },
+      { "name": "version_control_use", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/version_control_use" },
+      { "name": "has_ci_tests", "plugin": "OpenSSFScorecard", "@id": "https://w3id.org/everse/i/indicators/software_has_ci-tests" },
+      { "name": "has_contribution_guidelines", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/has_contribution_guidelines" },      
+      { "name": "requirements_specified", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/requirements_specified" }
+  ],
+  "comment": "Indicators for HEP Software Foundation (HSF) as defined by the community perspective https://everse.software/indicators/website/community.html, not implemented indicators are: software has communication channels, has issue tracking, provides test"
+
+}

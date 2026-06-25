@@ -1,0 +1,13 @@
+{
+  "indicators": [
+      { "name": "static_analysis_common_vulnerabilities", "plugin": "OpenSSFScorecard", "@id": "https://w3id.org/everse/i/indicators/static_analysis_common_vulnerabilities" },
+      { "name": "versioning_standards_use", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/versioning_standards_use" },
+      { "name": "descriptive_metadata", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/descriptive_metadata" },
+      { "name": "software_has_documentation", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/software_has_documentation" },      
+      { "name": "has_license", "plugin": "HowFairIs", "@id": "https://w3id.org/everse/i/indicators/software_has_license" },
+      { "name": "listed_in_registry", "plugin": "OEBFAIR", "@id": "https://w3id.org/everse/i/indicators/listed_in_registry" },
+      { "name": "has_ci_tests", "plugin": "OpenSSFScorecard", "@id": "https://w3id.org/everse/i/indicators/software_has_ci-tests" }
+  ],
+  "comment": "Indicators for ELIXIR Cluster as defined by the community perspective https://everse.software/indicators/website/community.html, not implemented indicators are: software has sufficient test coverage, software is archived in a scholarly registry, software has tests (in general)"
+}
+
