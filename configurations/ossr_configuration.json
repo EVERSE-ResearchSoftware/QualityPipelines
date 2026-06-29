@@ -5,5 +5,7 @@
     {"name": "has_releases","plugin": "RSFC","@id": "https://w3id.org/everse/i/indicators/has_releases"},
     {"name": "has_published_package","plugin": "OpenSSFScorecard","@id": "https://w3id.org/everse/i/indicators/has_published_package"},
     {"name": "version_control_use","plugin": "RSFC","@id": "https://w3id.org/everse/i/indicators/version_control_use"}
-  ]
+  ],
+    "comment": "Indicators for ESCAPE Cluster (OSSR)  as defined by the community perspective https://everse.software/indicators/website/community.html, not implemented indicators are: has a container file"
+
 }
