@@ -62,7 +62,11 @@ class RSFC(IndicatorPlugin):
                 ]
                 assessment_fpath = os.path.join(workspace.local_path, assessment_filename)
 
-            _ = self.executor.run(["--repo", url], run_args=run_args)
+            command = ["--repo", url]
+            if self.context.github_token:
+                command += ["-t", self.context.github_token]
+
+            _ = self.executor.run(command, run_args=run_args)
 
             if not os.path.isfile(assessment_fpath):
                 msg = f"Error: RSFC did not generate the expected assessment file named '{assessment_filename}'"
