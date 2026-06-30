@@ -16,7 +16,8 @@ class OpenSSFScorecard(IndicatorPlugin):
         "uses_fuzzing",
         "no_critical_vulnerability",
         "static_analysis_common_vulnerabilities",
-        "project_is_active"
+        "project_is_active",
+        "has_no_binary_artifacts"
     ]
 
     def __init__(self, context):
@@ -250,6 +251,26 @@ class OpenSSFScorecard(IndicatorPlugin):
 
         return CheckResult(
             process="Checks if the project integrates fuzzing",
+            status_id="schema:CompletedActionStatus",
+            output=output,
+            evidence=evidence,
+            success=success,
+        )
+        
+    def has_no_binary_artifacts(self, url, branch_hash_or_tag):
+        results = self.execute(url, branch_hash_or_tag)
+        check = self.get_score(results, "Fuzzing")
+        if check["score"] == 10:
+            output = "true"
+            evidence = check["details"]
+            success = True
+        else:
+            output = "false"
+            evidence = check["details"]
+            success = False
+
+        return CheckResult(
+            process="Checks if the project contains binary artifacts",
             status_id="schema:CompletedActionStatus",
             output=output,
             evidence=evidence,
