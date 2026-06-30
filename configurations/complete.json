@@ -11,6 +11,7 @@
       { "name": "software_has_documentation", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/software_has_documentation" },
       { "name": "version_control_use", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/version_control_use" },
       { "name": "versioning_standards_use", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/versioning_standards_use" },
+      { "name": "software_is_containerized", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/software_is_containerized" },
       { "name": "has_license", "plugin": "HowFairIs", "@id": "https://w3id.org/everse/i/indicators/software_has_license" },
 	    { "name": "has_citation", "plugin": "CFFConvert", "@id": "https://w3id.org/everse/i/indicators/software_has_citation" },
       { "name": "has_no_linting_issues", "plugin": "SuperLinter", "@id": "https://w3id.org/everse/i/indicators/has_no_linting_issues" },
