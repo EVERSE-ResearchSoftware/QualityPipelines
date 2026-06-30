@@ -1,0 +1,65 @@
+name: Plugin or indicator request
+description: Propose a new indicator, a new plugin, or an extension to an existing plugin.
+title: "enhancement: "
+labels:
+  - enhancement
+  - plugin
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for additions that fit the plugin model in `src/resqui/plugins/` and the configuration format consumed by `resqui -c ...`.
+  - type: input
+    id: indicator
+    attributes:
+      label: Indicator name
+      description: Provide the method-style indicator name you expect to appear in configuration JSON, such as `has_license`.
+    validations:
+      required: true
+  - type: textarea
+    id: rationale
+    attributes:
+      label: Why does this indicator belong in resqui?
+      description: Tie it to research software quality assessment, existing EVERSE indicators, or a concrete gap in the current default configuration.
+    validations:
+      required: true
+  - type: dropdown
+    id: implementation
+    attributes:
+      label: Best implementation path
+      options:
+        - Extend an existing plugin in `src/resqui/plugins/`
+        - Add a new Python-based plugin
+        - Add a new Docker-based plugin
+        - Not sure yet
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Expected result and evidence
+      description: Describe the expected `CheckResult.output`, success condition, and the evidence text the plugin should report.
+    validations:
+      required: true
+  - type: textarea
+    id: external_tool
+    attributes:
+      label: External tool or package
+      description: Name the Python package, container image, API, or specification this would rely on, including version constraints if they matter.
+    validations:
+      required: false
+  - type: textarea
+    id: config_example
+    attributes:
+      label: Example configuration entry
+      description: Show the JSON entry you would expect to add under `indicators`, including `name`, `plugin`, and `@id` when known.
+      render: json
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I checked the existing plugins in `src/resqui/plugins/` and this is not already covered.
+        - label: I checked the shipped JSON configs in `configurations/` and can explain where this request fits.

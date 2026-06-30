@@ -1,11 +1,10 @@
 import json
-import tempfile
 import os
-import shutil
 
 from resqui.plugins.base import IndicatorPlugin
 from resqui.executors import DockerExecutor
 from resqui.core import CheckResult
+from resqui.workspace import create_workspace
 
 
 class RSFC(IndicatorPlugin):
@@ -40,26 +39,39 @@ class RSFC(IndicatorPlugin):
         if cache_key in self._cache:
             return self._cache[cache_key]
 
-        tempdir = tempfile.mkdtemp()
-
         url = url.removesuffix(".git")
 
-        run_args = [
-            "--rm",
-            "-v",
-            f"{tempdir}:/rsfc/rsfc_output",
-        ]
-
-        _ = self.executor.run(["--repo", url], run_args=run_args)
-
         assessment_filename = "rsfc_assessment.json"
-        assessment_fpath = os.path.join(tempdir, assessment_filename)
-        if not os.path.isfile(os.path.join(tempdir, assessment_filename)):
-            msg = f"Error: RSFC did not generate the expected assessment file named '{assessment_filename}'"
-            raise FileNotFoundError(msg)
 
-        with open(assessment_fpath) as f:
-            report = json.load(f)
+
+        with create_workspace(prefix="resqui-rsfc-") as workspace:
+            if workspace.is_shared:
+                container_workspace = workspace.container_path("/rsfc")
+                run_args = [
+                    "--rm",
+                    *workspace.docker_mount_args("/rsfc"),
+                    "-w",
+                    container_workspace,
+                ]
+                assessment_fpath = os.path.join(
+                    workspace.local_path, "rsfc_output", assessment_filename
+                )
+            else:
+                run_args = [
+                    "--rm",
+                    *workspace.docker_mount_args("/rsfc/rsfc_output"),
+                ]
+                assessment_fpath = os.path.join(workspace.local_path, assessment_filename)
+
+            command = ["--repo", url]
+            if self.context.github_token:
+                command += ["-t", self.context.github_token]
+
+            _ = self.executor.run(command, run_args=run_args)
+
+            if not os.path.isfile(assessment_fpath):
+                msg = f"Error: RSFC did not generate the expected assessment file named '{assessment_filename}'"
+                raise FileNotFoundError(msg)
 
         shutil.rmtree(tempdir)
         

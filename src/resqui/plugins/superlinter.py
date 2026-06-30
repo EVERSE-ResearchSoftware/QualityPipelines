@@ -1,12 +1,10 @@
 import platform
 import subprocess
-import tempfile
-import shutil
-import os
 
 from resqui.plugins import IndicatorPlugin
 from resqui.executors import DockerExecutor
 from resqui.core import CheckResult
+from resqui.workspace import create_workspace
 
 
 class SuperLinter(IndicatorPlugin):
@@ -23,33 +21,33 @@ class SuperLinter(IndicatorPlugin):
         self.executor = DockerExecutor(self.image_url, pull_args=pull_args)
 
     def has_no_linting_issues(self, url, branch):
-        temp_dir = tempfile.mkdtemp()
 
-        try:
-            subprocess.run(
-                ["git", "clone", url, temp_dir],
-                check=True,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
-        except subprocess.CalledProcessError as e:
-            print(f"Error cloning {url}: {e}")
-            raise
+        with create_workspace(prefix="resqui-superlinter-") as workspace:
+            try:
+                subprocess.run(
+                    ["git", "clone", url, workspace.local_path],
+                    check=True,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+            except subprocess.CalledProcessError as e:
+                print(f"Error cloning {url}: {e}")
+                raise
 
-        run_args = [
-            #            "-e",
-            #            "LOG_LEVEL=DEBUG",
-            "-e",
-            "RUN_LOCAL=true",
-            "-e",
-            f"DEFAULT_BRANCH={branch}",
-            "-v",
-            f"{temp_dir}:/tmp/lint",
-        ]
-        p = self.executor.run([], run_args=run_args)
-
-        if os.path.exists(temp_dir):
-            shutil.rmtree(temp_dir)
+            lint_path = workspace.container_path("/tmp/lint")
+            run_args = [
+                #            "-e",
+                #            "LOG_LEVEL=DEBUG",
+                "--rm",      
+                "-e",
+                "RUN_LOCAL=true",
+                "-e",
+                f"DEFAULT_BRANCH={branch}",
+                "-e",
+                f"DEFAULT_WORKSPACE={lint_path}",
+                *workspace.docker_mount_args("/tmp/lint"),
+            ]
+            p = self.executor.run([], run_args=run_args)
 
         if "Super-linter detected linting errors" in p.stdout:
             output = "invalid"

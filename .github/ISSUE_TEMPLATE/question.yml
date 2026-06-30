@@ -1,0 +1,52 @@
+name: Usage question
+description: Ask about running resqui, configuring indicators, or integrating the GitHub Action.
+title: "question: "
+labels:
+  - question
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for questions about command usage, configuration JSON, tokens, output JSON, or the GitHub Action wiring shown in `README.md`.
+  - type: dropdown
+    id: topic
+    attributes:
+      label: What do you need help with?
+      options:
+        - Running `resqui` locally
+        - Writing or choosing a configuration file
+        - Understanding plugin output in `resqui_summary.json`
+        - Setting up the GitHub Action
+        - Tokens or authentication
+        - Extending resqui with a new plugin or indicator
+    validations:
+      required: true
+  - type: textarea
+    id: goal
+    attributes:
+      label: What are you trying to do?
+      description: Describe the repository you want to assess and the outcome you need.
+    validations:
+      required: true
+  - type: textarea
+    id: tried
+    attributes:
+      label: What have you already tried?
+      description: Include the command, config file, workflow snippet, or README section you used.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: blocker
+    attributes:
+      label: What is still unclear or failing?
+      description: Paste the confusing output, error message, or decision you are stuck on.
+    validations:
+      required: true
+  - type: input
+    id: config
+    attributes:
+      label: Relevant configuration or workflow file
+      description: Provide the path if this depends on a file such as `configurations/basic.json` or `.github/workflows/resqui.yml`.
+    validations:
+      required: false

@@ -48,6 +48,17 @@
         "@type": "Organization",
         "name": "Erlangen Centre for Astroparticle Physics"
       }
+    },
+    {
+      "@id": "http://orcid.org/0000-0002-5686-2078",
+      "@type": "Person",
+      "givenName": "Thomas",
+      "familyName": "Vuillaume",
+      "email": "thomas.vuillaume@lapp.in2p3.fr",
+      "affiliation": {
+        "@type": "Organization",
+        "name": "LAPP, Université Savoie Mont-Blanc, CNRS"
+      }
     }
   ],
   "maintainer": [

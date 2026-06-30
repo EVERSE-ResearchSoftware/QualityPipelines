@@ -4,7 +4,7 @@ Usage:
     resqui indicators
 
 Options:
-    -u <repository_url>   URL of the repository to be analyzed.
+    -u <repository_url>   URL of the repository to be analyzed (GitHub URLs, Zenodo DOIs and URLs accepted).
     -c <config_file>      Path to the configuration file.
     -o <output_file>      Path to the output file [default: resqui_summary.json].
     -t <github_token>     GitHub API token.
@@ -27,7 +27,14 @@ import tempfile
 
 from resqui.core import Context, Summary
 from resqui.config import Configuration
-from resqui.tools import indented, to_https, project_name_from_url, ensure_list
+from resqui.tools import (
+    indented,
+    is_zenodo_url,
+    to_https,
+    project_name_from_url,
+    ensure_list,
+    zenodo_url_to_git,
+)
 from resqui.plugins import IndicatorPlugin, PluginInitError
 from resqui.executors import ExecutorInitError
 from resqui.docopt import docopt
@@ -144,6 +151,9 @@ def resqui():
             )
             exit(1)
     else:
+        if is_zenodo_url(url):
+            url, branch = zenodo_url_to_git(url)
+
         temp_dir = tempfile.mkdtemp()
         try:
             subprocess.run(

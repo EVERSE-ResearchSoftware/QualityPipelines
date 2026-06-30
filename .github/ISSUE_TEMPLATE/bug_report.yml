@@ -1,0 +1,79 @@
+name: Bug report
+description: Report a failure in the resqui CLI, GitHub Action, configuration loading, or an indicator plugin.
+title: "bug: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for reproducible problems in `resqui`, the composite action in `action.yml`, or a plugin under `src/resqui/plugins/`.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Where does the failure happen?
+      options:
+        - resqui CLI
+        - GitHub Action (`action.yml`)
+        - Configuration file in `configurations/` or custom JSON
+        - Plugin in `src/resqui/plugins/`
+        - Python executor
+        - Docker executor
+        - Test or CI workflow
+        - Other (describe below)
+    validations:
+      required: true
+  - type: input
+    id: command
+    attributes:
+      label: Exact command or workflow step
+      description: Include the `resqui` command, `make test`, or the workflow step name that fails.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+      description: State the expected check result, output file, or workflow outcome.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened instead?
+      description: Paste the relevant traceback, stderr, or failing job log.
+      render: shell
+    validations:
+      required: true
+  - type: input
+    id: repository
+    attributes:
+      label: Repository being assessed
+      description: If the failure is not on this repository, provide the target repository URL that `resqui` checked.
+    validations:
+      required: false
+  - type: input
+    id: config
+    attributes:
+      label: Configuration file
+      description: Name the JSON file you used, for example `configurations/basic.json`, or state that you ran without `-c`.
+    validations:
+      required: true
+  - type: dropdown
+    id: environment
+    attributes:
+      label: How did you run it?
+      options:
+        - Local Python environment
+        - GitHub Actions
+        - Local Docker environment
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Quick checks
+      options:
+        - label: I ran `make test` or `python3 run_tests.py` after reproducing the problem locally.
+        - label: If this involves the composite action, I checked the workflow example in `README.md` and the inputs in `action.yml`.
+        - label: If this involves a plugin, I know which plugin or indicator name failed.

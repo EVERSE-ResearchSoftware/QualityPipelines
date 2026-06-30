@@ -1,5 +1,7 @@
 import re
 
+import requests
+
 
 def normalized(script):
     """
@@ -40,6 +42,14 @@ def construct_full_url(url, branch_hash_or_tag):
     return f"{repo_url}/{midfix}/{branch_hash_or_tag}"
 
 
+def url_branch_from_full_url(full_url):
+    # https://github.com/user/repo/tree/v1.2.3
+    m = re.match(r"(https://github.com/[^/]+/[^/]+)/(commit|tree)/(.+)", full_url)
+    if m:
+        url, _, branch_hash_or_tag = m.groups()
+        return [url, branch_hash_or_tag]
+
+
 def to_https(url):
     if url.startswith("http://") or url.startswith("https://"):
         return url
@@ -66,3 +76,47 @@ def project_name_from_url(url):
 def ensure_list(item):
     """Wraps the item into a list if it is not already a list"""
     return item if isinstance(item, list) else [item]
+
+
+def is_zenodo_url(url):
+    return url.startswith("https://doi.org/10.5281/zenodo.") or url.startswith(
+        "https://zenodo.org/records/"
+    )
+
+
+def zenodo_url_to_git(url):
+    headers = {
+        "User-Agent": "EVERSE resqui (+https://everse.software/QualityPipelines/)"
+    }
+
+    # Parsing FAIR Signposting headers to find the URL of the REST API endpoint.
+    r = requests.get(url, headers=headers)
+    links = r.headers.get("Link", "").split(",")
+    for link in links:
+        [uri, *parameters] = link.split(";")
+
+        parameters_dict = {}
+        for parameter in parameters:
+            [key, value] = parameter.split("=")
+            parameters_dict[key.strip()] = value.strip()
+
+        if (
+            parameters_dict.get("rel") == '"describedby"'
+            and parameters_dict.get("type") == '"application/json"'
+        ):
+            # The URI is enclosed in angled brackets.
+            rest_uri = uri.strip()[1:-1]
+
+            # Extracting the Git URL from the REST API endpoint.
+            r = requests.get(
+                rest_uri, headers={**headers, "Accept": "application/json"}
+            )
+            for related_identifier in r.json()["metadata"].get(
+                "related_identifiers", {}
+            ):
+                if "://github.com/" in related_identifier["identifier"]:
+                    full_url = related_identifier["identifier"]
+                    url, branch = url_branch_from_full_url(full_url)
+                    return [url, branch]
+
+    raise ValueError("No Git repository found for Zenodo URL")
