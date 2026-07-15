@@ -12,7 +12,10 @@ The EVERSE Software Quality Pipelines provide
 
 ### Quality Pipelines
 
-1) `resqui`  can be installed - preferably within a Python virtual environment
+An overview on the quality pipelines is given below.
+The complete documentation of the quality pipelines are available at the project's [Github Pages](https://everse.software/QualityPipelines/), please read through those pages if you encounter issues and questions.
+
+1) `resqui`  can be installed - preferably within a Python virtual environment - with the requirements of `Docker` and `Python 3.9+`
 
 - using pip:
 
@@ -46,7 +49,7 @@ Options:
     --version             Show the version of the script.
     --help                Show this help message.
  ```
-The complete documentation of the quality pipelines are available at the project's [Github Pages](https://everse.software/QualityPipelines/);
+
 
 2) The GitHub Action to include in CI/CDs pipeline is available in [this repository](https://github.com/EVERSE-ResearchSoftware/resqui-github-action).
 
