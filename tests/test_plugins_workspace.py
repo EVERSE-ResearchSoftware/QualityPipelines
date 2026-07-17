@@ -92,8 +92,37 @@ class TestPluginSharedWorkspace(unittest.TestCase):
             with patch.dict(os.environ, self._env(root), clear=True):
                 plugin.execute("https://github.com/example/repo", "main")
 
-        _, run_args = fake_executor.calls[0]
+        command, run_args = fake_executor.calls[0]
         self.assertIn("-v", run_args)
         self.assertIn(f"sqoo_resqui_work:{root}", run_args)
         self.assertIn("-w", run_args)
         self.assertTrue(run_args[run_args.index("-w") + 1].startswith(root))
+        self.assertIn("-t", command)
+        self.assertEqual(command[command.index("-t") + 1], "token")
+
+    def test_rsfc_runs_without_token(self):
+        def fake_rsfc_run(command, run_args=None):
+            run_args = run_args or []
+            workdir = run_args[run_args.index("-w") + 1]
+            output_dir = os.path.join(workdir, "rsfc_output")
+            os.makedirs(output_dir, exist_ok=True)
+            assessment_path = os.path.join(output_dir, "rsfc_assessment.json")
+            with open(assessment_path, "w") as f:
+                json.dump({"checks": []}, f)
+            fake_executor.calls.append((command, run_args))
+            return SimpleNamespace(stdout="", stderr="")
+
+        fake_executor = FakeExecutor()
+        fake_executor.run = fake_rsfc_run
+
+        plugin = RSFC.__new__(RSFC)
+        plugin.context = Context(github_token=None)
+        plugin.executor = fake_executor
+        plugin._cache = {}
+
+        with tempfile.TemporaryDirectory() as root:
+            with patch.dict(os.environ, self._env(root), clear=True):
+                plugin.execute("https://github.com/example/repo", "main")
+
+        command, _ = fake_executor.calls[0]
+        self.assertNotIn("-t", command)
