@@ -8,6 +8,8 @@ The EVERSE Software Quality Pipelines provide
 1) the command line tool `resqui` to check a configurable set of software quality indicators on research software via external plugins (tools); 
 2) GitHub Action to run the pipeline on a github repository.
 
+Please read and adhere to our contribution guidelines on  `CONTRIBUTING.md` and our [Code of Conduct](https://everse.software/network/code_of_conduct/). 
+
 ## Documentation
 
 ### Quality Pipelines
