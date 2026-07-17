@@ -60,6 +60,17 @@
         "name": "LAPP, Université Savoie Mont-Blanc, CNRS"
       }
     }
+    {
+      "@id": "https://orcid.org/0000-0002-1921-5568",
+      "@type": "Person",
+      "givenName": "Kay",
+      "familyName": "Graf",
+      "email": "kay.graf@fau.de",
+      "affiliation": {
+        "@type": "Organization",
+        "name": "Erlangen Centre for Astroparticle Physics"
+      }
+    }
   ],
   "maintainer": [
     {
