@@ -84,6 +84,11 @@ class OpenSSFScorecard(IndicatorPlugin):
             print(r.stdout)
             raise
 
+    def format_details(self, details):
+        if not details:
+            return "No further details provided."
+        return "\n".join(details)
+
     def get_score(self, results, check_name):
         checks = results["checks"]
         if not checks:
@@ -140,11 +145,11 @@ class OpenSSFScorecard(IndicatorPlugin):
 
         if check["score"] > 0:
             output = "true"
-            evidence = check["details"]
+            evidence = self.format_details(check["details"])
             success = True
         else:
             output = "false"
-            evidence = check["details"]
+            evidence = self.format_details(check["details"])
             success = False
 
         return CheckResult(
@@ -180,11 +185,11 @@ class OpenSSFScorecard(IndicatorPlugin):
         check = self.get_score(results, "SAST")
         if check["score"] > 0:
             output = "true"
-            evidence = check["details"]
+            evidence = self.format_details(check["details"])
             success = True
         else:
             output = "false"
-            evidence = check["details"]
+            evidence = self.format_details(check["details"])
             success = False
 
         return CheckResult(
@@ -201,11 +206,11 @@ class OpenSSFScorecard(IndicatorPlugin):
         check = self.get_score(results, "Dependency-Update-Tool")
         if check["score"] > 0:
             output = "true"
-            evidence = check["details"]
+            evidence = self.format_details(check["details"])
             success = True
         else:
             output = "false"
-            evidence = check["details"]
+            evidence = self.format_details(check["details"])
             success = False
 
         return CheckResult(
@@ -222,11 +227,11 @@ class OpenSSFScorecard(IndicatorPlugin):
         check = self.get_score(results, "Vulnerabilities")
         if check["score"] >= 7:
             output = "true"
-            evidence = check["details"]
+            evidence = self.format_details(check["details"])
             success = True
         else:
             output = "false"
-            evidence = check["details"]
+            evidence = self.format_details(check["details"])
 
         return CheckResult(
             process="Checks if there are vulnerabilities in the repository",
@@ -242,11 +247,11 @@ class OpenSSFScorecard(IndicatorPlugin):
         check = self.get_score(results, "Fuzzing")
         if check["score"] > 0:
             output = "true"
-            evidence = check["details"]
+            evidence = self.format_details(check["details"])
             success = True
         else:
             output = "false"
-            evidence = check["details"]
+            evidence = self.format_details(check["details"])
             success = False
 
         return CheckResult(
@@ -262,11 +267,11 @@ class OpenSSFScorecard(IndicatorPlugin):
         check = self.get_score(results, "Fuzzing")
         if check["score"] == 10:
             output = "true"
-            evidence = check["details"]
+            evidence = self.format_details(check["details"])
             success = True
         else:
             output = "false"
-            evidence = check["details"]
+            evidence = self.format_details(check["details"])
             success = False
 
         return CheckResult(
