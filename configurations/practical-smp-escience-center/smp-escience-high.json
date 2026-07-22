@@ -1,0 +1,104 @@
+{
+  "indicators": [
+    {
+      "name": "descriptive_metadata",
+      "plugin": "OEBFAIR",
+      "@id": "https://w3id.org/everse/i/indicators/descriptive_metadata"
+    },
+    {
+      "name": "descriptive_metadata",
+      "plugin": "RSFC",
+      "@id": "https://w3id.org/everse/i/indicators/descriptive_metadata"
+    },
+    {
+      "name": "version_control_use",
+      "plugin": "RSFC",
+      "@id": "https://w3id.org/everse/i/indicators/version_control_use"
+    },
+    {
+      "name": "unique_identifier",
+      "plugin": "OEBFAIR",
+      "@id": "https://w3id.org/everse/i/indicators/persistent_and_unique_identifier"
+    },
+    {
+      "name": "persistent_and_unique_identifier",
+      "plugin": "RSFC",
+      "@id": "https://w3id.org/everse/i/indicators/persistent_and_unique_identifier"
+    },
+    {
+      "name": "has_documentation",
+      "plugin": "OEBFAIR",
+      "@id": "https://w3id.org/everse/i/indicators/software_has_documentation"
+    },
+    {
+      "name": "software_has_documentation",
+      "plugin": "RSFC",
+      "@id": "https://w3id.org/everse/i/indicators/software_has_documentation"
+    },
+    {
+      "name": "has_license",
+      "plugin": "HowFairIs",
+      "@id": "https://w3id.org/everse/i/indicators/software_has_license"
+    },
+    {
+      "name": "has_license",
+      "plugin": "OEBFAIR",
+      "@id": "https://w3id.org/everse/i/indicators/software_has_license"
+    },
+    {
+      "name": "software_has_license",
+      "plugin": "RSFC",
+      "@id": "https://w3id.org/everse/i/indicators/software_has_license"
+    },
+    {
+      "name": "requirements_specified",
+      "plugin": "RSFC",
+      "@id": "https://w3id.org/everse/i/indicators/requirements_specified"
+    },
+    {
+      "name": "has_citation",
+      "plugin": "CFFConvert",
+      "@id": "https://w3id.org/everse/i/indicators/software_has_citation"
+    },
+    {
+      "name": "has_citation",
+      "plugin": "OEBFAIR",
+      "@id": "https://w3id.org/everse/i/indicators/software_has_citation"
+    },
+    {
+      "name": "software_has_citation",
+      "plugin": "RSFC",
+      "@id": "https://w3id.org/everse/i/indicators/software_has_citation"
+    },
+    {
+      "name": "has_contribution_guidelines",
+      "plugin": "RSFC",
+      "@id": "https://w3id.org/everse/i/indicators/has_contribution_guidelines"
+    },
+    {
+      "name": "software_has_tests",
+      "plugin": "RSFC",
+      "@id": "https://w3id.org/everse/i/indicators/software_has_tests"
+    },
+    {
+      "name": "has_package",
+      "plugin": "OEBFAIR",
+      "@id": "https://w3id.org/everse/i/indicators/has_published_package"
+    },
+    {
+      "name": "has_published_package",
+      "plugin": "OpenSSFScorecard",
+      "@id": "https://w3id.org/everse/i/indicators/has_published_package"
+    },
+    {
+      "name": "project_is_active",
+      "plugin": "OpenSSFScorecard",
+      "@id": "https://w3id.org/everse/i/indicators/project_is_active"
+    },
+    {
+      "name": "static_analysis_common_vulnerabilities",
+      "plugin": "OpenSSFScorecard",
+      "@id": "https://w3id.org/everse/i/indicators/static_analysis_common_vulnerabilities"
+    }
+  ]
+}
