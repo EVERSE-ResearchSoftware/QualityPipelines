@@ -19,8 +19,14 @@ class OEBFAIR(IndicatorPlugin):
         "has_citation",
         "has_license",
         "has_documentation",
+        "has_releases",
         "descriptive_metadata",
-        "listed_in_registry"
+        "listed_in_registry",
+        "versioning_standards_use",
+        "version_control_use",
+        "software_has_tests",
+        "repository_workflows",
+        "archived_in_software_heritage"
     ]
 
     def __init__(self, context):
