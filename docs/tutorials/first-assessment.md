@@ -55,7 +55,7 @@ Open `resqui_summary.json`. Each entry in `checks` corresponds to one indicator:
 ```json
 {
   "@type": "CheckResult",
-  "assessesIndicator": { "@id": "https://w3id.org/everse/i/indicators/license" },
+  "assessesIndicator": { "@id": "https://w3id.org/everse/i/indicators/software_has_license" },
   "checkingSoftware": { "name": "HowFairIs", "version": "0.14.2" },
   "evidence": "Found license file: 'LICENSE'.",
   "output": "valid",
