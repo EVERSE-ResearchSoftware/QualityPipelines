@@ -1,7 +1,7 @@
 # EVERSE Software Quality Pipelines
 
 ![PyPI - Version](https://img.shields.io/pypi/v/resqui)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20553350.svg)](https://doi.org/10.5281/zenodo.20553350)
+[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.20553350-blue)](https://doi.org/10.5281/zenodo.20553350)
 
 The EVERSE Software Quality Pipelines provide
 
