@@ -226,7 +226,7 @@ def resqui():
         for result in ensure_list(results):
             status = "\033[92m✔\033[0m" if result else "\033[91m✖\033[0m"
             if verbose:
-                print(indented("\n" + result.evidence + status, 4), end="")
+                print(indented(f"\n {result.evidence} {status}", 4), end="")
             else:
                 print(status, end=" ")
 
