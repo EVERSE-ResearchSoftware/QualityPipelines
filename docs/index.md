@@ -18,7 +18,7 @@ pip install resqui
 
 ## Quick start
 
-Run against the current repository using the default indicator set:
+Run from inside a Git working tree using the default indicator set. resqui reads the remote repository URL from the current working directory's `.git` metadata:
 
 ```bash
 resqui -t $GITHUB_TOKEN
