@@ -41,7 +41,7 @@ Usage:
     resqui indicators
 
 Options:
-    -u <repository_url>   URL of the repository to be analyzed (GitHub URLs, Zenodo DOIs and URLs accepted)
+    -u <repository_url>   URL of the repository to be analyzed (GitHub URLs, Zenodo DOIs and URLs accepted). If omitted, resqui reads the remote repository URL from the current working directory's `.git` metadata.
     -c <config_file>      Path to the configuration file.
     -o <output_file>      Path to the output file [default: resqui_summary.json].
     -t <github_token>     GitHub API token.

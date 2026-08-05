@@ -11,7 +11,7 @@ resqui indicators
 
 | Flag | Argument | Default | Description |
 |---|---|---|---|
-| `-u` | `<repository_url>` | current repo | URL of the repository to assess. If omitted, resqui uses the remote URL of the current working directory. |
+| `-u` | `<repository_url>` | current repo | URL of the repository to assess. If omitted, resqui reads the remote repository URL from the current working directory's `.git` metadata. |
 | `-c` | `<config_file>` | built-in default | Path to a JSON configuration file. |
 | `-o` | `<output_file>` | `resqui_summary.json` | Path for the JSON-LD output report. |
 | `-t` | `<github_token>` | — | GitHub personal access token. Required by `HowFairIs` and `OpenSSFScorecard`. |
