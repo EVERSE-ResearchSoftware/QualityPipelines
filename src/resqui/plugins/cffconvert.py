@@ -1,7 +1,7 @@
-from resqui.plugins.base import IndicatorPlugin
-from resqui.executors import PythonExecutor
 from resqui.core import CheckResult
-from resqui.tools import normalized, construct_full_url
+from resqui.executors import PythonExecutor
+from resqui.plugins.base import IndicatorPlugin
+from resqui.tools import construct_full_url, normalized
 
 
 class CFFConvert(IndicatorPlugin):
@@ -9,6 +9,7 @@ class CFFConvert(IndicatorPlugin):
     version = "2.0.0"
     python_package_name = "cffconvert"
     id = "https://w3id.org/everse/tools/cffconvert"
+    supports_local_path = False
     indicators = ["has_citation"]
 
     def __init__(self, context):

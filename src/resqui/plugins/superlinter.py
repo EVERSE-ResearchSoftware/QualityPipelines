@@ -5,9 +5,9 @@ import shutil
 import subprocess
 import uuid
 
-from resqui.plugins import IndicatorPlugin
-from resqui.executors import DockerExecutor
 from resqui.core import CheckResult
+from resqui.executors import DockerExecutor
+from resqui.plugins import IndicatorPlugin
 from resqui.workspace import create_workspace
 
 
@@ -16,6 +16,7 @@ class SuperLinter(IndicatorPlugin):
     version = "8.7.0"
     image_url = f"ghcr.io/super-linter/super-linter:v{version}"
     id = "https://w3id.org/everse/tools/superlinter"
+    supports_local_path = False
     indicators = ["has_no_linting_issues"]
 
     def __init__(self, context):
@@ -41,6 +42,8 @@ class SuperLinter(IndicatorPlugin):
             lint_path = workspace.container_path("/tmp/lint")
 
             run_args = [
+                #            "-e",
+                #            "LOG_LEVEL=DEBUG",
                 "--rm",
                 "-e",
                 "RUN_LOCAL=true",
@@ -67,10 +70,7 @@ class SuperLinter(IndicatorPlugin):
                 failed_linters = self.get_failed_linters(summary_path)
 
                 summary_destination = os.path.abspath(
-                    os.path.join(
-                        os.getcwd(),
-                        f"super-linter-summary-{uuid.uuid4().hex}.md"
-                    )
+                    os.path.join(os.getcwd(), f"super-linter-summary-{uuid.uuid4().hex}.md")
                 )
 
                 shutil.copy2(summary_path, summary_destination)
