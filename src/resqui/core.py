@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
-from datetime import datetime
-from dataclasses import dataclass
-from typing import Optional
 import json
+from dataclasses import dataclass
+from datetime import datetime
 
 from resqui.api import APIClient
 
@@ -11,8 +10,9 @@ from resqui.api import APIClient
 class Context:
     """A basic context to hold"""
 
-    github_token: Optional[str] = None
-    dashverse_token: Optional[str] = None
+    github_token: str | None = None
+    dashverse_token: str | None = None
+    local_path: str | None = None
 
 
 @dataclass
