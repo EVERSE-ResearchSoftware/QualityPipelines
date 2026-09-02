@@ -1,0 +1,10 @@
+{
+  "indicators": [
+          { "name": "unique_identifier", "plugin": "OEBFAIR", "@id": "https://w3id.org/everse/i/indicators/persistent_and_unique_identifier" },
+          { "name": "has_package", "plugin": "OEBFAIR", "@id": "https://w3id.org/everse/i/indicators/has_published_package" },
+          { "name": "has_license", "plugin": "OEBFAIR", "@id": "https://w3id.org/everse/i/indicators/software_has_license" },
+          { "name": "descriptive_metadata", "plugin": "OEBFAIR", "@id": "https://w3id.org/everse/i/indicators/descriptive_metadata" },
+          { "name": "has_documentation", "plugin": "OEBFAIR", "@id": "https://w3id.org/everse/i/indicators/software_has_documentation" },
+          { "name": "listed_in_registry", "plugin": "OEBFAIR", "@id": "https://w3id.org/everse/i/indicators/listed_in_registry" }
+  ]
+}

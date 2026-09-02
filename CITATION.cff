@@ -1,0 +1,36 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: resqui
+authors:
+  - name: "The EVERSE project"
+  - family-names: Gal
+    given-names: Tamas
+    orcid: https://orcid.org/0000-0001-7821-8673
+    affiliation: "Erlangen Centre for Astroparticle Physics, Friedrich-Alexander-Universität Erlangen-Nürnberg"
+  - family-names: Vuillaume
+    given-names: Thomas
+    orcid: https://orcid.org/0000-0002-5686-2078
+    affiliation: "LAPP, Université Savoie Mont-Blanc, CNRS"
+  - family-names: Graf
+    given-names: Kay
+    orcid: https://orcid.org/0000-0002-1921-5568
+    affiliation: "Erlangen Centre for Astroparticle Physics, Friedrich-Alexander-Universität Erlangen-Nürnberg"
+repository-code: https://github.com/EVERSE-ResearchSoftware/QualityPipelines
+url: https://github.com/EVERSE-ResearchSoftware/QualityPipelines
+abstract: A tool to check indicators related to research software quality.
+keywords:
+  - research-software
+  - software-quality
+  - quality-assessment
+  - quality-indicators
+  - continuous-integration
+  - github-action
+  - best-practices
+  - fair-principles
+  - reproducibility
+  - software-sustainability
+  - python
+license: MIT
+version: 0.1.7
+date-released: 2026-02-03

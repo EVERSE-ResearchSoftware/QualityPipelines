@@ -1,0 +1,6 @@
+{
+  "indicators": [
+	  { "name": "has_license", "plugin": "HowFairIs", "@id": "https://w3id.org/everse/i/indicators/license" },
+	  { "name": "has_citation", "plugin": "CFFConvert", "@id": "https://w3id.org/everse/i/indicators/citation" }
+  ]
+}

@@ -1,29 +1,44 @@
 """
 Usage:
-    resqui [options] -c <config_file> <repository_url>
+    resqui [options]
     resqui indicators
 
 Options:
-    <repository_url>   URL of the repository to be analyzed.
-    -c <config_file>   Path to the configuration file.
-    -o <output_file>   Path to the output file [default: resqui_summary.json].
-    -t <github_token>  GitHub API token.
-    -b <branch>        The Git branch to be checked [default: main].
-    --version          Show the version of the script.
-    --help             Show this help message.
+    -u <repository_url>   URL of the repository to be analyzed (GitHub URLs, Zenodo DOIs and URLs accepted).
+    -c <config_file>      Path to the configuration file.
+    -o <output_file>      Path to the output file [default: resqui_summary.json].
+    -t <github_token>     GitHub API token.
+    -d <dashverse_token>  DashVerse API token.
+    -b <branch>           The Git branch to be checked.
+    -v                    Verbose output.
+    --version             Show the version of the script.
+    --help                Show this help message.
 """
 
 import itertools
 import time
 import threading
 import importlib
+import os
+import shutil
+import subprocess
 import sys
+import tempfile
 
-from .core import Configuration, Context, Summary
-from .plugins import IndicatorPlugin
-from .api import Publisher
-from .docopt import docopt
-from .version import __version__
+from resqui.core import Context, Summary
+from resqui.config import Configuration
+from resqui.tools import (
+    indented,
+    is_zenodo_url,
+    to_https,
+    project_name_from_url,
+    ensure_list,
+    zenodo_url_to_git,
+)
+from resqui.plugins import IndicatorPlugin, PluginInitError
+from resqui.executors import ExecutorInitError
+from resqui.docopt import docopt
+from resqui.version import __version__
 
 
 class Spinner:
@@ -70,6 +85,48 @@ class Spinner:
         self.stop()
 
 
+class GitInspector:
+    def __init__(self, path="."):
+        self.path = os.path.abspath(path)
+
+    def git(self, *args):
+        return subprocess.check_output(
+            ["git", "-C", self.path] + list(args), text=True
+        ).strip()
+
+    @property
+    def version(self):
+        return self.git("describe", "--tags", "--always")
+
+    @property
+    def project_name_from_url(self):
+        return project_name_from_url(self.remote_url)
+
+    @property
+    def current_commit_hash(self):
+        return self.git("rev-parse", "HEAD")
+
+    @property
+    def author(self):
+        return self.git("show", "-s", "--pretty=format:%an", "HEAD")
+
+    @property
+    def email(self):
+        return self.git("show", "-s", "--pretty=format:%ae", "HEAD")
+
+    @property
+    def remote_url(self):
+        return self.git("config", "--get", "remote.origin.url")
+
+    @property
+    def remote_https_url(self):
+        return to_https(self.remote_url)
+
+    @property
+    def is_a_git_repository(self):
+        return os.path.isdir(os.path.join(self.path, ".git"))
+
+
 def resqui():
     args = docopt(__doc__, version=__version__)
 
@@ -79,58 +136,114 @@ def resqui():
 
     configuration = Configuration(args["-c"])
     output_file = args["-o"]
-    url = args["<repository_url>"]
+    url = args["-u"]
     branch = args["-b"]
     github_token = args["-t"]
+    dashverse_token = args["-d"]
+    verbose = args["-v"]
+
+    temp_dir = None
+    if url is None:
+        gitinspector = GitInspector()
+        if not gitinspector.is_a_git_repository:
+            print(
+                "Error: Not a Git repository. Either run resqui from within a repository or specify one with -u <url>"
+            )
+            exit(1)
+    else:
+        if is_zenodo_url(url):
+            url, branch = zenodo_url_to_git(url)
+
+        temp_dir = tempfile.mkdtemp()
+        try:
+            subprocess.run(
+                ["git", "clone", url, temp_dir],
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+        except subprocess.CalledProcessError as e:
+            print(f"Error cloning {url}: {e}")
+            raise
+        gitinspector = GitInspector(temp_dir)
+
+    url = gitinspector.remote_https_url
+    project_name = gitinspector.project_name_from_url
+    author = gitinspector.author
+    email = gitinspector.email
+    software_version = gitinspector.version
+
+    branch_hash_or_tag = gitinspector.current_commit_hash if branch is None else branch
+
+    if temp_dir is not None:
+        shutil.rmtree(temp_dir)
 
     if github_token is not None:
         print("GitHub API token \033[92m✔\033[0m")
+    else:
+        print("GitHub API token \033[91m✖\033[0m")
 
-    context = Context(github_token=github_token)
+    context = Context(github_token=github_token, dashverse_token=dashverse_token)
 
     print(f"Repository URL: {url}")
-    print(f"Branch: {branch}")
+    print(f"Project name: {project_name}")
+    print(f"Author: {author}")
+    print(f"Email: {email}")
+    print(f"Version: {software_version}")
+    print(f"Branch, tag or commit hash: {branch_hash_or_tag}")
     print("Checking indicators ...")
 
-    publisher = Publisher()
-    summary = Summary()
+    summary = Summary(
+        author, email, project_name, url, software_version, branch_hash_or_tag
+    )
     plugin_instances = {}
     for indicator in configuration._cfg["indicators"]:
         print(
-            f"    {indicator['name']}/{indicator['plugin']}",
+            f"  {indicator['name']}/{indicator['plugin']}",
             end=" ",
         )
         sys.stdout.flush()
 
         base_package = __name__.rsplit(".", 1)[0]
         plugin_class_name = indicator["plugin"]
+
         if plugin_class_name not in plugin_instances:
             plugin_module = importlib.import_module(base_package + ".plugins")
             plugin_class = getattr(plugin_module, plugin_class_name)
             with Spinner(print_time=False):
-                plugin_instances[plugin_class_name] = plugin_class(context)
+                try:
+                    plugin_instances[plugin_class_name] = plugin_class(context)
+                except (ExecutorInitError, PluginInitError) as e:
+                    print(f"⚠️  {e} (skipping its indicators)")
+                    continue
+
         plugin_instance = plugin_instances[plugin_class_name]
         plugin_method = indicator["name"]
+
         with Spinner():
-            result = getattr(plugin_instance, plugin_method)(url, branch)
+            results = getattr(plugin_instance, plugin_method)(url, branch_hash_or_tag)
 
-        if result:
-            print("\033[92m✔\033[0m")
-        else:
-            print("\033[91m✖\033[0m")
+        for result in ensure_list(results):
+            status = "\033[92m✔\033[0m" if result else "\033[91m✖\033[0m"
+            if verbose:
+                print(indented("\n" + result.evidence + status, 4), end="")
+            else:
+                print(status, end=" ")
 
-        summary.add_indicator_result(indicator, plugin_class, result)
+            summary.add_indicator_result(indicator, plugin_class, result)
+        print()
 
-    summary.to_json(output_file)
+    summary.write(output_file)
     print(f"Summary has been written to {output_file}")
 
-    print("Publishing summary ", end=" ")
+    print("Publishing summary ", end="")
     sys.stdout.flush()
-    success = publisher.upload(summary)
-    if success:
-        print("\033[92m✔\033[0m")
+    try:
+        summary.upload(context.dashverse_token)
+    except (RuntimeError, ValueError) as e:
+        print(f"\033[91m✖\033[0m {e}")
     else:
-        print("\033[91m✖\033[0m")
+        print("\033[92m✔\033[0m")
 
 
 def print_indicator_plugins():
