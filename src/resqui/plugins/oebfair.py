@@ -1,18 +1,19 @@
 import json
-import tempfile
 import os
 import shutil
+import tempfile
 
-from resqui.plugins.base import IndicatorPlugin
-from resqui.executors import DockerExecutor
 from resqui.core import CheckResult
+from resqui.executors import DockerExecutor
+from resqui.plugins.base import IndicatorPlugin
 
 
 class OEBFAIR(IndicatorPlugin):
     name = "OEBFAIR"
     id = "https://w3id.org/everse/tools/fairsoft-evaluator"
     version = "0.2.2"
-    image_url = f"registry.gitlab.bsc.es/everse/resqui-oeb-plugin/resqui-oebfair:v0.2.2"
+    image_url = "registry.gitlab.bsc.es/everse/resqui-oeb-plugin/resqui-oebfair:v0.2.2"
+    supports_local_path = False
     indicators = [
         "unique_identifier",
         "has_package",
@@ -26,7 +27,7 @@ class OEBFAIR(IndicatorPlugin):
         "version_control_use",
         "software_has_tests",
         "repository_workflows",
-        "archived_in_software_heritage"
+        "archived_in_software_heritage",
     ]
 
     def __init__(self, context):
@@ -43,13 +44,11 @@ class OEBFAIR(IndicatorPlugin):
 
         url = url.removesuffix(".git")
 
-        run_args = [
-            "--rm",
-            "-v",
-            f"{tempdir}:/oebfair/oebfair_output"
-        ]
+        run_args = ["--rm", "-v", f"{tempdir}:/oebfair/oebfair_output"]
 
-        _ = self.executor.run(["--repo", url, "-t", f"{self.context.github_token}"], run_args=run_args)
+        _ = self.executor.run(
+            ["--repo", url, "-t", f"{self.context.github_token}"], run_args=run_args
+        )
 
         assessment_filename = "oebfair_assessment.json"
         assessment_fpath = os.path.join(tempdir, assessment_filename)
@@ -107,7 +106,7 @@ class OEBFAIR(IndicatorPlugin):
                     status_id=check["status"]["@id"],
                     output=check["output"],
                     evidence=check["evidence"],
-                    success=success
+                    success=success,
                 )
 
                 check_list.append(check_res)

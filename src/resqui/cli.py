@@ -5,6 +5,7 @@ Usage:
 
 Options:
     -u <repository_url>   URL of the repository to be analyzed (GitHub URLs, Zenodo DOIs and URLs accepted).
+    -p <project_path>     Path to a local project directory to be analyzed without requiring Git history.
     -c <config_file>      Path to the configuration file.
     -o <output_file>      Path to the output file [default: resqui_summary.json].
     -t <github_token>     GitHub API token.
@@ -15,29 +16,29 @@ Options:
     --help                Show this help message.
 """
 
-import itertools
-import time
-import threading
 import importlib
+import itertools
 import os
 import shutil
 import subprocess
 import sys
 import tempfile
+import threading
+import time
 
-from resqui.core import Context, Summary
 from resqui.config import Configuration
+from resqui.core import Context, Summary
+from resqui.docopt import docopt
+from resqui.executors import ExecutorInitError
+from resqui.plugins import IndicatorPlugin, PluginInitError
 from resqui.tools import (
+    ensure_list,
     indented,
     is_zenodo_url,
-    to_https,
     project_name_from_url,
-    ensure_list,
+    to_https,
     zenodo_url_to_git,
 )
-from resqui.plugins import IndicatorPlugin, PluginInitError
-from resqui.executors import ExecutorInitError
-from resqui.docopt import docopt
 from resqui.version import __version__
 
 
@@ -137,19 +138,46 @@ def resqui():
     configuration = Configuration(args["-c"])
     output_file = args["-o"]
     url = args["-u"]
+    project_path = args["-p"]
     branch = args["-b"]
     github_token = args["-t"]
     dashverse_token = args["-d"]
     verbose = args["-v"]
 
     temp_dir = None
-    if url is None:
+    local_path = None
+    if project_path is not None:
+        if url is not None:
+            print("Error: -u and -p are mutually exclusive.")
+            exit(1)
+        local_path = os.path.abspath(os.path.expanduser(os.path.expandvars(project_path)))
+        if not os.path.isdir(local_path):
+            print(
+                f"Error: Project path does not exist or is not a directory: {local_path}"
+            )
+            exit(1)
+        url = local_path
+        project_name = os.path.basename(local_path.rstrip(os.sep)) or local_path
+        author = "local"
+        email = "local"
+        software_version = "local"
+        branch_hash_or_tag = branch if branch is not None else "local"
+    elif url is None:
         gitinspector = GitInspector()
         if not gitinspector.is_a_git_repository:
             print(
                 "Error: Not a Git repository. Either run resqui from within a repository or specify one with -u <url>"
             )
             exit(1)
+
+        url = gitinspector.remote_https_url
+        project_name = gitinspector.project_name_from_url
+        author = gitinspector.author
+        email = gitinspector.email
+        software_version = gitinspector.version
+        branch_hash_or_tag = (
+            gitinspector.current_commit_hash if branch is None else branch
+        )
     else:
         if is_zenodo_url(url):
             url, branch = zenodo_url_to_git(url)
@@ -167,13 +195,14 @@ def resqui():
             raise
         gitinspector = GitInspector(temp_dir)
 
-    url = gitinspector.remote_https_url
-    project_name = gitinspector.project_name_from_url
-    author = gitinspector.author
-    email = gitinspector.email
-    software_version = gitinspector.version
-
-    branch_hash_or_tag = gitinspector.current_commit_hash if branch is None else branch
+        url = gitinspector.remote_https_url
+        project_name = gitinspector.project_name_from_url
+        author = gitinspector.author
+        email = gitinspector.email
+        software_version = gitinspector.version
+        branch_hash_or_tag = (
+            gitinspector.current_commit_hash if branch is None else branch
+        )
 
     if temp_dir is not None:
         shutil.rmtree(temp_dir)
@@ -183,9 +212,16 @@ def resqui():
     else:
         print("GitHub API token \033[91m✖\033[0m")
 
-    context = Context(github_token=github_token, dashverse_token=dashverse_token)
+    context = Context(
+        github_token=github_token,
+        dashverse_token=dashverse_token,
+        local_path=local_path,
+    )
 
-    print(f"Repository URL: {url}")
+    if local_path is not None:
+        print(f"Project path: {local_path}")
+    else:
+        print(f"Repository URL: {url}")
     print(f"Project name: {project_name}")
     print(f"Author: {author}")
     print(f"Email: {email}")
@@ -210,6 +246,13 @@ def resqui():
         if plugin_class_name not in plugin_instances:
             plugin_module = importlib.import_module(base_package + ".plugins")
             plugin_class = getattr(plugin_module, plugin_class_name)
+            if context.local_path is not None and not getattr(
+                plugin_class, "supports_local_path", False
+            ):
+                print(
+                    f"⚠️  {plugin_class_name} does not support local project path mode (skipping its indicators)"
+                )
+                continue
             with Spinner(print_time=False):
                 try:
                     plugin_instances[plugin_class_name] = plugin_class(context)

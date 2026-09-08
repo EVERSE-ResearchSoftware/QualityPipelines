@@ -1,13 +1,15 @@
 import json
 import subprocess
-from resqui.plugins.base import IndicatorPlugin, PluginInitError
+
 from resqui.core import CheckResult
+from resqui.plugins.base import IndicatorPlugin, PluginInitError
 
 
 class OpenSSFScorecard(IndicatorPlugin):
     name = "OpenSSF Scorecard"
     id = "https://github.com/ossf/scorecard"
     version = "v5.4.0"
+    supports_local_path = False
     indicators = [
         "has_ci_tests",
         "human_code_review_requirement",
@@ -17,7 +19,7 @@ class OpenSSFScorecard(IndicatorPlugin):
         "no_critical_vulnerability",
         "static_analysis_common_vulnerabilities",
         "project_is_active",
-        "has_no_binary_artifacts"
+        "has_no_binary_artifacts",
     ]
 
     def __init__(self, context):
@@ -44,15 +46,24 @@ class OpenSSFScorecard(IndicatorPlugin):
         if cache_key in self._cache:
             return self._cache[cache_key]
 
-        url = url[:-4] if url.endswith(".git") else url
-        
-        check_values = ["CI-Tests", "SAST", "Maintained", "Fuzzing", "Dependency-Update-Tool", "Vulnerabilities", "Code-Review", "Packaging"]
+        url = url.removesuffix(".git")
+
+        check_values = [
+            "CI-Tests",
+            "SAST",
+            "Maintained",
+            "Fuzzing",
+            "Dependency-Update-Tool",
+            "Vulnerabilities",
+            "Code-Review",
+            "Packaging",
+        ]
         check_args = [arg for check in check_values for arg in ("--checks", check)]
 
         cmd = [
             "docker",
             "run",
-            "--rm", 
+            "--rm",
             "-e",
             f"GITHUB_AUTH_TOKEN={self.context.github_token}",
             f"gcr.io/openssf/scorecard:{self.version}",
@@ -179,7 +190,7 @@ class OpenSSFScorecard(IndicatorPlugin):
             evidence=evidence,
             success=success,
         )
-        
+
     def static_analysis_common_vulnerabilities(self, url, branch_hash_or_tag):
         results = self.execute(url, branch_hash_or_tag)
         check = self.get_score(results, "SAST")
@@ -199,9 +210,9 @@ class OpenSSFScorecard(IndicatorPlugin):
             evidence=evidence,
             success=success,
         )
-        
+
     def dependency_management(self, url, branch_hash_or_tag):
-        success=False
+        success = False
         results = self.execute(url, branch_hash_or_tag)
         check = self.get_score(results, "Dependency-Update-Tool")
         if check["score"] > 0:
@@ -220,9 +231,9 @@ class OpenSSFScorecard(IndicatorPlugin):
             evidence=evidence,
             success=success,
         )
-        
+
     def no_critical_vulnerability(self, url, branch_hash_or_tag):
-        success=False
+        success = False
         results = self.execute(url, branch_hash_or_tag)
         check = self.get_score(results, "Vulnerabilities")
         if check["score"] >= 7:
@@ -240,9 +251,9 @@ class OpenSSFScorecard(IndicatorPlugin):
             evidence=evidence,
             success=success,
         )
-        
+
     def uses_fuzzing(self, url, branch_hash_or_tag):
-        success=False
+        success = False
         results = self.execute(url, branch_hash_or_tag)
         check = self.get_score(results, "Fuzzing")
         if check["score"] > 0:
@@ -261,7 +272,7 @@ class OpenSSFScorecard(IndicatorPlugin):
             evidence=evidence,
             success=success,
         )
-        
+
     def has_no_binary_artifacts(self, url, branch_hash_or_tag):
         results = self.execute(url, branch_hash_or_tag)
         check = self.get_score(results, "Fuzzing")

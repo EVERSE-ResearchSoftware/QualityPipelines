@@ -30,6 +30,12 @@ Run against a remote repository and write output to a custom file:
 resqui -u https://github.com/org/repo -t $GITHUB_TOKEN -o report.json
 ```
 
+Run against a local project directory without requiring Git history:
+
+```bash
+resqui -p /path/to/project -t $GITHUB_TOKEN -o report.json
+```
+
 ## Navigation
 
 | Section | What you'll find |

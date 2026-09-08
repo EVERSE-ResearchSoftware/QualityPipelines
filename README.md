@@ -41,7 +41,8 @@ Usage:
     resqui indicators
 
 Options:
-    -u <repository_url>   URL of the repository to be analyzed (GitHub URLs, Zenodo DOIs and URLs accepted)
+    -u <repository_url>   URL of the repository to be analyzed (GitHub URLs, Zenodo DOIs and URLs accepted). Mutually exclusive with -p.
+    -p <project_path>     Path to a local project directory to be analyzed without requiring Git history. Mutually exclusive with -u.
     -c <config_file>      Path to the configuration file.
     -o <output_file>      Path to the output file [default: resqui_summary.json].
     -t <github_token>     GitHub API token.
@@ -51,6 +52,8 @@ Options:
     --version             Show the version of the script.
     --help                Show this help message.
  ```
+
+Note: `-u` and `-p` are mutually exclusive. Specify either a repository URL or a local project path, not both.
 
 
 2) The GitHub Action to include in CI/CDs pipeline is available in [this repository](https://github.com/EVERSE-ResearchSoftware/resqui-github-action).

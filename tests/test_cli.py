@@ -1,17 +1,16 @@
 import contextlib
 import io
-import sys  # noqa: F401
 import os
 import subprocess
+import sys  # noqa: F401
 import tempfile
 import unittest
 from unittest.mock import MagicMock, patch
 
-from resqui.cli import GitInspector, Spinner, print_indicator_plugins, resqui
-from resqui.docopt import docopt
-
 # The module docstring is the docopt spec; import it for arg-parsing tests.
 import resqui.cli as cli_module
+from resqui.cli import GitInspector, Spinner, print_indicator_plugins, resqui
+from resqui.docopt import docopt
 
 
 def _make_git_repo(path):
@@ -181,8 +180,10 @@ class TestResquiExitPaths(unittest.TestCase):
             orig_dir = os.getcwd()
             os.chdir(plain_dir)
             try:
-                with patch("sys.argv", ["resqui"]), patch("builtins.print"), patch(
-                    "resqui.cli.Configuration"
+                with (
+                    patch("sys.argv", ["resqui"]),
+                    patch("builtins.print"),
+                    patch("resqui.cli.Configuration"),
                 ):
                     with self.assertRaises(SystemExit) as cm:
                         resqui()
@@ -191,9 +192,11 @@ class TestResquiExitPaths(unittest.TestCase):
                 os.chdir(orig_dir)
 
     def test_indicators_subcommand_exits_cleanly(self):
-        with patch("sys.argv", ["resqui", "indicators"]), patch(
-            "resqui.cli.print_indicator_plugins"
-        ), patch("builtins.print"):
+        with (
+            patch("sys.argv", ["resqui", "indicators"]),
+            patch("resqui.cli.print_indicator_plugins"),
+            patch("builtins.print"),
+        ):
             with self.assertRaises(SystemExit) as cm:
                 resqui()
             self.assertEqual(cm.exception.code, 0)
@@ -404,16 +407,18 @@ class TestResquiMainPath(unittest.TestCase):
     def test_clone_failure_propagates(self):
         import subprocess as sp
 
-        with self._patches(
-            argv=["resqui", "-u", "https://github.com/user/repo"],
-            **{
-                "resqui.cli.subprocess.run": MagicMock(
-                    side_effect=sp.CalledProcessError(128, "git")
-                )
-            },
+        with (
+            self._patches(
+                argv=["resqui", "-u", "https://github.com/user/repo"],
+                **{
+                    "resqui.cli.subprocess.run": MagicMock(
+                        side_effect=sp.CalledProcessError(128, "git")
+                    )
+                },
+            ),
+            self.assertRaises(sp.CalledProcessError),
         ):
-            with self.assertRaises(sp.CalledProcessError):
-                resqui()
+            resqui()
 
     def test_clone_zenodo_url_path(self):
         def mock_requests_get(url, headers=None):
@@ -455,6 +460,69 @@ class TestResquiMainPath(unittest.TestCase):
         ):
             resqui()
         self.summary.write.assert_called_once()
+
+    def test_local_project_path_mode_skips_incompatible_plugins(self):
+        mock_incompatible_class = MagicMock()
+        mock_incompatible_class.supports_local_path = False
+        mock_incompatible_class.name = "IncompatiblePlugin"
+        mock_incompatible_class.version = "0.1"
+        mock_incompatible_class.return_value = MagicMock()
+
+        mock_module = MagicMock()
+        mock_module.IncompatiblePlugin = mock_incompatible_class
+
+        self.config._cfg = {
+            "indicators": [
+                {
+                    "name": "dummy_indicator",
+                    "plugin": "IncompatiblePlugin",
+                    "@id": "https://example.com/dummy",
+                }
+            ]
+        }
+
+        with self._patches(
+            argv=["resqui", "-p", "."],
+            **{
+                "resqui.cli.importlib.import_module": MagicMock(
+                    return_value=mock_module
+                )
+            },
+        ):
+            resqui()
+
+        self.summary.add_indicator_result.assert_not_called()
+        self.summary.write.assert_called_once()
+
+    def test_local_project_path_mode_conflicts_with_url(self):
+        with self._patches(
+            argv=["resqui", "-p", ".", "-u", "https://github.com/user/repo"]
+        ):
+            with self.assertRaises(SystemExit) as cm:
+                resqui()
+            self.assertEqual(cm.exception.code, 1)
+
+    def test_local_project_path_mode_requires_directory(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            fake_file = os.path.join(temp_dir, "file.txt")
+            with open(fake_file, "w") as f:
+                f.write("data")
+            with self._patches(argv=["resqui", "-p", fake_file]):
+                with self.assertRaises(SystemExit) as cm:
+                    resqui()
+                self.assertEqual(cm.exception.code, 1)
+
+    def test_local_project_path_mode_expands_user_home_in_path(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            fake_path = os.path.join(temp_dir, "project")
+            os.makedirs(fake_path)
+            user_path = os.path.expanduser(os.path.join("~", os.path.relpath(fake_path, os.path.expanduser("~"))))
+
+            with self._patches(argv=["resqui", "-p", user_path]):
+                with patch("resqui.cli.os.path.isdir", return_value=True), patch("resqui.cli.os.path.abspath", return_value=fake_path):
+                    resqui()
+
+            self.summary.write.assert_called_once()
 
 
 class TestPrintIndicatorPluginsNoIndicators(unittest.TestCase):

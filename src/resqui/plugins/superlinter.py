@@ -4,9 +4,9 @@ import re
 import shutil
 import subprocess
 
-from resqui.plugins import IndicatorPlugin
-from resqui.executors import DockerExecutor
 from resqui.core import CheckResult
+from resqui.executors import DockerExecutor
+from resqui.plugins import IndicatorPlugin
 from resqui.workspace import create_workspace
 
 
@@ -15,6 +15,7 @@ class SuperLinter(IndicatorPlugin):
     version = "8.7.0"
     image_url = f"ghcr.io/super-linter/super-linter:v{version}"
     id = "https://w3id.org/everse/tools/superlinter"
+    supports_local_path = False
     indicators = ["has_no_linting_issues"]
 
     def __init__(self, context):

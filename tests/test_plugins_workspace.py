@@ -40,10 +40,9 @@ class TestPluginSharedWorkspace(unittest.TestCase):
         plugin.context = Context(github_token="token")
         plugin.executor = FakeExecutor(stderr="no leaks found")
 
-        with tempfile.TemporaryDirectory() as root:
-            with patch.dict(os.environ, self._env(root), clear=True):
-                with patch("resqui.plugins.gitleaks.subprocess.run", side_effect=fake_clone):
-                    plugin.has_no_security_leak("https://github.com/example/repo", "main")
+        with tempfile.TemporaryDirectory() as root, patch.dict(os.environ, self._env(root), clear=True):
+            with patch("resqui.plugins.gitleaks.subprocess.run", side_effect=fake_clone):
+                plugin.has_no_security_leak("https://github.com/example/repo", "main")
 
         command, run_args = plugin.executor.calls[0]
         self.assertEqual(run_args, ["--rm", "-v", f"sqoo_resqui_work:{root}"])
@@ -55,10 +54,9 @@ class TestPluginSharedWorkspace(unittest.TestCase):
         plugin.context = Context(github_token="token")
         plugin.executor = FakeExecutor(stdout="")
 
-        with tempfile.TemporaryDirectory() as root:
-            with patch.dict(os.environ, self._env(root), clear=True):
-                with patch("resqui.plugins.superlinter.subprocess.run"):
-                    plugin.has_no_linting_issues("https://github.com/example/repo", "main")
+        with tempfile.TemporaryDirectory() as root, patch.dict(os.environ, self._env(root), clear=True):
+            with patch("resqui.plugins.superlinter.subprocess.run"):
+                plugin.has_no_linting_issues("https://github.com/example/repo", "main")
 
         _, run_args = plugin.executor.calls[0]
         self.assertIn("--rm", run_args)
@@ -88,9 +86,8 @@ class TestPluginSharedWorkspace(unittest.TestCase):
         plugin.executor = fake_executor
         plugin._cache = {}
 
-        with tempfile.TemporaryDirectory() as root:
-            with patch.dict(os.environ, self._env(root), clear=True):
-                plugin.execute("https://github.com/example/repo", "main")
+        with tempfile.TemporaryDirectory() as root, patch.dict(os.environ, self._env(root), clear=True):
+            plugin.execute("https://github.com/example/repo", "main")
 
         command, run_args = fake_executor.calls[0]
         self.assertIn("-v", run_args)
@@ -120,9 +117,52 @@ class TestPluginSharedWorkspace(unittest.TestCase):
         plugin.executor = fake_executor
         plugin._cache = {}
 
-        with tempfile.TemporaryDirectory() as root:
-            with patch.dict(os.environ, self._env(root), clear=True):
-                plugin.execute("https://github.com/example/repo", "main")
+        with tempfile.TemporaryDirectory() as root, patch.dict(os.environ, self._env(root), clear=True):
+            plugin.execute("https://github.com/example/repo", "main")
 
         command, _ = fake_executor.calls[0]
         self.assertNotIn("-t", command)
+
+    def test_rsfc_supports_local_path_mode(self):
+        self.assertTrue(RSFC.supports_local_path)
+
+    def test_rsfc_mounts_local_project_path_when_local_path_mode(self):
+        def fake_rsfc_run(command, run_args=None):
+            run_args = run_args or []
+            self.assertIn("-v", run_args)
+            self.assertTrue(any(arg.endswith(":/rsfc_project") for arg in run_args))
+            workdir = run_args[run_args.index("-w") + 1] if "-w" in run_args else None
+            if workdir is not None:
+                output_dir = os.path.join(workdir, "rsfc_output")
+            else:
+                output_dir = os.path.join(root, "rsfc_output")
+            os.makedirs(output_dir, exist_ok=True)
+            assessment_path = os.path.join(output_dir, "rsfc_assessment.json")
+            with open(assessment_path, "w") as f:
+                json.dump({"checks": []}, f)
+            return SimpleNamespace(stdout="", stderr="")
+
+        fake_executor = FakeExecutor()
+        fake_executor.run = fake_rsfc_run
+
+        plugin = RSFC.__new__(RSFC)
+        plugin.context = Context(github_token="token", local_path="/tmp/project")
+        plugin.executor = fake_executor
+        plugin._cache = {}
+
+        with tempfile.TemporaryDirectory() as root, patch.dict(os.environ, self._env(root), clear=True):
+            plugin.execute("/tmp/project", "local")
+
+    def test_rsfc_skips_local_mode_unsupported_checks(self):
+        plugin = RSFC.__new__(RSFC)
+        plugin.context = Context(github_token="token", local_path="/tmp/project")
+        plugin.executor = FakeExecutor()
+        plugin._cache = {}
+        plugin.execute = lambda url, branch_hash_or_tag: {}
+
+        result = plugin.version_control_use("/tmp/project", "local")
+
+        self.assertEqual(result.status_id, "schema:FailedActionStatus")
+        self.assertEqual(result.output, "missing")
+        self.assertFalse(result)
+        self.assertIn("RSFC local analysis does not generate check 'RSFC-09-1'", result.evidence)
