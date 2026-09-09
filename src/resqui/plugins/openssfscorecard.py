@@ -301,7 +301,7 @@ class OpenSSFScorecard(IndicatorPlugin):
             process=(
                 "Checks whether the project uses a static analysis tool "
                 "to detect code quality errors or common mistakes. "
-                "A low Scorecard SAST score does not necessarily mean that the "
+                "A low Scorecard Static Application Security Testing (SAST) score does not necessarily mean that the "
                 "project does not use SAST, since Scorecard may not detect all possible "
                 "SAST setups. "
                 "Documentation: https://github.com/ossf/scorecard/blob/main/docs/checks.md#sast"
