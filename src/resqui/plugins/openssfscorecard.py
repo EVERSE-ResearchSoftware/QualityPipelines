@@ -298,7 +298,11 @@ class OpenSSFScorecard(IndicatorPlugin):
         evidence = self.format_details(check["details"])
 
         return CheckResult(
-            process="Checks whether the project uses a static analysis tool to detect code quality errors or common mistakes.",
+            process="Checks whether the project uses a static analysis tool"
+                    " to detect code quality errors or common mistakes."
+                    "A low Scorecard SAST score does not necessarily mean that the"
+                    "project does not use SAST, since Scorecard may not detect all possible SAST setups."
+                    "documentation: github.com/ossf/scorecard/blob/main/docs/checks.md#sast",
             status_id="schema:CompletedActionStatus",
             output=output,
             evidence=evidence,
