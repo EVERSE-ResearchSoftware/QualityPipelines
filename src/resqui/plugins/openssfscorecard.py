@@ -8,6 +8,7 @@ class OpenSSFScorecard(IndicatorPlugin):
     name = "OpenSSF Scorecard"
     id = "https://github.com/ossf/scorecard"
     version = "v5.4.0"
+    image_url = f"ghcr.io/ossf/scorecard:{version}"
     indicators = [
         "has_ci_tests",
         "human_code_review_requirement",
@@ -17,7 +18,8 @@ class OpenSSFScorecard(IndicatorPlugin):
         "no_critical_vulnerability",
         "static_analysis_common_vulnerabilities",
         "project_is_active",
-        "has_no_binary_artifacts"
+        "has_no_binary_artifacts",
+        "uses_tool_for_warnings_and_mistakes"
     ]
 
     def __init__(self, context):
@@ -30,7 +32,7 @@ class OpenSSFScorecard(IndicatorPlugin):
     def instantiate(self):
         try:
             subprocess.run(
-                ["docker", "pull", f"gcr.io/openssf/scorecard:{self.version}"],
+                ["docker", "pull", self.image_url],
                 check=True,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
@@ -55,7 +57,7 @@ class OpenSSFScorecard(IndicatorPlugin):
             "--rm", 
             "-e",
             f"GITHUB_AUTH_TOKEN={self.context.github_token}",
-            f"gcr.io/openssf/scorecard:{self.version}",
+            self.image_url,
             *check_args,
             "--show-details",
             "--repo",
@@ -276,6 +278,27 @@ class OpenSSFScorecard(IndicatorPlugin):
 
         return CheckResult(
             process="Checks if the project contains binary artifacts",
+            status_id="schema:CompletedActionStatus",
+            output=output,
+            evidence=evidence,
+            success=success,
+        )
+        
+    def uses_tool_for_warnings_and_mistakes(self, url, branch_hash_or_tag):
+        results = self.execute(url, branch_hash_or_tag)
+        check = self.get_score(results, "SAST")
+
+        if check["score"] > 0:
+            output = "true"
+            success = True
+        else:
+            output = "false"
+            success = False
+
+        evidence = self.format_details(check["details"])
+
+        return CheckResult(
+            process="Checks whether the project uses a static analysis tool to detect code quality errors or common mistakes.",
             status_id="schema:CompletedActionStatus",
             output=output,
             evidence=evidence,
