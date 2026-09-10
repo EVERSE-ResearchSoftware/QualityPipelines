@@ -239,6 +239,22 @@
       "name": "listed_in_registry",
       "plugin": "OEBFAIR",
       "@id": "https://w3id.org/everse/i/indicators/listed_in_registry"
+    },
+    { "name": "cyclomatic_complexity_ok",
+      "plugin": "PySCN",
+      "@id": "https://w3id.org/everse/i/indicators/cyclomatic_complexity_ok"
+    },
+    { "name": "code_duplication_ok",
+      "plugin": "PySCN",
+      "@id": "https://w3id.org/everse/i/indicators/code_duplication_ok"
+    },
+    { "name": "coupling_between_objects_ok",
+      "plugin": "PySCN",
+      "@id": "https://w3id.org/everse/i/indicators/coupling_between_objects_ok"
+    },
+    { "name": "internal_cohesion_ok",
+      "plugin": "PySCN",
+      "@id": "https://w3id.org/everse/i/indicators/internal_cohesion_ok"
     }
   ]
 }
