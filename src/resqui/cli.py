@@ -239,7 +239,9 @@ def resqui():
 
     summary.write(output_file)
     print(f"Summary has been written to {output_file}")
-
+    
+    shutil.rmtree(os.path.join("tmp", "somef_outputs"), ignore_errors=True)
+    
     print("Publishing summary ", end="")
     sys.stdout.flush()
     try:
