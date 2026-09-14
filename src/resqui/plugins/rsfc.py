@@ -29,7 +29,8 @@ class RSFC(IndicatorPlugin):
         "repository_workflows",
         "archived_in_software_heritage",
         "has_contribution_guidelines",
-        "software_is_containerized"
+        "software_is_containerized",
+        "has_active_communication_channels"
     ]
 
     def __init__(self, context):
@@ -110,6 +111,23 @@ class RSFC(IndicatorPlugin):
             success=success,
         )
 
+        return check
+    
+    def has_active_communication_channels(self, url, branch_hash_or_tag):
+        report = self.execute(url, branch_hash_or_tag)
+        check = report["RSFC-05-2"]
+        if check["output"] == "true":
+            success = True
+        else:
+            success = False
+        check = CheckResult(
+                    process=check["process"],
+                    status_id=check["status"]["@id"],
+                    output=check["output"],
+                    evidence=check["evidence"],
+                    success=success,
+                )
+        
         return check
     
     def has_active_contributors(self, url, branch_hash_or_tag):
