@@ -10,7 +10,7 @@ from resqui.workspace import create_workspace
 class RSFC(IndicatorPlugin):
     name = "RSFC"
     id = "https://w3id.org/everse/tools/rsfc"
-    version = "0.1.7"
+    version = "0.1.8"
     image_url = f"docker.io/amonterodx/rsfc:{version}"
     indicators = [
         "persistent_and_unique_identifier",
@@ -22,6 +22,9 @@ class RSFC(IndicatorPlugin):
         "descriptive_metadata",
         "versioning_standards_use",
         "version_control_use",
+        "has_active_contributors",
+        "support_issue_tracking",
+        "codemeta_completeness",
         "software_has_tests",
         "repository_workflows",
         "archived_in_software_heritage",
@@ -91,6 +94,124 @@ class RSFC(IndicatorPlugin):
         self._cache[cache_key] = report
 
         return report
+
+    def support_issue_tracking(self, url, branch_hash_or_tag):
+        report = self.execute(url, branch_hash_or_tag)
+        check = report["RSFC-20-1"]
+        if check["output"] == "true":
+            success = True
+        else:
+            success = False
+        check = CheckResult(
+            process=check["process"],
+            status_id=check["status"]["@id"],
+            output=check["output"],
+            evidence=check["evidence"],
+            success=success,
+        )
+
+        return check
+    
+    def has_active_contributors(self, url, branch_hash_or_tag):
+        report = self.execute(url, branch_hash_or_tag)
+        check = report["RSFC-06-2"]
+        if check["output"] == "true":
+            success = True
+        else:
+            success = False
+        check = CheckResult(
+            process=check["process"],
+            status_id=check["status"]["@id"],
+            output=check["output"],
+            evidence=check["evidence"],
+            success=success,
+        )
+
+        return check
+
+    def codemeta_completeness(self, url, branch_hash_or_tag):
+        codemeta_process = (
+            "RSFC-01-2",
+            "RSFC-03-6",
+            "RSFC-04-1",
+            "RSFC-04-3",
+            "RSFC-04-4",
+            "RSFC-06-1",
+            "RSFC-06-2",
+            "RSFC-16-1",
+            "RSFC-20-1",
+        )
+        report = self.execute(url, branch_hash_or_tag)
+        checks = [
+            (check_id, report[check_id])
+            for check_id in codemeta_process
+            if check_id in report
+        ]
+        codemeta_checks = [
+            (check_id, check)
+            for check_id, check in checks
+            if "codemeta" in check["evidence"].lower()
+        ]
+        outputs = []
+        output = "false"
+        for _, check in codemeta_checks:
+            outputs.append(check["output"])
+
+        true_count = outputs.count("true")
+        total_count = len(outputs)
+        percentage = (
+            (true_count / total_count) * 100
+            if total_count > 0
+            else 0
+        )
+        if percentage >= 70:
+            success = True
+            output = "true"
+        else:
+            success = False
+            output = "false"
+
+        passed_check_ids = [
+            check_id
+            for check_id, check in codemeta_checks
+            if check["output"] == "true"
+        ]
+        passed_checks_text = ", ".join(passed_check_ids) or "none"
+        
+        process_lines = [
+            f"- {check_id}: {check['output']}"
+            for check_id, check in codemeta_checks
+        ]
+
+        process_output = "\n".join(process_lines)
+        if not process_output:
+            process_output = "- No RSFC processes with CodeMeta evidence were found."
+
+        passed_check_ids = [
+            check_id
+            for check_id, check in codemeta_checks
+        ]
+        checks_text = ", ".join(passed_check_ids) or "none"
+        
+        evidence = (
+            f"CodeMeta completeness achieved: {percentage:.2f}% "
+            f"({true_count}/{total_count} processes passed).\n\n"
+            "CodeMeta test outputs:\n"
+            + process_output
+        )
+        check = CheckResult(
+            process=(
+                f"This check runs the tests {checks_text} in search of codemeta "
+                "mention in their results. Test descriptions are available in "
+                "https://oeg-upm.github.io/rsfc/doc/catalog.html#test"
+            ),
+            status_id="schema:CompletedActionStatus",
+            output=output,
+            evidence=evidence,
+            success=success,
+        )
+
+        return check
 
     def persistent_and_unique_identifier(self, url, branch_hash_or_tag):
         
