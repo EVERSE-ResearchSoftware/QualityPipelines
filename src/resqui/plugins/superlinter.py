@@ -1,4 +1,7 @@
+import os
 import platform
+import re
+import shutil
 import subprocess
 
 from resqui.plugins import IndicatorPlugin
@@ -9,7 +12,7 @@ from resqui.workspace import create_workspace
 
 class SuperLinter(IndicatorPlugin):
     name = "SuperLinter"
-    version = "7.3.0"
+    version = "8.7.0"
     image_url = f"ghcr.io/super-linter/super-linter:v{version}"
     id = "https://w3id.org/everse/tools/superlinter"
     indicators = ["has_no_linting_issues"]
@@ -35,34 +38,64 @@ class SuperLinter(IndicatorPlugin):
                 raise
 
             lint_path = workspace.container_path("/tmp/lint")
+
             run_args = [
-                #            "-e",
-                #            "LOG_LEVEL=DEBUG",
-                "--rm",      
+                "--rm",
                 "-e",
                 "RUN_LOCAL=true",
                 "-e",
                 f"DEFAULT_BRANCH={branch}",
                 "-e",
                 f"DEFAULT_WORKSPACE={lint_path}",
+                "-e",
+                "SAVE_SUPER_LINTER_SUMMARY=true",
+                "--user",
+                f"{os.getuid()}:{os.getgid()}",
                 *workspace.docker_mount_args("/tmp/lint"),
             ]
+
             p = self.executor.run([], run_args=run_args)
 
-        if "Super-linter detected linting errors" in p.stdout:
-            output = "invalid"
-            evidence = "Linting errors have been detected."
-            success = False
-        else:
-            output = "valid"
-            evidence = "No linting errors have been detected."
-            success = True
+            summary_path = os.path.join(
+                workspace.local_path,
+                "super-linter-output",
+                "super-linter-summary.md",
+            )
 
-        # print("STDOUT")
-        # print(p.stdout)
-        # print()
-        # print("STDERR")
-        # print(p.stderr)
+            if "Super-linter detected linting errors" in p.stdout:
+                failed_linters = self.get_failed_linters(summary_path)
+
+                summary_destination = os.path.abspath(
+                    os.path.join(
+                        os.getcwd(),
+                        "super-linter-summary.md",
+                    )
+                )
+
+                shutil.copy2(summary_path, summary_destination)
+
+                output = "false"
+
+                if failed_linters:
+                    evidence = (
+                        "Super-linter detected linting errors with the "
+                        f"following linters: {', '.join(failed_linters)}. "
+                        f"You can check the detailed errors in "
+                        f"{summary_destination}"
+                    )
+                else:
+                    evidence = (
+                        "Super-linter detected linting errors. "
+                        f"You can check the detailed errors in "
+                        f"{summary_destination}"
+                    )
+
+                success = False
+
+            else:
+                output = "true"
+                evidence = "No linting errors have been detected."
+                success = True
 
         return CheckResult(
             process="Searches for linting errors.",
@@ -71,3 +104,19 @@ class SuperLinter(IndicatorPlugin):
             evidence=evidence,
             success=success,
         )
+
+    def get_failed_linters(self, summary_path):
+        """
+        Return the names of the linters that reported failures.
+        """
+
+        with open(summary_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        failed_linters = re.findall(
+            r"^\|\s*([A-Z0-9_]+)\s*\|\s*Fail\s*❌\s*\|",
+            content,
+            re.MULTILINE,
+        )
+
+        return failed_linters
