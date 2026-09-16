@@ -30,7 +30,7 @@ Navigate to any Git repository on your machine and run:
 resqui -t $GITHUB_TOKEN
 ```
 
-resqui detects the remote URL automatically and runs all default indicators.
+resqui detects the repository remote URL automatically from the current working directory's `.git` metadata and runs all default indicators.
 You will see a live progress line per indicator:
 
 ```
