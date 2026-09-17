@@ -239,6 +239,10 @@
       "name": "listed_in_registry",
       "plugin": "OEBFAIR",
       "@id": "https://w3id.org/everse/i/indicators/listed_in_registry"
+    },
+    { "name": "code_churn_ok",
+      "plugin": "Repowise",
+      "@id": "https://w3id.org/everse/i/indicators/code_churn_ok" 
     }
   ]
 }
