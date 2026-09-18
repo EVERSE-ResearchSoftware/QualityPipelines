@@ -52,8 +52,8 @@ class PySCN(IndicatorPlugin):
                     stderr=subprocess.DEVNULL,
                 )
 
-            src_dirs = [d for d in repo_path.rglob("src") if d.is_dir() and ".git" not in d.parts]
-            search_base = src_dirs[0] if src_dirs else repo_path
+            src_dir = repo_path / "src"
+            search_base = src_dir if src_dir.is_dir() else repo_path
             ignored_dirs = {".git", "venv", ".venv", "__pycache__", "build", "dist", ".egg-info"}
 
             all_files = [
@@ -159,7 +159,7 @@ class PySCN(IndicatorPlugin):
             return self.handle_skip("Measures internal cohesion (LCOM4) of Python classes")
 
         summary = report["summary"]
-        ok = summary["high_lcom_classes"] <= 4
+        ok = summary["average_lcom"] <= 4
         return CheckResult(
             process="Measures internal cohesion (LCOM4) of Python classes",
             status_id="schema:CompletedActionStatus",
