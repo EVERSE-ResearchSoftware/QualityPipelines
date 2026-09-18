@@ -11,7 +11,7 @@ Looks for a file named `LICENSE` or `LICENSE.md` in the repository root using
 the [howfairis](https://github.com/fair-software/howfairis) library. Requires a
 GitHub token.
 
-W3ID: `https://w3id.org/everse/i/indicators/license`
+W3ID: `https://w3id.org/everse/i/indicators/software_has_license`
 
 ### `has_citation` — CFFConvert
 
@@ -19,7 +19,7 @@ Checks for a valid `CITATION.cff` file using
 [cffconvert](https://github.com/citation-file-format/cffconvert). Both
 presence and schema validity are verified.
 
-W3ID: `https://w3id.org/everse/i/indicators/citation`
+W3ID: `https://w3id.org/everse/i/indicators/software_has_citation`
 
 ### `has_ci_tests` — OpenSSFScorecard
 
