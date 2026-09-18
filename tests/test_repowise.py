@@ -16,7 +16,7 @@ def _fake_run_factory(targets):
         cmd = args[0] if isinstance(args, list) else args
         # git clone
         if cmd == "git" and args[1] == "clone":
-            dest = args[3]
+            dest = args[-1]
             os.makedirs(dest, exist_ok=True)
             # create .git so that rev-list works
             os.makedirs(os.path.join(dest, ".git"), exist_ok=True)
@@ -109,8 +109,8 @@ class TestRepowisePlugin(unittest.TestCase):
         """Repo without commits → handle_skip."""
         def fake_run_empty(args, **kwargs):
             if args[0] == "git" and args[1] == "clone":
-                os.makedirs(args[3], exist_ok=True)
-                os.makedirs(os.path.join(args[3], ".git"), exist_ok=True)
+                os.makedirs(args[-1], exist_ok=True)
+                os.makedirs(os.path.join(args[-1], ".git"), exist_ok=True)
                 return SimpleNamespace(stdout="", stderr="")
             if args[0] == "git" and args[1] == "rev-list":
                 return SimpleNamespace(stdout="0\n", stderr="")
