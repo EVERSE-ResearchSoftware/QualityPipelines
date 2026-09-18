@@ -75,7 +75,7 @@ class SuperLinter(IndicatorPlugin):
 
                 shutil.copy2(summary_path, summary_destination)
 
-                output = "invalid"
+                output = "false"
 
                 if failed_linters:
                     evidence = (
@@ -94,7 +94,7 @@ class SuperLinter(IndicatorPlugin):
                 success = False
 
             else:
-                output = "valid"
+                output = "true"
                 evidence = "No linting errors have been detected."
                 success = True
 
