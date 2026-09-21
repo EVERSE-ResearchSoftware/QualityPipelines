@@ -249,7 +249,9 @@ def resqui():
     else:
         print("\033[92m✔\033[0m")
 
-
+    shutil.rmtree(os.path.join("tmp", "somef_outputs"),
+                ignore_errors=True)
+    
 def print_indicator_plugins():
     """
     Prints a list of available indicator plugins.
