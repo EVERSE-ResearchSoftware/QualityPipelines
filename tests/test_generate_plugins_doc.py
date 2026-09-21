@@ -9,59 +9,48 @@ spec = importlib.util.spec_from_file_location("generate_plugins_doc", SCRIPT_PAT
 generate_plugins_doc = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(generate_plugins_doc)
 
-# Snapshot of the EVERSE vocabulary abbreviations that resolve for the
-# indicators currently declared by tracked plugins, matching what
-# docs/explanation/plugins.md was generated with. Kept fixed (not fetched
-# live) so this test only fails on a real code/doc mismatch, not on
-# unrelated upstream vocabulary changes or API outages — that live-data
-# concern is covered separately by tests/test_vocabulary.py.
+# docs/explanation/plugins.md is generated (mkdocs.yml's hooks: entry calls
+# generate_plugins_doc.on_pre_build before every mkdocs build/serve) and not
+# committed, so there's no golden file to diff against here. These tests
+# instead sanity-check the generator's own logic against the plugin sources.
 W3ID_BY_ABBREVIATION = {
-    abbreviation: f"https://w3id.org/everse/i/indicators/{abbreviation}"
-    for abbreviation in [
-        "archived_in_scholarly_repository",
-        "archived_in_software_heritage",
-        "codemeta_completeness",
-        "dependency_management",
-        "descriptive_metadata",
-        "has_active_communication_channels",
-        "has_active_contributors",
-        "has_contribution_guidelines",
-        "has_no_binary_artifacts",
-        "has_no_linting_issues",
-        "has_published_package",
-        "has_releases",
-        "human_code_review_requirement",
-        "listed_in_registry",
-        "no_critical_vulnerability",
-        "persistent_and_unique_identifier",
-        "project_is_active",
-        "repository_workflows",
-        "requirements_specified",
-        "software_has_citation",
-        "software_has_documentation",
-        "software_has_license",
-        "software_has_tests",
-        "software_is_containerized",
-        "static_analysis_common_vulnerabilities",
-        "support_issue_tracking",
-        "uses_fuzzing",
-        "uses_tool_for_warnings_and_mistakes",
-        "version_control_use",
-        "versioning_standards_use",
-    ]
+    "software_has_license": "https://w3id.org/everse/i/indicators/software_has_license",
+    "software_has_citation": "https://w3id.org/everse/i/indicators/software_has_citation",
 }
 
 
 class TestGeneratePluginsDoc(unittest.TestCase):
-    def test_plugins_doc_is_up_to_date(self):
+    def test_extracts_at_least_the_always_tracked_plugins(self):
         plugins = generate_plugins_doc._extract_plugins()
-        expected = generate_plugins_doc._render_markdown(plugins, W3ID_BY_ABBREVIATION)
-        actual = generate_plugins_doc.OUTPUT_FILE.read_text(encoding="utf-8")
-        self.assertEqual(
-            actual,
-            expected,
-            "docs/explanation/plugins.md is stale, run "
-            "`python scripts/generate_plugins_doc.py` and commit the result",
+        classes = {plugin["class"] for plugin in plugins}
+        # Plugins that are always committed to the repo (unlike e.g. the
+        # SonarQube ones, which can be local-only work in progress).
+        self.assertTrue({"CFFConvert", "Gitleaks", "HowFairIs", "RSFC"} <= classes)
+
+    def test_extracted_plugin_has_expected_shape(self):
+        plugins = generate_plugins_doc._extract_plugins()
+        cffconvert = next(p for p in plugins if p["class"] == "CFFConvert")
+        self.assertEqual(cffconvert["indicators"], ["has_citation"])
+        self.assertIn(
+            "CITATION.cff", cffconvert["descriptions"]["has_citation"]
+        )
+
+    def test_render_markdown_includes_every_plugin_and_indicator(self):
+        plugins = generate_plugins_doc._extract_plugins()
+        markdown = generate_plugins_doc._render_markdown(plugins, W3ID_BY_ABBREVIATION)
+        self.assertTrue(markdown.startswith("# Plugins & Indicators"))
+        for plugin in plugins:
+            self.assertIn(f"`{plugin['class']}`", markdown)
+            for indicator in plugin["indicators"]:
+                self.assertIn(f"`{indicator}`", markdown)
+
+    def test_generate_writes_the_output_file(self):
+        generate_plugins_doc.OUTPUT_FILE.unlink(missing_ok=True)
+        generate_plugins_doc.generate()
+        self.assertTrue(generate_plugins_doc.OUTPUT_FILE.exists())
+        self.assertIn(
+            "# Plugins & Indicators",
+            generate_plugins_doc.OUTPUT_FILE.read_text(encoding="utf-8"),
         )
 
 
