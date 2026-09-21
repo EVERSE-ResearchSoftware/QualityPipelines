@@ -29,9 +29,6 @@ jobs:
       - name: Install docs dependencies
         run: pip install ".[docs]"
 
-      - name: Generate plugins reference
-        run: python scripts/generate_plugins_doc.py
-
       - name: Build docs
         run: mkdocs build
 

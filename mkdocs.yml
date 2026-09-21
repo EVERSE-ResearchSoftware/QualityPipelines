@@ -18,6 +18,9 @@ plugins:
             show_root_heading: true
             docstring_style: google
 
+hooks:
+  - scripts/generate_plugins_doc.py
+
 nav:
   - Home: index.md
   - Tutorials:

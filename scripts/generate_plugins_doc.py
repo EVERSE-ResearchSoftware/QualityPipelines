@@ -243,19 +243,31 @@ def _render_markdown(plugins: list[dict[str, object]], w3id_by_abbreviation: dic
     return "\n".join(lines).rstrip() + "\n"
 
 
-def main() -> None:
+def generate() -> None:
+    """Regenerate docs/explanation/plugins.md from the plugin sources."""
     plugins = _extract_plugins()
     try:
         w3id_by_abbreviation = fetch_indicator_id_by_abbreviation()
     except requests.RequestException as error:
-        raise SystemExit(
+        raise RuntimeError(
             f"Could not fetch the EVERSE indicator vocabulary: {error}\n"
             "Refusing to generate docs/explanation/plugins.md with missing "
             "W3ID links — retry once the vocabulary API is reachable."
-        )
+        ) from error
     markdown = _render_markdown(plugins, w3id_by_abbreviation)
     OUTPUT_FILE.write_text(markdown, encoding="utf-8")
     print(f"Generated {OUTPUT_FILE.relative_to(ROOT)} ({len(plugins)} plugins)")
+
+
+def on_pre_build(config, **kwargs) -> None:
+    """mkdocs hook (see the `hooks:` entry in mkdocs.yml): regenerate the
+    plugins reference before every `mkdocs build`/`mkdocs serve`, so it can
+    never go stale relative to what actually gets deployed."""
+    generate()
+
+
+def main() -> None:
+    generate()
 
 
 if __name__ == "__main__":
