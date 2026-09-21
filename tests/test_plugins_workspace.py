@@ -126,3 +126,62 @@ class TestPluginSharedWorkspace(unittest.TestCase):
 
         command, _ = fake_executor.calls[0]
         self.assertNotIn("-t", command)
+
+
+class TestRSFCIndicatorMappings(unittest.TestCase):
+    def _plugin_with_report(self, report):
+        plugin = RSFC.__new__(RSFC)
+        plugin.execute = lambda _url, _branch: report
+        return plugin
+
+    def _check(self, output, evidence):
+        return {
+            "process": f"process for {evidence}",
+            "status": {"@id": "schema:CompletedActionStatus"},
+            "output": output,
+            "evidence": evidence,
+        }
+
+    def test_new_rsfc_indicators_map_true_outputs(self):
+        report = {
+            "RSFC-08-2": self._check("true", "zenodo evidence"),
+            "RSFC-05-4": self._check("true", "support channel evidence"),
+        }
+        plugin = self._plugin_with_report(report)
+
+        cases = [
+            ("archived_in_scholarly_repository", "RSFC-08-2"),
+            ("has_active_communication_channels", "RSFC-05-4"),
+        ]
+        for indicator, check_id in cases:
+            self.assertIn(indicator, RSFC.indicators)
+            result = getattr(plugin, indicator)("https://github.com/example/repo", "main")
+            expected = report[check_id]
+
+            self.assertTrue(result)
+            self.assertEqual(result.process, expected["process"])
+            self.assertEqual(result.status_id, expected["status"]["@id"])
+            self.assertEqual(result.output, expected["output"])
+            self.assertEqual(result.evidence, expected["evidence"])
+
+    def test_new_rsfc_indicators_map_non_true_outputs(self):
+        report = {
+            "RSFC-08-2": self._check("false", "no zenodo evidence"),
+            "RSFC-05-4": self._check("error", "no support channel evidence"),
+        }
+        plugin = self._plugin_with_report(report)
+
+        cases = [
+            ("archived_in_scholarly_repository", "RSFC-08-2"),
+            ("has_active_communication_channels", "RSFC-05-4"),
+        ]
+        for indicator, check_id in cases:
+            self.assertIn(indicator, RSFC.indicators)
+            result = getattr(plugin, indicator)("https://github.com/example/repo", "main")
+            expected = report[check_id]
+
+            self.assertFalse(result)
+            self.assertEqual(result.process, expected["process"])
+            self.assertEqual(result.status_id, expected["status"]["@id"])
+            self.assertEqual(result.output, expected["output"])
+            self.assertEqual(result.evidence, expected["evidence"])

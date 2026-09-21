@@ -10,7 +10,7 @@ from resqui.workspace import create_workspace
 class RSFC(IndicatorPlugin):
     name = "RSFC"
     id = "https://w3id.org/everse/tools/rsfc"
-    version = "0.1.8"
+    version = "0.2.0"
     image_url = f"docker.io/amonterodx/rsfc:{version}"
     indicators = [
         "persistent_and_unique_identifier",
@@ -29,7 +29,9 @@ class RSFC(IndicatorPlugin):
         "repository_workflows",
         "archived_in_software_heritage",
         "has_contribution_guidelines",
-        "software_is_containerized"
+        "software_is_containerized",
+        "archived_in_scholarly_repository",
+        "has_active_communication_channels"
     ]
 
     def __init__(self, context):
@@ -95,6 +97,41 @@ class RSFC(IndicatorPlugin):
 
         return report
 
+
+    def archived_in_scholarly_repository(self, url, branch_hash_or_tag):
+        report = self.execute(url, branch_hash_or_tag)
+        check = report["RSFC-08-2"]
+        if check["output"] == "true":
+            success = True
+        else:
+            success = False
+        check = CheckResult(
+                    process=check["process"],
+                    status_id=check["status"]["@id"],
+                    output=check["output"],
+                    evidence=check["evidence"],
+                    success=success,
+                )
+        
+        return check
+    
+    def has_active_communication_channels(self, url, branch_hash_or_tag):
+        report = self.execute(url, branch_hash_or_tag)
+        check = report["RSFC-05-4"]
+        if check["output"] == "true":
+            success = True
+        else:
+            success = False
+        check = CheckResult(
+                    process=check["process"],
+                    status_id=check["status"]["@id"],
+                    output=check["output"],
+                    evidence=check["evidence"],
+                    success=success,
+                )
+        
+        return check
+    
     def support_issue_tracking(self, url, branch_hash_or_tag):
         report = self.execute(url, branch_hash_or_tag)
         check = report["RSFC-20-1"]
