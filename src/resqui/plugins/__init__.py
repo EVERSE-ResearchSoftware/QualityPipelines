@@ -7,7 +7,7 @@ from .openssfscorecard import OpenSSFScorecard
 from .superlinter import SuperLinter
 from .rsfc import RSFC
 from .oebfair import OEBFAIR
-from .rsmetacheck import RSMetaCheck
+from .rsmetacheck import Rsmetacheck
 
 __all__ = [
     "IndicatorPlugin",
@@ -19,5 +19,5 @@ __all__ = [
     "SuperLinter",
     "RSFC",
     "OEBFAIR",
-    "RSMetaCheck",
+    "Rsmetacheck",
 ]
