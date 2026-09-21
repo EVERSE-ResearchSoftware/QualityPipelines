@@ -17,5 +17,6 @@ __all__ = [
     "OpenSSFScorecard",
     "SuperLinter",
     "RSFC",
-    "OEBFAIR"
+    "OEBFAIR",
+    "RSMetaCheck",
 ]
