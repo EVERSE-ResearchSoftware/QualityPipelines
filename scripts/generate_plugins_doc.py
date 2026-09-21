@@ -24,14 +24,14 @@ INTERPRETING_RESULTS = """\
 
 Each indicator produces a `CheckResult` with:
 
-| Field | Values |
+| Field | Meaning |
 |---|---|
-| `output` | `valid` — indicator satisfied; `missing` — not found; `failed` — check error |
-| `status` | Schema.org action status IRI |
+| `output` | Plugin-specific result string — e.g. `valid`/`invalid` (CFFConvert), `secure`/`insecure` (Gitleaks), `true`/`false` (most others). `missing` is the `CheckResult` default before a plugin sets it, not a value plugins return on purpose. |
+| `status` | A Schema.org action status IRI. `schema:CompletedActionStatus` means the check ran to completion — **not** that it passed; most plugins use it for both pass and fail outcomes. Check `output`/`success`, not `status`, to know whether an indicator passed. |
 | `evidence` | Human-readable finding from the underlying tool |
 
-An indicator returning `missing` or `failed` does **not** abort the run — all
-configured indicators are always attempted.\
+A failing indicator does **not** abort the run — all configured indicators
+are always attempted.\
 """
 
 STATUS_IDS = """\
@@ -39,9 +39,9 @@ STATUS_IDS = """\
 
 | Status IRI | Meaning |
 |---|---|
-| `schema:CompletedActionStatus` | Check passed |
-| `schema:FailedActionStatus` | Check ran but found a problem |
-| `missing` | Check could not be completed (plugin skipped) |\
+| `schema:CompletedActionStatus` | The check ran to completion (used for both pass and fail outcomes by most plugins) |
+| `schema:FailedActionStatus` | The check itself failed to run or complete (used by some plugins, e.g. SonarQube, for execution failures — not for a normal "indicator not satisfied" result) |
+| `missing` | `CheckResult` default before a field is set; not typically emitted by plugins |\
 """
 
 W3ID_NOTE = """\
@@ -173,11 +173,6 @@ def _extract_plugins() -> list[dict[str, object]]:
     return plugins
 
 
-def _fetch_w3id_by_abbreviation() -> dict[str, str]:
-    try:
-        return fetch_indicator_id_by_abbreviation()
-    except requests.RequestException:
-        return {}
 
 
 def _render_markdown(plugins: list[dict[str, object]], w3id_by_abbreviation: dict[str, str]) -> str:
@@ -250,7 +245,14 @@ def _render_markdown(plugins: list[dict[str, object]], w3id_by_abbreviation: dic
 
 def main() -> None:
     plugins = _extract_plugins()
-    w3id_by_abbreviation = _fetch_w3id_by_abbreviation()
+    try:
+        w3id_by_abbreviation = fetch_indicator_id_by_abbreviation()
+    except requests.RequestException as error:
+        raise SystemExit(
+            f"Could not fetch the EVERSE indicator vocabulary: {error}\n"
+            "Refusing to generate docs/explanation/plugins.md with missing "
+            "W3ID links — retry once the vocabulary API is reachable."
+        )
     markdown = _render_markdown(plugins, w3id_by_abbreviation)
     OUTPUT_FILE.write_text(markdown, encoding="utf-8")
     print(f"Generated {OUTPUT_FILE.relative_to(ROOT)} ({len(plugins)} plugins)")

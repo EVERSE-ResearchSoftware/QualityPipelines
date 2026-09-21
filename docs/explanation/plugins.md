@@ -123,19 +123,19 @@ the W3ID column rather than a guessed link.
 
 Each indicator produces a `CheckResult` with:
 
-| Field | Values |
+| Field | Meaning |
 |---|---|
-| `output` | `valid` — indicator satisfied; `missing` — not found; `failed` — check error |
-| `status` | Schema.org action status IRI |
+| `output` | Plugin-specific result string — e.g. `valid`/`invalid` (CFFConvert), `secure`/`insecure` (Gitleaks), `true`/`false` (most others). `missing` is the `CheckResult` default before a plugin sets it, not a value plugins return on purpose. |
+| `status` | A Schema.org action status IRI. `schema:CompletedActionStatus` means the check ran to completion — **not** that it passed; most plugins use it for both pass and fail outcomes. Check `output`/`success`, not `status`, to know whether an indicator passed. |
 | `evidence` | Human-readable finding from the underlying tool |
 
-An indicator returning `missing` or `failed` does **not** abort the run — all
-configured indicators are always attempted.
+A failing indicator does **not** abort the run — all configured indicators
+are always attempted.
 
 ## Status IDs
 
 | Status IRI | Meaning |
 |---|---|
-| `schema:CompletedActionStatus` | Check passed |
-| `schema:FailedActionStatus` | Check ran but found a problem |
-| `missing` | Check could not be completed (plugin skipped) |
+| `schema:CompletedActionStatus` | The check ran to completion (used for both pass and fail outcomes by most plugins) |
+| `schema:FailedActionStatus` | The check itself failed to run or complete (used by some plugins, e.g. SonarQube, for execution failures — not for a normal "indicator not satisfied" result) |
+| `missing` | `CheckResult` default before a field is set; not typically emitted by plugins |
