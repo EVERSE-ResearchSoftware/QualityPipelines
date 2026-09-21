@@ -21,17 +21,17 @@ each indicator to a plugin method that performs the check automatically.
 
 ## Plugin details
 
-| Plugin class | Version | ID | Source file |
-|---|---|---|---|
-| `CFFConvert` | `2.0.0` | `https://w3id.org/everse/tools/cffconvert` | `cffconvert.py` |
-| `Gitleaks` | `8.24.2` | `https://w3id.org/everse/tools/gitleaks` | `gitleaks.py` |
-| `HowFairIs` | `0.14.2` | `https://w3id.org/everse/tools/howfairis` | `howfairis.py` |
-| `OEBFAIR` | `0.2.2` | `https://w3id.org/everse/tools/fairsoft-evaluator` | `oebfair.py` |
-| `OpenSSFScorecard` | `v5.4.0` | `https://github.com/ossf/scorecard` | `openssfscorecard.py` |
-| `RSFC` | `0.2.0` | `https://w3id.org/everse/tools/rsfc` | `rsfc.py` |
-| `SonarQube` | `latest` | `https://w3id.org/everse/tools/sonarqube` | `sonarqube.py` |
-| `SonarQubeJSON` | `latest` | `https://w3id.org/everse/tools/sonarqube-json` | `sonarqube_json.py` |
-| `SuperLinter` | `8.7.0` | `https://w3id.org/everse/tools/superlinter` | `superlinter.py` |
+| Plugin class | Version | ID | Source file | Requires |
+|---|---|---|---|---|
+| `CFFConvert` | `2.0.0` | `https://w3id.org/everse/tools/cffconvert` | `cffconvert.py` | - |
+| `Gitleaks` | `8.24.2` | `https://w3id.org/everse/tools/gitleaks` | `gitleaks.py` | `docker` |
+| `HowFairIs` | `0.14.2` | `https://w3id.org/everse/tools/howfairis` | `howfairis.py` | `github_token` |
+| `OEBFAIR` | `0.2.2` | `https://w3id.org/everse/tools/fairsoft-evaluator` | `oebfair.py` | `docker`, `github_token` |
+| `OpenSSFScorecard` | `v5.4.0` | `https://github.com/ossf/scorecard` | `openssfscorecard.py` | `docker`, `github_token` |
+| `RSFC` | `0.2.0` | `https://w3id.org/everse/tools/rsfc` | `rsfc.py` | `docker` |
+| `SonarQube` | `latest` | `https://w3id.org/everse/tools/sonarqube` | `sonarqube.py` | `docker` |
+| `SonarQubeJSON` | `latest` | `https://w3id.org/everse/tools/sonarqube-json` | `sonarqube_json.py` | `docker` |
+| `SuperLinter` | `8.7.0` | `https://w3id.org/everse/tools/superlinter` | `superlinter.py` | `docker` |
 
 ## Indicator checks
 

@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
-"""Generate the Plugins & Indicators reference doc from plugin source files.
-
-TODO: find a way to embed plugin requirements (e.g. "needs Docker", "needs a
-GitHub token") in the plugin implementation itself, so this generator can
-pick them up automatically instead of them living only in hand-written prose.
-"""
+"""Generate the Plugins & Indicators reference doc from plugin source files."""
 
 from __future__ import annotations
 
@@ -17,7 +12,7 @@ from resqui.vocabulary import fetch_indicator_id_by_abbreviation
 
 ROOT = Path(__file__).resolve().parent.parent
 PLUGINS_DIR = ROOT / "src" / "resqui" / "plugins"
-OUTPUT_FILE = ROOT / "docs" / "plugins.md"
+OUTPUT_FILE = ROOT / "docs" / "explanation" / "plugins.md"
 
 INTRO = """\
 An **indicator** is a measurable property of a software repository. resqui maps
@@ -131,6 +126,7 @@ def _extract_plugins() -> list[dict[str, object]]:
                 continue
 
             indicators: list[str] = []
+            requires: list[str] = []
             plugin_id = None
             version = None
 
@@ -144,6 +140,8 @@ def _extract_plugins() -> list[dict[str, object]]:
                 value = _literal_value(stmt.value)
                 if target.id == "indicators" and isinstance(value, (list, tuple)):
                     indicators = [str(item) for item in value]
+                elif target.id == "requires" and isinstance(value, (list, tuple)):
+                    requires = [str(item) for item in value]
                 elif target.id == "id" and isinstance(value, str):
                     plugin_id = value
                 elif target.id == "version" and isinstance(value, str):
@@ -168,6 +166,7 @@ def _extract_plugins() -> list[dict[str, object]]:
                     "id": plugin_id,
                     "indicators": indicators,
                     "descriptions": descriptions,
+                    "requires": requires,
                 }
             )
 
@@ -205,16 +204,18 @@ def _render_markdown(plugins: list[dict[str, object]], w3id_by_abbreviation: dic
             "",
             "## Plugin details",
             "",
-            "| Plugin class | Version | ID | Source file |",
-            "|---|---|---|---|",
+            "| Plugin class | Version | ID | Source file | Requires |",
+            "|---|---|---|---|---|",
         ]
     )
 
     for plugin in plugins:
         version = f"`{plugin['version']}`" if plugin["version"] else "-"
         plugin_id = f"`{plugin['id']}`" if plugin["id"] else "-"
+        requires = plugin["requires"]
+        requires_text = ", ".join(f"`{item}`" for item in requires) if requires else "-"
         lines.append(
-            f"| `{plugin['class']}` | {version} | {plugin_id} | `{plugin['file']}` |"
+            f"| `{plugin['class']}` | {version} | {plugin_id} | `{plugin['file']}` | {requires_text} |"
         )
 
     lines.extend(["", "## Indicator checks", "", W3ID_NOTE, ""])

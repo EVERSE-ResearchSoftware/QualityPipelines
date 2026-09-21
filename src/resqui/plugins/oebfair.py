@@ -28,6 +28,7 @@ class OEBFAIR(IndicatorPlugin):
         "repository_workflows",
         "archived_in_software_heritage"
     ]
+    requires = ["docker", "github_token"]
 
     def __init__(self, context):
         self.context = context
