@@ -1,5 +1,3 @@
-import json
-
 from resqui.plugins.base import IndicatorPlugin, PluginInitError
 from resqui.executors import PythonExecutor
 from resqui.core import CheckResult
@@ -8,8 +6,9 @@ from resqui.tools import normalized
 
 class HowFairIs(IndicatorPlugin):
     name = "HowFairIs"
-    version = "0.14.2"
+    version = "0.15.0"
     python_package_name = "howfairis"
+    python_package_spec = "git+https://github.com/fair-software/howfairis.git@0.15.0"
     id = "https://w3id.org/everse/tools/howfairis"
     indicators = [
         "has_license",
@@ -23,7 +22,7 @@ class HowFairIs(IndicatorPlugin):
         self.executor = PythonExecutor(
             environment={"GITHUB_ACTION_TOKEN": context.github_token}
         )
-        self.executor.install(f"{self.python_package_name}=={self.version}")
+        self.executor.install(self.python_package_spec)
 
     def has_license(self, url, branch_hash_or_tag):
         url = url.removesuffix(".git")
@@ -57,32 +56,21 @@ class HowFairIs(IndicatorPlugin):
 
         script = normalized(
             f"""
-            import json
-            from urllib.parse import urlparse
-
             try:
-                import requests
-
-                parsed_url = urlparse("{url}")
-                reuse_url = (
-                    "https://api.reuse.software/status/"
-                    f"{{parsed_url.netloc}}{{parsed_url.path}}.json"
-                )
-
-                response = requests.get(reuse_url, timeout=30)
-                response.raise_for_status()
-
-                print(json.dumps(response.json()))
-
+                from howfairis import Repo, Checker
+                repo = Repo("{url}", "{branch_hash_or_tag}")
+                checker = Checker(repo, is_quiet=True)
+                print(checker.is_reuse_compliant())
             except Exception as exc:
-                print(json.dumps({{"error": str(exc)}}))
-            """
+                print(f"ERROR: {{exc}}")
+        """
         )
 
         process = (
-            "Checks whether the repository is compliant with the "
-            "REUSE specification using the REUSE API through HowFairIs."
-        )
+    "Checks whether the repository is compliant with the REUSE specification "
+    "using HowFairIs. Reference: "
+    "https://fair-impact.github.io/RSMD-guidelines/6.Reuse_legal/"
+)
 
         result = self.executor.execute(script)
         stdout = result.stdout.strip()
@@ -100,58 +88,39 @@ class HowFairIs(IndicatorPlugin):
                 success=False,
             )
 
-        try:
-            report = json.loads(stdout)
-        except json.JSONDecodeError as exc:
+        output_line = stdout.splitlines()[-1].strip()
+
+        if output_line.startswith("ERROR:"):
             return CheckResult(
                 process=process,
                 status_id="schema:FailedActionStatus",
                 output="error",
                 evidence=(
-                    "Could not parse HowFairIs output as JSON.\n"
-                    f"Error: {exc}\n"
+                    "Could not check REUSE compliance: "
+                    f"{output_line.removeprefix('ERROR:').strip()}"
+                ),
+                success=False,
+            )
+
+        if output_line not in {"True", "False"}:
+            return CheckResult(
+                process=process,
+                status_id="schema:FailedActionStatus",
+                output="error",
+                evidence=(
+                    "Could not parse HowFairIs REUSE compliance output.\n"
                     f"STDERR:\n{result.stderr.strip()}\n"
                     f"STDOUT:\n{stdout}"
                 ),
                 success=False,
             )
 
-        # Error while querying REUSE
-        if "error" in report:
-            return CheckResult(
-                process=process,
-                status_id="schema:FailedActionStatus",
-                output="error",
-                evidence=f"Could not check REUSE compliance: {report['error']}",
-                success=False,
-            )
-
-        status = report.get("status", "unknown")
-        lint_code = report.get("lint_code")
-        lint_output = report.get("lint_output", "").strip()
-        last_access = report.get("last_access")
-        checked_repo = report.get("url", url)
-
-        success = status == "compliant"
+        success = output_line == "True"
         output = "true" if success else "false"
-
-        evidence_parts = [
-            f"REUSE compliance status: {status}.",
-            f"Repository checked: {checked_repo}.",
-        ]
-
-        if lint_code is not None:
-            evidence_parts.append(f"REUSE lint code: {lint_code}.")
-
-        if last_access:
-            evidence_parts.append(f"REUSE last assessment: {last_access}.")
-
-        if lint_output:
-            evidence_parts.append(
-                f"REUSE lint report:\n{lint_output}"
-            )
-
-        evidence = "\n".join(evidence_parts)
+        evidence = (
+            "HowFairIs checker.is_reuse_compliant() returned "
+            f"{output_line} for repository {url}."
+        )
 
         return CheckResult(
             process=process,
