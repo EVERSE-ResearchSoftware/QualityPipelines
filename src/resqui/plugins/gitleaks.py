@@ -14,6 +14,7 @@ class Gitleaks(IndicatorPlugin):
     image_url = f"ghcr.io/gitleaks/gitleaks:v{version}"
     id = "https://w3id.org/everse/tools/gitleaks"
     indicators = ["has_no_security_leak"]
+    requires = ["docker"]
 
     def __init__(self, context):
         self.context = context

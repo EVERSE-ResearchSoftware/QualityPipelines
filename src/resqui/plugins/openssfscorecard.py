@@ -21,6 +21,7 @@ class OpenSSFScorecard(IndicatorPlugin):
         "has_no_binary_artifacts",
         "uses_tool_for_warnings_and_mistakes"
     ]
+    requires = ["docker", "github_token"]
 
     def __init__(self, context):
         self.context = context
