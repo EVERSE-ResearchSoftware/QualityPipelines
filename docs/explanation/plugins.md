@@ -15,8 +15,6 @@ each indicator to a plugin method that performs the check automatically.
 | `OEBFAIR` | `unique_identifier`, `has_package`, `has_citation`, `has_license`, `has_documentation`, `has_releases`, `descriptive_metadata`, `listed_in_registry`, `versioning_standards_use`, `version_control_use`, `software_has_tests`, `repository_workflows`, `archived_in_software_heritage` |
 | `OpenSSFScorecard` | `has_ci_tests`, `human_code_review_requirement`, `has_published_package`, `dependency_management`, `uses_fuzzing`, `no_critical_vulnerability`, `static_analysis_common_vulnerabilities`, `project_is_active`, `has_no_binary_artifacts`, `uses_tool_for_warnings_and_mistakes` |
 | `RSFC` | `persistent_and_unique_identifier`, `requirements_specified`, `has_releases`, `software_has_citation`, `software_has_license`, `software_has_documentation`, `descriptive_metadata`, `versioning_standards_use`, `version_control_use`, `has_active_contributors`, `support_issue_tracking`, `codemeta_completeness`, `software_has_tests`, `repository_workflows`, `archived_in_software_heritage`, `has_contribution_guidelines`, `software_is_containerized`, `archived_in_scholarly_repository`, `has_active_communication_channels` |
-| `SonarQube` | `code_quality_grade`, `no_critical_issues` |
-| `SonarQubeJSON` | `code_quality_grade`, `no_critical_issues` |
 | `SuperLinter` | `has_no_linting_issues` |
 
 ## Plugin details
@@ -29,8 +27,6 @@ each indicator to a plugin method that performs the check automatically.
 | `OEBFAIR` | `0.2.2` | `https://w3id.org/everse/tools/fairsoft-evaluator` | `oebfair.py` | `docker`, `github_token` |
 | `OpenSSFScorecard` | `v5.4.0` | `https://github.com/ossf/scorecard` | `openssfscorecard.py` | `docker`, `github_token` |
 | `RSFC` | `0.2.0` | `https://w3id.org/everse/tools/rsfc` | `rsfc.py` | `docker` |
-| `SonarQube` | `latest` | `https://w3id.org/everse/tools/sonarqube` | `sonarqube.py` | `docker` |
-| `SonarQubeJSON` | `latest` | `https://w3id.org/everse/tools/sonarqube-json` | `sonarqube_json.py` | `docker` |
 | `SuperLinter` | `8.7.0` | `https://w3id.org/everse/tools/superlinter` | `superlinter.py` | `docker` |
 
 ## Indicator checks
@@ -116,20 +112,6 @@ the W3ID column rather than a guessed link.
 | `software_is_containerized` | - | [`software_is_containerized`](https://w3id.org/everse/i/indicators/software_is_containerized) |
 | `archived_in_scholarly_repository` | - | [`archived_in_scholarly_repository`](https://w3id.org/everse/i/indicators/archived_in_scholarly_repository) |
 | `has_active_communication_channels` | - | [`has_active_communication_channels`](https://w3id.org/everse/i/indicators/has_active_communication_channels) |
-
-### SonarQube
-
-| Indicator | What it checks | W3ID |
-|---|---|---|
-| `code_quality_grade` | Runs sonar-scanner and checks the quality gate result via API. | - |
-| `no_critical_issues` | Queries SonarQube API for critical_violations metric. | - |
-
-### SonarQubeJSON
-
-| Indicator | What it checks | W3ID |
-|---|---|---|
-| `code_quality_grade` | - | - |
-| `no_critical_issues` | - | - |
 
 ### SuperLinter
 

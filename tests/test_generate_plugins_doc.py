@@ -19,7 +19,7 @@ class TestGeneratePluginsDoc(unittest.TestCase):
         self.assertEqual(
             actual,
             expected,
-            "docs/reference/plugins.md is stale, run "
+            "docs/explanation/plugins.md is stale, run "
             "`python scripts/generate_plugins_doc.py` and commit the result",
         )
 
