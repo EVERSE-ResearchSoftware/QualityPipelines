@@ -8,7 +8,7 @@ from unittest.mock import patch
 from resqui.core import Context
 from resqui.plugins.gitleaks import Gitleaks
 from resqui.plugins.rsfc import RSFC
-from resqui.plugins.rsmetacheck import RSMetaCheck
+from resqui.plugins.rsmetacheck import rsmetacheck
 from resqui.plugins.superlinter import SuperLinter
 
 
