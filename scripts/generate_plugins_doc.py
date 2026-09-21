@@ -26,8 +26,8 @@ Each indicator produces a `CheckResult` with:
 
 | Field | Meaning |
 |---|---|
-| `output` | Plugin-specific result string — e.g. `valid`/`invalid` (CFFConvert), `secure`/`insecure` (Gitleaks), `true`/`false` (most others). `missing` is the `CheckResult` default before a plugin sets it, not a value plugins return on purpose. |
-| `status` | A Schema.org action status IRI. `schema:CompletedActionStatus` means the check ran to completion — **not** that it passed; most plugins use it for both pass and fail outcomes. Check `output`/`success`, not `status`, to know whether an indicator passed. |
+| `output` | The [EVERSE assessment schema](https://github.com/EVERSE-ResearchSoftware/schemas/blob/main/assessment/dev/README.md) defines this as `true` / `false` / `indeterminate`. Most plugins (OpenSSFScorecard, SuperLinter, RSFC, OEBFAIR) follow that; a few don't yet and emit their own strings instead — `valid`/`invalid` (CFFConvert, HowFairIs, SonarQube), `secure`/`insecure` (Gitleaks). Treat those as known drift from the schema, not an intentional per-plugin vocabulary. `missing` is the `CheckResult` default before a plugin sets it, not a value plugins return on purpose. |
+| `status` | A Schema.org action status IRI. `schema:CompletedActionStatus` means the check ran to completion — **not** that it passed; the schema's own example uses it for both a passing and a failing check. Check `output`/`success`, not `status`, to know whether an indicator passed. |
 | `evidence` | Human-readable finding from the underlying tool |
 
 A failing indicator does **not** abort the run — all configured indicators
@@ -39,8 +39,8 @@ STATUS_IDS = """\
 
 | Status IRI | Meaning |
 |---|---|
-| `schema:CompletedActionStatus` | The check ran to completion (used for both pass and fail outcomes by most plugins) |
-| `schema:FailedActionStatus` | The check itself failed to run or complete (used by some plugins, e.g. SonarQube, for execution failures — not for a normal "indicator not satisfied" result) |
+| `schema:CompletedActionStatus` | The check ran to completion — used for both pass and fail outcomes |
+| `schema:FailedActionStatus` | The check itself failed to run or complete (e.g. an exception during the check), not a normal "indicator not satisfied" result |
 | `missing` | `CheckResult` default before a field is set; not typically emitted by plugins |\
 """
 
