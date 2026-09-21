@@ -17,7 +17,7 @@ from resqui.vocabulary import fetch_indicator_id_by_abbreviation
 
 ROOT = Path(__file__).resolve().parent.parent
 PLUGINS_DIR = ROOT / "src" / "resqui" / "plugins"
-OUTPUT_FILE = ROOT / "docs" / "reference" / "plugins.md"
+OUTPUT_FILE = ROOT / "docs" / "plugins.md"
 
 INTRO = """\
 An **indicator** is a measurable property of a software repository. resqui maps
