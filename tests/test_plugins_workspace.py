@@ -8,7 +8,7 @@ from unittest.mock import patch
 from resqui.core import Context
 from resqui.plugins.gitleaks import Gitleaks
 from resqui.plugins.rsfc import RSFC
-from resqui.plugins.rsmetacheck import rsmetacheck
+from resqui.plugins.rsmetacheck import Rsmetacheck
 from resqui.plugins.superlinter import SuperLinter
 
 
@@ -188,9 +188,9 @@ class TestRSFCIndicatorMappings(unittest.TestCase):
             self.assertEqual(result.evidence, expected["evidence"])
 
 
-class TestRSMetaCheckIndicatorMappings(unittest.TestCase):
+class TestRsmetacheckIndicatorMappings(unittest.TestCase):
     def _plugin_with_report(self, report):
-        plugin = RSMetaCheck.__new__(RSMetaCheck)
+        plugin = Rsmetacheck.__new__(Rsmetacheck)
         plugin.execute = lambda _url, _branch: report
         return plugin
 
