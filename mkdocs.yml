@@ -29,7 +29,7 @@ nav:
   - Reference:
     - CLI: reference/cli.md
     - Configuration Format: reference/configuration.md
+    - Plugins & Indicators: reference/plugins.md
     - API: reference/api.md
   - Explanation:
     - Architecture: explanation/architecture.md
-    - Indicators: explanation/indicators.md
