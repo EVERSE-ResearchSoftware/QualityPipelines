@@ -52,6 +52,11 @@ class TestRender(unittest.TestCase):
         markdown = render(SAMPLE)
         self.assertIn("No valid CITATION.cff \\| file found.", markdown)
 
+    def test_escapes_backslash_before_pipe(self):
+        from resqui.markdown_report import _escape
+
+        self.assertEqual(_escape("a\\|b"), "a\\\\\\|b")
+
     def test_empty_checks(self):
         markdown = render({"assessedSoftware": {}, "checks": []})
         self.assertIn("- Checks: 0/0 successful (0 failed)", markdown)
@@ -69,3 +74,11 @@ class TestConvert(unittest.TestCase):
             content = output_path.read_text()
             self.assertIn("# Software Quality Assessment", content)
             self.assertIn("myproject", content)
+
+    def test_rejects_identical_input_and_output_paths(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "summary.json"
+            path.write_text(json.dumps(SAMPLE))
+
+            with self.assertRaises(ValueError):
+                convert(path, path)

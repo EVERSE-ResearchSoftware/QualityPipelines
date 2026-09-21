@@ -13,7 +13,7 @@ from pathlib import Path
 
 
 def _escape(value):
-    return str(value).replace("\n", " ").replace("|", "\\|").strip() or "-"
+    return str(value).replace("\\", "\\\\").replace("\n", " ").replace("|", "\\|").strip() or "-"
 
 
 def render(data: dict) -> str:
@@ -60,8 +60,12 @@ def render(data: dict) -> str:
 
 def convert(input_path, output_path) -> None:
     """Read a resqui JSON file and write the Markdown report next to it."""
-    data = json.loads(Path(input_path).read_text(encoding="utf-8"))
-    Path(output_path).write_text(render(data), encoding="utf-8")
+    input_path = Path(input_path)
+    output_path = Path(output_path)
+    if input_path.resolve() == output_path.resolve():
+        raise ValueError("Input and output paths must differ.")
+    data = json.loads(input_path.read_text(encoding="utf-8"))
+    output_path.write_text(render(data), encoding="utf-8")
 
 
 def main() -> None:
