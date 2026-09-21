@@ -9,4 +9,4 @@
 | OEBFAIR | N/A | persistent_and_unique_identifier<br>has_published_package<br>software_has_license<br>descriptive_metadata<br>software_has_documentation<br>listed_in_registry |
 | ASTMetrics | Python<br>Go<br>PHP<br>TypeScript<br>Rust<br>Java<br>C# | maintainability_index_ok |
 | PySCN | Python | cyclomatic_complexity_ok<br>code_duplication_ok<br>coupling_between_objects_ok<br>internal_cohesion_ok<br> |
-| RSMetaCheck | N/A | metadata_is_up_to_date |
+| rsmetacheck | N/A | metadata_is_up_to_date |

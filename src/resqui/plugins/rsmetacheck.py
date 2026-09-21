@@ -8,8 +8,8 @@ from resqui.plugins.base import IndicatorPlugin
 from resqui.workspace import create_workspace
 
 
-class RSMetaCheck(IndicatorPlugin):
-    name = "RSMetaCheck"
+class Rsmetacheck(IndicatorPlugin):
+    name = "rsmetacheck"
     id = "https://github.com/SoftwareUnderstanding/rsmetacheck"
     version = "0.3.6"
     image_url = f"docker.io/sergiozsz/rsmetacheck:{version}"
