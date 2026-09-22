@@ -43,6 +43,19 @@ Scans the repository history for accidentally committed secrets (API keys,
 tokens, passwords) using [Gitleaks](https://github.com/gitleaks/gitleaks).
 Runs via Docker.
 
+### `code_documentation_coverage_ok` — Interrogate
+
+Measures docstring coverage of Python code (modules, classes, methods and
+functions, private ones included) with
+[interrogate](https://interrogate.readthedocs.io/), using its default
+configuration so every repository is measured with the same rules
+regardless of its own `[tool.interrogate]` settings. Passes at >= 80%
+coverage. Markdown documentation is covered separately by
+`software_has_documentation`.
+
+W3ID: `https://w3id.org/everse/i/indicators/code_documentation_coverage_ok`
+
+
 ## Interpreting results
 
 Each indicator produces a `CheckResult` with:
