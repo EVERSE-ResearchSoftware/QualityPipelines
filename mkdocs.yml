@@ -33,3 +33,4 @@ nav:
   - Explanation:
     - Architecture: explanation/architecture.md
     - Indicators: explanation/indicators.md
+    - Plugins: explanation/plugins.md
