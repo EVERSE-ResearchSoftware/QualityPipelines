@@ -8,6 +8,7 @@ from unittest.mock import patch
 from resqui.core import Context
 from resqui.plugins.gitleaks import Gitleaks
 from resqui.plugins.rsfc import RSFC
+from resqui.plugins.rsmetacheck import Rsmetacheck
 from resqui.plugins.superlinter import SuperLinter
 
 
@@ -185,3 +186,74 @@ class TestRSFCIndicatorMappings(unittest.TestCase):
             self.assertEqual(result.status_id, expected["status"]["@id"])
             self.assertEqual(result.output, expected["output"])
             self.assertEqual(result.evidence, expected["evidence"])
+
+
+class TestRsmetacheckIndicatorMappings(unittest.TestCase):
+    def _plugin_with_report(self, report):
+        plugin = Rsmetacheck.__new__(Rsmetacheck)
+        plugin.execute = lambda _url, _branch: report
+        return plugin
+
+    def _pitfall(self, code, count):
+        return {
+            "pitfall_code": code,
+            "pitfall_desc": f"description for {code}",
+            "count": count,
+        }
+
+    def _warning(self, code, count):
+        return {
+            "warning_code": code,
+            "warning_desc": f"description for {code}",
+            "count": count,
+        }
+
+    def test_metadata_is_up_to_date_passes_when_useful_findings_are_absent(self):
+        report = {
+            "pitfalls & warnings": [
+                self._pitfall("P001", 0),
+                self._pitfall("P012", 0),
+                self._pitfall("P016", 0),
+                self._pitfall("P017", 0),
+                self._warning("W002", 0),
+                self._pitfall("P999", 3),
+            ]
+        }
+        plugin = self._plugin_with_report(report)
+
+        result = plugin.metadata_is_up_to_date(
+            "https://github.com/example/repo",
+            "main",
+        )
+
+        self.assertTrue(result)
+        self.assertEqual(result.status_id, "schema:CompletedActionStatus")
+        self.assertEqual(result.output, "true")
+        self.assertIn("P001: description for P001 (count: 0)", result.evidence)
+        self.assertIn("W002: description for W002 (count: 0)", result.evidence)
+        self.assertNotIn("P999", result.evidence)
+
+    def test_metadata_is_up_to_date_fails_when_useful_findings_are_detected(self):
+        report = {
+            "pitfalls & warnings": [
+                self._pitfall("P001", 0),
+                self._pitfall("P012", 2),
+                self._pitfall("P016", 0),
+                self._pitfall("P017", 0),
+                self._warning("W002", 1),
+            ]
+        }
+        plugin = self._plugin_with_report(report)
+
+        result = plugin.metadata_is_up_to_date(
+            "https://github.com/example/repo",
+            "main",
+        )
+
+        self.assertFalse(result)
+        self.assertEqual(result.status_id, "schema:CompletedActionStatus")
+        self.assertEqual(result.output, "false")
+        self.assertIn("P012: description for P012 (count: 2)", result.evidence)
+        self.assertIn("W002: description for W002 (count: 1)", result.evidence)
+        self.assertNotIn("P001: description for P001", result.evidence)
+
