@@ -6,7 +6,8 @@ Usage:
 Options:
     -u <repository_url>   URL of the repository to be analyzed (GitHub URLs, Zenodo DOIs and URLs accepted).
     -c <config_file>      Path to the configuration file.
-    -o <output_file>      Path to the output file [default: resqui_summary.json].
+    -o <output_file>       Path to the JSON output file [default: resqui_summary.json].
+    --md <markdown_report> Path to a Markdown report to also generate from the JSON output.
     -t <github_token>     GitHub API token.
     -d <dashverse_token>  DashVerse API token.
     -b <branch>           The Git branch to be checked.
@@ -26,6 +27,7 @@ import sys
 import tempfile
 
 from resqui.core import Context, Summary
+from resqui.markdown_report import convert as json_to_markdown
 from resqui.config import Configuration
 from resqui.tools import (
     indented,
@@ -136,6 +138,7 @@ def resqui():
 
     configuration = Configuration(args["-c"])
     output_file = args["-o"]
+    markdown_report = args["--md"]
     url = args["-u"]
     branch = args["-b"]
     github_token = args["-t"]
@@ -239,6 +242,10 @@ def resqui():
 
     summary.write(output_file)
     print(f"Summary has been written to {output_file}")
+
+    if markdown_report is not None:
+        json_to_markdown(output_file, markdown_report)
+        print(f"Markdown report has been written to {markdown_report}")
 
     print("Publishing summary ", end="")
     sys.stdout.flush()
