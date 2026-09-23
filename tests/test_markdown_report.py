@@ -48,6 +48,19 @@ class TestRender(unittest.TestCase):
         self.assertIn("| PASS |", markdown)
         self.assertIn("| FAIL |", markdown)
 
+    def test_completed_check_with_false_output_fails(self):
+        data = {
+            "checks": [
+                {
+                    "status": {"@id": "schema:CompletedActionStatus"},
+                    "output": output,
+                }
+                for output in ["true", "false", "secure", "insecure"]
+            ]
+        }
+        markdown = render(data)
+        self.assertIn("- Checks: 2/4 successful (2 failed)", markdown)
+
     def test_escapes_pipe_characters_in_evidence(self):
         markdown = render(SAMPLE)
         self.assertIn("No valid CITATION.cff \\| file found.", markdown)

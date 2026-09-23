@@ -16,12 +16,23 @@ def _escape(value):
     return str(value).replace("\\", "\\\\").replace("\n", " ").replace("|", "\\|").strip() or "-"
 
 
+# Same pass values as DashVERSE's check_outcome(), plus "secure" from older Gitleaks reports.
+_PASS_OUTPUTS = {"true", "valid", "pass", "Pass", "passed", "secure"}
+
+
+def _check_passed(check):
+    """A check passes if it completed and its output is a known pass value."""
+    if check.get("status", {}).get("@id") != "schema:CompletedActionStatus":
+        return False
+    return check.get("output") in _PASS_OUTPUTS
+
+
 def render(data: dict) -> str:
     """Render a parsed resqui JSON assessment as a Markdown report."""
     assessed = data.get("assessedSoftware", {})
     checks = data.get("checks", [])
     total = len(checks)
-    passed = sum(1 for c in checks if c.get("status", {}).get("@id") == "schema:CompletedActionStatus")
+    passed = sum(1 for c in checks if _check_passed(c))
     failed = total - passed
 
     lines = [
@@ -42,7 +53,7 @@ def render(data: dict) -> str:
     ]
 
     for check in checks:
-        status = "PASS" if check.get("status", {}).get("@id") == "schema:CompletedActionStatus" else "FAIL"
+        status = "PASS" if _check_passed(check) else "FAIL"
         indicator = check.get("assessesIndicator", {}).get("@id", "missing")
         software = check.get("checkingSoftware", {})
         tool = software.get("name", "unknown")
