@@ -56,15 +56,21 @@ Open `resqui_summary.json`. Each entry in `checks` corresponds to one indicator:
 {
   "@type": "CheckResult",
   "assessesIndicator": { "@id": "https://w3id.org/everse/i/indicators/software_has_license" },
-  "checkingSoftware": { "name": "HowFairIs", "version": "0.14.2" },
+  "checkingSoftware": {
+    "@type": "schema:SoftwareApplication",
+    "@id": "https://w3id.org/everse/tools/howfairis",
+    "name": "HowFairIs",
+    "softwareVersion": "0.14.2"
+  },
   "evidence": "Found license file: 'LICENSE'.",
-  "output": "valid",
+  "output": "true",
   "status": { "@id": "schema:CompletedActionStatus" }
 }
 ```
 
 - **evidence** – the human-readable finding from the plugin
-- **output** – `valid`, `missing`, or `failed`
+- **output** – `true` if the check passed, `false` otherwise
+- **raw_value** / **threshold** – optional; the measured value and the limit used to decide `output`
 - **status** – linked schema.org action status
 
 ## 4. Check a remote repository
