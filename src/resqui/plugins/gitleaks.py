@@ -47,11 +47,11 @@ class Gitleaks(IndicatorPlugin):
                 report = json.load(f)
 
         if "no leaks found" in p.stderr and not report:
-            output = "secure"
+            output = "true"
             evidence = "No leaks have been found."
             success = True
         else:
-            output = "insecure"
+            output = "false"
             evidence = "Leaks have been found."
             success = False
 

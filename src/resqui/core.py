@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from datetime import datetime
+from datetime import datetime, timezone
 from dataclasses import dataclass
 from typing import Optional
 import json
@@ -26,6 +26,8 @@ class CheckResult:
     output: str = "missing"
     evidence: str = "missing"
     success: bool = False
+    raw_value: Optional[str] = None
+    threshold: Optional[str] = None
 
     def __bool__(self):
         return self.success
@@ -54,31 +56,44 @@ class Summary:
         self.checks = []
 
     def add_indicator_result(self, indicator, checking_software, result):
-        self.checks.append(
-            {
-                "@type": "CheckResult",
-                "assessesIndicator": {"@id": indicator["@id"]},
-                "checkingSoftware": {
-                    "name": checking_software.name,
-                    "version": checking_software.version,
-                },
-                "process": result.process,
-                "status": {"@id": result.status_id},
-                "output": result.output,
-                "evidence": result.evidence,
-            }
-        )
+        software = {
+            "@type": "schema:SoftwareApplication",
+            "name": checking_software.name,
+            "softwareVersion": checking_software.version,
+        }
+        if checking_software.id:
+            software["@id"] = checking_software.id
+
+        check = {
+            "@type": "CheckResult",
+            "assessesIndicator": {"@id": indicator["@id"]},
+            "checkingSoftware": software,
+            "process": result.process,
+            "status": {"@id": result.status_id},
+            "output": result.output,
+            "evidence": result.evidence,
+        }
+        if result.raw_value is not None:
+            check["raw_value"] = result.raw_value
+        if result.threshold is not None:
+            check["threshold"] = result.threshold
+        self.checks.append(check)
 
     def to_json(self):
         return json.dumps(
             {
-                "@context": "https://w3id.org/everse/rsqa/0.0.1/",
+                "@context": "https://w3id.org/everse/rsqa/0.0.3",
                 "@type": "SoftwareQualityAssessment",
-                "dateCreated": str(datetime.now()),
-                "license": "CC0-1.0",
-                "author": {"@type": "Person", "name": "Quality Pipeline"},
+                "name": f"Quality assessment for {self.project_name}",
+                "description": (
+                    f"Automated quality assessment of {self.project_name} "
+                    f"({self.branch_hash_or_tag}) run by resqui."
+                ),
+                "dateCreated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                "license": {"@id": "https://creativecommons.org/publicdomain/zero/1.0/"},
+                "creator": {"@type": "schema:Person", "name": "Quality Pipeline"},
                 "assessedSoftware": {
-                    "@type": "SoftwareApplication",
+                    "@type": "schema:SoftwareApplication",
                     "name": self.project_name,
                     "softwareVersion": self.software_version,
                     "url": self.repo_url,

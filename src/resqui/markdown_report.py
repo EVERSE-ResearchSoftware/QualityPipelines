@@ -44,8 +44,9 @@ def render(data: dict) -> str:
     for check in checks:
         status = "PASS" if check.get("status", {}).get("@id") == "schema:CompletedActionStatus" else "FAIL"
         indicator = check.get("assessesIndicator", {}).get("@id", "missing")
-        tool = check.get("checkingSoftware", {}).get("name", "unknown")
-        version = check.get("checkingSoftware", {}).get("version", "-")
+        software = check.get("checkingSoftware", {})
+        tool = software.get("name", "unknown")
+        version = software.get("softwareVersion", software.get("version", "-"))
         lines.append(
             "| "
             + " | ".join(

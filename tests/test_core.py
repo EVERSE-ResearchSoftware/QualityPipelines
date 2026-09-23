@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 import tempfile
 import unittest
 from unittest.mock import MagicMock, patch
@@ -95,6 +96,7 @@ class TestSummary(unittest.TestCase):
         plugin = MagicMock()
         plugin.name = "HowFairIs"
         plugin.version = "0.1.0"
+        plugin.id = "https://w3id.org/everse/tools/howfairis"
         result = CheckResult(
             process="howfairis",
             status_id="passing",
@@ -112,8 +114,47 @@ class TestSummary(unittest.TestCase):
             check["assessesIndicator"]["@id"],
             "https://w3id.org/everse/i/indicators/license",
         )
-        self.assertEqual(check["checkingSoftware"]["name"], "HowFairIs")
+        self.assertEqual(
+            check["checkingSoftware"],
+            {
+                "@type": "schema:SoftwareApplication",
+                "@id": "https://w3id.org/everse/tools/howfairis",
+                "name": "HowFairIs",
+                "softwareVersion": "0.1.0",
+            },
+        )
         self.assertEqual(check["status"]["@id"], "passing")
+        self.assertNotIn("raw_value", check)
+        self.assertNotIn("threshold", check)
+
+    def test_add_indicator_result_with_raw_value_and_threshold(self):
+        s = self._make_summary()
+        plugin = MagicMock()
+        plugin.name = "pyscn"
+        plugin.version = "0.5.2"
+        plugin.id = None
+        result = CheckResult(output="false", raw_value="25.4", threshold="20")
+        s.add_indicator_result({"@id": "https://example.org/i"}, plugin, result)
+
+        check = json.loads(s.to_json())["checks"][0]
+        self.assertEqual(check["raw_value"], "25.4")
+        self.assertEqual(check["threshold"], "20")
+        self.assertNotIn("@id", check["checkingSoftware"])
+
+    def test_to_json_follows_rsqa_0_0_3(self):
+        data = json.loads(self._make_summary().to_json())
+        self.assertEqual(data["@context"], "https://w3id.org/everse/rsqa/0.0.3")
+        self.assertEqual(data["name"], "Quality assessment for myproject")
+        self.assertIn("description", data)
+        self.assertIn("creator", data)
+        self.assertNotIn("author", data)
+        self.assertEqual(
+            data["license"],
+            {"@id": "https://creativecommons.org/publicdomain/zero/1.0/"},
+        )
+        created = datetime.fromisoformat(data["dateCreated"])
+        self.assertIsNotNone(created.tzinfo)
+        self.assertIn("T", data["dateCreated"])
 
     def test_write_creates_file(self):
         s = self._make_summary()

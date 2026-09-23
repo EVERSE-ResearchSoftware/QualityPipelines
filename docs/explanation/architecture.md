@@ -59,5 +59,5 @@ simple: write a class, import it, and it is automatically available.
 
 `Summary.to_json()` serialises results as JSON-LD conforming to the EVERSE
 Research Software Quality Assessment schema
-(`https://w3id.org/everse/rsqa/0.0.1/`). Each `CheckResult` maps to one entry
+(`https://w3id.org/everse/rsqa/0.0.3`). Each `CheckResult` maps to one entry
 in the `checks` array with linked indicator, software, and status IRIs.

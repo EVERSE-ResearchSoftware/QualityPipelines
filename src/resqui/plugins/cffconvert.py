@@ -28,8 +28,8 @@ class CFFConvert(IndicatorPlugin):
         )
         result = self.executor.execute(script)
 
-        output = "valid" if result.stdout.strip() == "True" else "invalid"
-        if output == "valid":
+        output = "true" if result.stdout.strip() == "True" else "false"
+        if output == "true":
             evidence = "Found valid CITATION.cff file in repository root."
             success = True
         else:
