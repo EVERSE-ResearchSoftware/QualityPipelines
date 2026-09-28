@@ -16,7 +16,6 @@ class OEBFAIR(IndicatorPlugin):
     indicators = [
         "unique_identifier",
         "has_package",
-        "has_citation",
         "has_license",
         "has_documentation",
         "has_releases",
@@ -290,30 +289,6 @@ class OEBFAIR(IndicatorPlugin):
 
         for check in checks:
             if "software_tests" in check["assessesIndicator"]["@id"]:
-                if check["output"] == "true":
-                    success = True
-                else:
-                    success = False
-
-                check_res = CheckResult(
-                    process=check["process"],
-                    status_id=check["status"]["@id"],
-                    output=check["output"],
-                    evidence=check["evidence"],
-                    success=success,
-                )
-
-                check_list.append(check_res)
-
-        return check_list
-
-    def has_citation(self, url, branch_hash_or_tag):
-        report = self.execute(url, branch_hash_or_tag)
-        checks = report["checks"]
-        check_list = []
-
-        for check in checks:
-            if "software_has_citation" in check["assessesIndicator"]["@id"]:
                 if check["output"] == "true":
                     success = True
                 else:

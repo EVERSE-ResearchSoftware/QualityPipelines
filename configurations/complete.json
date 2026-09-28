@@ -21,11 +21,6 @@
       "@id": "https://w3id.org/everse/i/indicators/descriptive_metadata"
     },
     {
-      "name": "has_citation",
-      "plugin": "OEBFAIR",
-      "@id": "https://w3id.org/everse/i/indicators/software_has_citation"
-    },
-    {
       "name": "has_documentation",
       "plugin": "OEBFAIR",
       "@id": "https://w3id.org/everse/i/indicators/software_has_documentation"
