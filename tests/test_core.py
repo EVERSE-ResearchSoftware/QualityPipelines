@@ -120,7 +120,7 @@ class TestSummary(unittest.TestCase):
                 "@type": "schema:SoftwareApplication",
                 "@id": "https://w3id.org/everse/tools/howfairis",
                 "name": "HowFairIs",
-                "softwareVersion": "0.1.0",
+                "version": "0.1.0",
             },
         )
         self.assertEqual(check["status"]["@id"], "passing")

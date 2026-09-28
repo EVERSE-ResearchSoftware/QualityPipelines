@@ -16,7 +16,8 @@ def _escape(value):
     return str(value).replace("\\", "\\\\").replace("\n", " ").replace("|", "\\|").strip() or "-"
 
 
-# Same pass values as DashVERSE's check_outcome(), plus "secure" from older Gitleaks reports.
+# Pass values accepted by DashVERSE's check_outcome(), plus "secure", which the
+# Gitleaks plugin wrote before resqui followed RSQA 0.0.3.
 _PASS_OUTPUTS = {"true", "valid", "pass", "Pass", "passed", "secure"}
 
 
@@ -55,9 +56,8 @@ def render(data: dict) -> str:
     for check in checks:
         status = "PASS" if _check_passed(check) else "FAIL"
         indicator = check.get("assessesIndicator", {}).get("@id", "missing")
-        software = check.get("checkingSoftware", {})
-        tool = software.get("name", "unknown")
-        version = software.get("softwareVersion", software.get("version", "-"))
+        tool = check.get("checkingSoftware", {}).get("name", "unknown")
+        version = check.get("checkingSoftware", {}).get("version", "-")
         lines.append(
             "| "
             + " | ".join(

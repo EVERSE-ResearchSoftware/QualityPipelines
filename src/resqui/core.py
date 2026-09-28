@@ -59,7 +59,7 @@ class Summary:
         software = {
             "@type": "schema:SoftwareApplication",
             "name": checking_software.name,
-            "softwareVersion": checking_software.version,
+            "version": checking_software.version,
         }
         if checking_software.id:
             software["@id"] = checking_software.id

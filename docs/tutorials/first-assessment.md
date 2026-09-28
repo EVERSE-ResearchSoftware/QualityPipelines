@@ -60,7 +60,7 @@ Open `resqui_summary.json`. Each entry in `checks` corresponds to one indicator:
     "@type": "schema:SoftwareApplication",
     "@id": "https://w3id.org/everse/tools/howfairis",
     "name": "HowFairIs",
-    "softwareVersion": "0.14.2"
+    "version": "0.14.2"
   },
   "evidence": "Found license file: 'LICENSE'.",
   "output": "true",

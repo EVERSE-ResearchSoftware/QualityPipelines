@@ -48,17 +48,23 @@ class TestRender(unittest.TestCase):
         self.assertIn("| PASS |", markdown)
         self.assertIn("| FAIL |", markdown)
 
-    def test_completed_check_with_false_output_fails(self):
-        data = {
+    @staticmethod
+    def _completed_checks(*outputs):
+        return {
             "checks": [
-                {
-                    "status": {"@id": "schema:CompletedActionStatus"},
-                    "output": output,
-                }
-                for output in ["true", "false", "secure", "insecure"]
+                {"status": {"@id": "schema:CompletedActionStatus"}, "output": output}
+                for output in outputs
             ]
         }
-        markdown = render(data)
+
+    def test_completed_check_with_false_output_fails(self):
+        markdown = render(self._completed_checks("true", "false"))
+        self.assertIn("- Checks: 1/2 successful (1 failed)", markdown)
+
+    def test_reports_from_older_resqui_versions(self):
+        # Before RSQA 0.0.3, CFFConvert and HowFairIs wrote "valid"/"invalid"
+        # and Gitleaks wrote "secure"/"insecure".
+        markdown = render(self._completed_checks("valid", "invalid", "secure", "insecure"))
         self.assertIn("- Checks: 2/4 successful (2 failed)", markdown)
 
     def test_escapes_pipe_characters_in_evidence(self):
