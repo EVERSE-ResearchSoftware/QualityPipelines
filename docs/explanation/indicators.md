@@ -43,6 +43,17 @@ Scans the repository history for accidentally committed secrets (API keys,
 tokens, passwords) using [Gitleaks](https://github.com/gitleaks/gitleaks).
 Runs via Docker.
 
+### `code_churn_ok` — Repowise
+
+Checks whether the repository follows community conventions for code churn.
+Uses [repowise](https://docs.repowise.dev) to flag per-file hotspots — files
+with sustained, high-relative churn, excluding files with no tracked git
+history (lock files, configs, docs). Passes when fewer than 40% of tracked
+files are hotspots (provisional threshold). Empty repositories return
+`indeterminate`.
+
+W3ID: `https://w3id.org/everse/i/indicators/code_churn_ok`
+
 ## Interpreting results
 
 Each indicator produces a `CheckResult` with:
