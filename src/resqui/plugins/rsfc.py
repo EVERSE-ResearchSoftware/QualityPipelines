@@ -45,6 +45,8 @@ class RSFC(IndicatorPlugin):
         "RSFC-07-2",
         "RSFC-09-1",
         "RSFC-14-1",
+        "RSFC-17-2",
+        "RSFC-17-3",
         "RSFC-20-1",
     }
 
@@ -115,9 +117,27 @@ class RSFC(IndicatorPlugin):
 
         return report
 
-    def archived_in_scholarly_repository(self, url, branch_hash_or_tag):
-        report = self.execute(url, branch_hash_or_tag)
-        check = report["RSFC-08-2"]
+    def _skipped_check_result(self, check_id):
+        print(f"⚠️  RSFC local mode does not run {check_id}; skipping indicator")
+        return CheckResult(
+            process="RSFC local mode",
+            status_id="schema:FailedActionStatus",
+            output="missing",
+            evidence=(
+                f"RSFC local analysis does not generate check '{check_id}'. The indicator is skipped for local mode."
+            ),
+            success=False,
+        )
+
+    def _check_result(self, report, check_id):
+        "common method to check if check has been validated in RSFC output"
+        if self.context.local_path is not None and check_id in self.local_mode_unsupported_checks:
+            return self._skipped_check_result(check_id)
+
+        check = report.get(check_id)
+        if check is None:
+            raise KeyError(f"RSFC did not generate the expected check with id '{check_id}'")
+
         if check["output"] == "true":
             success = True
         else:
@@ -129,59 +149,23 @@ class RSFC(IndicatorPlugin):
             evidence=check["evidence"],
             success=success,
         )
-
         return check
+
+    def archived_in_scholarly_repository(self, url, branch_hash_or_tag):
+        report = self.execute(url, branch_hash_or_tag)
+        return self._check_result(report, "RSFC-08-2")
 
     def has_active_communication_channels(self, url, branch_hash_or_tag):
         report = self.execute(url, branch_hash_or_tag)
-        check = report["RSFC-05-4"]
-        if check["output"] == "true":
-            success = True
-        else:
-            success = False
-        check = CheckResult(
-            process=check["process"],
-            status_id=check["status"]["@id"],
-            output=check["output"],
-            evidence=check["evidence"],
-            success=success,
-        )
-
-        return check
+        return self._check_result(report, "RSFC-05-4")
 
     def support_issue_tracking(self, url, branch_hash_or_tag):
         report = self.execute(url, branch_hash_or_tag)
-        check = report["RSFC-20-1"]
-        if check["output"] == "true":
-            success = True
-        else:
-            success = False
-        check = CheckResult(
-            process=check["process"],
-            status_id=check["status"]["@id"],
-            output=check["output"],
-            evidence=check["evidence"],
-            success=success,
-        )
-
-        return check
+        return self._check_result(report, "RSFC-20-1")
 
     def has_active_contributors(self, url, branch_hash_or_tag):
         report = self.execute(url, branch_hash_or_tag)
-        check = report["RSFC-06-2"]
-        if check["output"] == "true":
-            success = True
-        else:
-            success = False
-        check = CheckResult(
-            process=check["process"],
-            status_id=check["status"]["@id"],
-            output=check["output"],
-            evidence=check["evidence"],
-            success=success,
-        )
-
-        return check
+        return self._check_result(report, "RSFC-06-2")
 
     def codemeta_completeness(self, url, branch_hash_or_tag):
         codemeta_process = (
@@ -281,34 +265,6 @@ class RSFC(IndicatorPlugin):
             output=check["output"],
             evidence=check["evidence"],
             success=success,
-        )
-
-    def _skipped_check_result(self, check_id):
-        print(f"⚠️  RSFC local mode does not run {check_id}; skipping indicator")
-        return CheckResult(
-            process="RSFC local mode",
-            status_id="schema:FailedActionStatus",
-            output="missing",
-            evidence=(
-                f"RSFC local analysis does not generate check '{check_id}'. The indicator is skipped for local mode."
-            ),
-            success=False,
-        )
-
-    def _check_result(self, report, check_id):
-        if self.context.local_path is not None and check_id in self.local_mode_unsupported_checks:
-            return self._skipped_check_result(check_id)
-
-        check = report.get(check_id)
-        if check is None:
-            raise KeyError(f"RSFC did not generate the expected check with id '{check_id}'")
-
-        return CheckResult(
-            process=check["process"],
-            status_id=check["status"]["@id"],
-            output=check["output"],
-            evidence=check["evidence"],
-            success=check["output"] == "true",
         )
 
     def descriptive_metadata(self, url, branch_hash_or_tag):
