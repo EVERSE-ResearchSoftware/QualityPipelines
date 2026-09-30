@@ -33,6 +33,7 @@ class RSFC(IndicatorPlugin):
         "archived_in_scholarly_repository",
         "has_active_communication_channels"
     ]
+    requires = ["docker"]
 
     def __init__(self, context):
         self.context = context

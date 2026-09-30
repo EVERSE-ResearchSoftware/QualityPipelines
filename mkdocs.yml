@@ -18,18 +18,21 @@ plugins:
             show_root_heading: true
             docstring_style: google
 
+hooks:
+  - scripts/generate_plugins_doc.py
+
 nav:
   - Home: index.md
   - Tutorials:
-    - Your First Assessment: tutorials/first-assessment.md
+      - Your First Assessment: tutorials/first-assessment.md
   - How-to Guides:
-    - Write a Custom Configuration: how-to/custom-configuration.md
-    - Add an Indicator Plugin: how-to/add-a-plugin.md
-    - Integrate in GitHub Actions: how-to/ci-integration.md
+      - Write a Custom Configuration: how-to/custom-configuration.md
+      - Add an Indicator Plugin: how-to/add-a-plugin.md
+      - Integrate in GitHub Actions: how-to/ci-integration.md
   - Reference:
-    - CLI: reference/cli.md
-    - Configuration Format: reference/configuration.md
-    - API: reference/api.md
+      - CLI: reference/cli.md
+      - Configuration Format: reference/configuration.md
+      - API: reference/api.md
   - Explanation:
-    - Architecture: explanation/architecture.md
-    - Indicators: explanation/indicators.md
+      - Architecture: explanation/architecture.md
+      - Plugins & Indicators: explanation/plugins.md

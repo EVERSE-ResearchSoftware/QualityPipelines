@@ -10,6 +10,7 @@ class HowFairIs(IndicatorPlugin):
     python_package_name = "howfairis"
     id = "https://w3id.org/everse/tools/howfairis"
     indicators = ["has_license"]
+    requires = ["github_token"]
 
     def __init__(self, context):
         self.context = context

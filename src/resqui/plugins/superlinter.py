@@ -16,6 +16,7 @@ class SuperLinter(IndicatorPlugin):
     image_url = f"ghcr.io/super-linter/super-linter:v{version}"
     id = "https://w3id.org/everse/tools/superlinter"
     indicators = ["has_no_linting_issues"]
+    requires = ["docker"]
 
     def __init__(self, context):
         self.context = context

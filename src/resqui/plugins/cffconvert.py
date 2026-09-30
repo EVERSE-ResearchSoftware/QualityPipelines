@@ -10,6 +10,7 @@ class CFFConvert(IndicatorPlugin):
     python_package_name = "cffconvert"
     id = "https://w3id.org/everse/tools/cffconvert"
     indicators = ["has_citation"]
+    requires = []
 
     def __init__(self, context):
         self.context = context
