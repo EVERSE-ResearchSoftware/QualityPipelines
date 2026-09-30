@@ -3,7 +3,7 @@
       { "name": "archived_in_software_heritage", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/archived_in_software_heritage" },
       { "name": "descriptive_metadata", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/descriptive_metadata" },
       { "name": "software_has_citation", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/software_has_citation" },
-      { "name": "has_ci_tests", "plugin": "OpenSSFScorecard", "@id": "https://w3id.org/everse/i/indicators/software_has_ci-tests" },
+      { "name": "has_ci_tests", "plugin": "OpenSSFScorecard", "@id": "https://w3id.org/everse/i/indicators/has_ci-tests" },
       { "name": "software_has_license", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/software_has_license" },
       { "name": "has_published_package", "plugin": "OpenSSFScorecard", "@id": "https://w3id.org/everse/i/indicators/has_published_package" },
       { "name": "has_releases", "plugin": "RSFC", "@id": "https://w3id.org/everse/i/indicators/has_releases" },

@@ -49,3 +49,76 @@ class TestConfigurationFromFile(unittest.TestCase):
         with patch("builtins.print"):
             cfg = Configuration(filepath=path)
         self.assertEqual(cfg._cfg["indicators"], [])
+
+
+class TestConfigurationVocabularyValidation(unittest.TestCase):
+    def _write_config(self, data):
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            json.dump(data, f)
+            return f.name
+
+    def test_warns_on_unknown_id(self):
+        custom = {
+            "indicators": [
+                {
+                    "name": "has_license",
+                    "plugin": "HowFairIs",
+                    "@id": "https://w3id.org/everse/i/indicators/license",
+                }
+            ]
+        }
+        path = self._write_config(custom)
+        with patch("builtins.print") as mock_print:
+            Configuration(filepath=path)
+        warnings = [
+            call.args[0]
+            for call in mock_print.call_args_list
+            if call.args and "Warning" in call.args[0]
+        ]
+        self.assertTrue(
+            any("has_license" in w and "license" in w for w in warnings)
+        )
+
+    def test_no_warning_for_known_id(self):
+        custom = {
+            "indicators": [
+                {
+                    "name": "has_license",
+                    "plugin": "HowFairIs",
+                    "@id": "https://w3id.org/everse/i/indicators/software_has_license",
+                }
+            ]
+        }
+        path = self._write_config(custom)
+        with patch("builtins.print") as mock_print:
+            Configuration(filepath=path)
+        warnings = [
+            call.args[0]
+            for call in mock_print.call_args_list
+            if call.args and "Warning" in call.args[0]
+        ]
+        self.assertEqual(warnings, [])
+
+    def test_no_warning_for_missing_sentinel(self):
+        custom = {
+            "indicators": [{"name": "has_ci_tests", "plugin": "X", "@id": "missing"}]
+        }
+        path = self._write_config(custom)
+        with patch("builtins.print") as mock_print:
+            Configuration(filepath=path)
+        warnings = [
+            call.args[0]
+            for call in mock_print.call_args_list
+            if call.args and "Warning" in call.args[0]
+        ]
+        self.assertEqual(warnings, [])
+
+    def test_default_config_has_no_vocabulary_warnings(self):
+        with patch("builtins.print") as mock_print:
+            Configuration()
+        warnings = [
+            call.args[0]
+            for call in mock_print.call_args_list
+            if call.args and "Warning" in call.args[0]
+        ]
+        self.assertEqual(warnings, [])

@@ -30,7 +30,7 @@ Navigate to any Git repository on your machine and run:
 resqui -t $GITHUB_TOKEN
 ```
 
-resqui detects the remote URL automatically and runs all default indicators.
+resqui detects the repository remote URL automatically from the current working directory's `.git` metadata and runs all default indicators.
 You will see a live progress line per indicator:
 
 ```
@@ -55,7 +55,7 @@ Open `resqui_summary.json`. Each entry in `checks` corresponds to one indicator:
 ```json
 {
   "@type": "CheckResult",
-  "assessesIndicator": { "@id": "https://w3id.org/everse/i/indicators/license" },
+  "assessesIndicator": { "@id": "https://w3id.org/everse/i/indicators/software_has_license" },
   "checkingSoftware": { "name": "HowFairIs", "version": "0.14.2" },
   "evidence": "Found license file: 'LICENSE'.",
   "output": "valid",

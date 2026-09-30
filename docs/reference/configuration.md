@@ -42,12 +42,12 @@ When no `-c` flag is provided, resqui uses this built-in configuration:
     {
       "name": "has_license",
       "plugin": "HowFairIs",
-      "@id": "https://w3id.org/everse/i/indicators/license"
+      "@id": "https://w3id.org/everse/i/indicators/software_has_license"
     },
     {
       "name": "has_citation",
       "plugin": "CFFConvert",
-      "@id": "https://w3id.org/everse/i/indicators/citation"
+      "@id": "https://w3id.org/everse/i/indicators/software_has_citation"
     },
     {
       "name": "has_ci_tests",
