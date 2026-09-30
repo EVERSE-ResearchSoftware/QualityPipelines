@@ -237,7 +237,7 @@ def resqui():
             else:
                 print(status, end=" ")
 
-            summary.add_indicator_result(indicator, plugin_class, result)
+            summary.add_indicator_result(indicator, type(plugin_instance), result)
         print()
 
     summary.write(output_file)
