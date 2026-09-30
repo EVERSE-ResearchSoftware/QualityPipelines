@@ -1,0 +1,5 @@
+{
+  "indicators": [
+          { "name": "code_smells_ok", "plugin": "Pylint", "@id": "https://w3id.org/everse/i/indicators/code_smells_ok" }
+  ]
+}

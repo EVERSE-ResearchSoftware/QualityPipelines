@@ -235,6 +235,11 @@
       "plugin": "OEBFAIR",
       "@id": "https://w3id.org/everse/i/indicators/listed_in_registry"
     },
+    {
+      "name": "code_smells_ok",
+      "plugin": "Pylint",
+      "@id": "https://w3id.org/everse/i/indicators/code_smells_ok"
+    },
     { "name": "cyclomatic_complexity_ok",
       "plugin": "PySCN",
       "@id": "https://w3id.org/everse/i/indicators/cyclomatic_complexity_ok"
