@@ -152,6 +152,14 @@ class TestDocoptArgParsing(unittest.TestCase):
         args = self._parse(["-v"])
         self.assertTrue(args["-v"])
 
+    def test_md_flag_defaults_to_none(self):
+        args = self._parse([])
+        self.assertIsNone(args["--md"])
+
+    def test_md_flag(self):
+        args = self._parse(["--md", "report.md"])
+        self.assertEqual(args["--md"], "report.md")
+
     def test_indicators_subcommand(self):
         args = self._parse(["indicators"])
         self.assertTrue(args["indicators"])
@@ -414,6 +422,23 @@ class TestResquiMainPath(unittest.TestCase):
         ):
             with self.assertRaises(sp.CalledProcessError):
                 resqui()
+
+    def test_md_option_triggers_conversion(self):
+        mock_convert = MagicMock()
+        with self._patches(
+            argv=["resqui", "--md", "report.md"],
+            **{"resqui.cli.json_to_markdown": mock_convert},
+        ):
+            resqui()
+        mock_convert.assert_called_once_with("resqui_summary.json", "report.md")
+
+    def test_no_md_option_skips_conversion(self):
+        mock_convert = MagicMock()
+        with self._patches(
+            **{"resqui.cli.json_to_markdown": mock_convert},
+        ):
+            resqui()
+        mock_convert.assert_not_called()
 
     def test_clone_zenodo_url_path(self):
         def mock_requests_get(url, headers=None):

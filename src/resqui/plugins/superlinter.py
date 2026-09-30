@@ -3,6 +3,7 @@ import platform
 import re
 import shutil
 import subprocess
+import uuid
 
 from resqui.plugins import IndicatorPlugin
 from resqui.executors import DockerExecutor
@@ -68,7 +69,7 @@ class SuperLinter(IndicatorPlugin):
                 summary_destination = os.path.abspath(
                     os.path.join(
                         os.getcwd(),
-                        "super-linter-summary.md",
+                        f"super-linter-summary-{uuid.uuid4().hex}.md"
                     )
                 )
 
