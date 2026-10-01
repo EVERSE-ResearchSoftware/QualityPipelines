@@ -118,6 +118,7 @@ class RSFC(IndicatorPlugin):
         return report
 
     def _skipped_check_result(self, check_id):
+        """Helper method to create a CheckResult for a check that is skipped due to local mode limitations."""
         print(f"⚠️  RSFC local mode does not run {check_id}; skipping indicator")
         return CheckResult(
             process="RSFC local mode",
@@ -129,12 +130,34 @@ class RSFC(IndicatorPlugin):
             success=False,
         )
 
+    def _missing_check_result(self, check_id):
+        """Helper method to create a CheckResult for a missing check in the RSFC report."""
+        print(f"⚠️  RSFC did not generate the expected check {check_id}; skipping indicator")
+        return CheckResult(
+            process="RSFC",
+            status_id="schema:FailedActionStatus",
+            output="missing",
+            evidence=f"RSFC did not generate the expected check with id '{check_id}'. The indicator is skipped.",
+            success=False,
+        )
+
+    def _valid_check_result(self, rsfc_check_dict: dict):
+        """Helper method to convert a check dictionary from RSFC report into a CheckResult object."""
+        success = self._check_output_result(rsfc_check_dict["output"])
+        return CheckResult(
+            process=rsfc_check_dict["process"],
+            status_id=rsfc_check_dict["status"]["@id"],
+            output=rsfc_check_dict["output"],
+            evidence=rsfc_check_dict["evidence"],
+            success=success,
+        )
+
     @staticmethod
     def _check_output_result(output) -> bool:
         """Helper method to determine if the check output indicates success for RSFC plugin."""
         return output == "true"
 
-    def _check_result(self, report, check_id):
+    def _check_result(self, report, check_id) -> CheckResult:
         "common method to check if check has been validated in RSFC output"
         if check_id in self.local_mode_unsupported_checks:
             # if requested check is not supported in local mode, return a skipped result
@@ -142,7 +165,7 @@ class RSFC(IndicatorPlugin):
 
         check = report.get(check_id)
         if check is None:
-            raise KeyError(f"RSFC did not generate the expected check with id '{check_id}'")
+            return self._missing_check_result(check_id)
 
         success = self._check_output_result(check["output"])
 
