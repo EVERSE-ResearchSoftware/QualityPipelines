@@ -8,6 +8,7 @@ from .superlinter import SuperLinter
 from .rsfc import RSFC
 from .oebfair import OEBFAIR
 from .astmetrics import ASTMetrics
+from .pyscn import PySCN
 
 __all__ = [
     "IndicatorPlugin",
@@ -19,5 +20,6 @@ __all__ = [
     "SuperLinter",
     "RSFC",
     "OEBFAIR",
-    "ASTMetrics"
+    "ASTMetrics",
+    "PySCN"
 ]
