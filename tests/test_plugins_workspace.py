@@ -154,13 +154,14 @@ class TestPluginSharedWorkspace(unittest.TestCase):
             plugin.execute("/tmp/project", "local")
 
 
+
 class TestRSFCIndicatorMappings(unittest.TestCase):
     def _plugin_with_report(self, report):
         plugin = RSFC.__new__(RSFC)
         plugin.execute = lambda _url, _branch: report
         return plugin
 
-    def _check(self, output, evidence):
+    def _create_check_rsfc_dict(self, output, evidence):
         return {
             "process": f"process for {evidence}",
             "status": {"@id": "schema:CompletedActionStatus"},
@@ -170,8 +171,8 @@ class TestRSFCIndicatorMappings(unittest.TestCase):
 
     def test_new_rsfc_indicators_map_true_outputs(self):
         report = {
-            "RSFC-08-2": self._check("true", "zenodo evidence"),
-            "RSFC-05-4": self._check("true", "support channel evidence"),
+            "RSFC-08-2": self._create_check_rsfc_dict("true", "zenodo evidence"),
+            "RSFC-05-4": self._create_check_rsfc_dict("true", "support channel evidence"),
         }
         plugin = self._plugin_with_report(report)
 
@@ -192,8 +193,8 @@ class TestRSFCIndicatorMappings(unittest.TestCase):
 
     def test_new_rsfc_indicators_map_non_true_outputs(self):
         report = {
-            "RSFC-08-2": self._check("false", "no zenodo evidence"),
-            "RSFC-05-4": self._check("error", "no support channel evidence"),
+            "RSFC-08-2": self._create_check_rsfc_dict("false", "no zenodo evidence"),
+            "RSFC-05-4": self._create_check_rsfc_dict("error", "no support channel evidence"),
         }
         plugin = self._plugin_with_report(report)
 

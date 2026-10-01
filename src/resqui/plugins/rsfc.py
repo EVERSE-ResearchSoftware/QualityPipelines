@@ -129,20 +129,24 @@ class RSFC(IndicatorPlugin):
             success=False,
         )
 
+    @staticmethod
+    def _check_output_result(output) -> bool:
+        """Helper method to determine if the check output indicates success for RSFC plugin."""
+        return output == "true"
+
     def _check_result(self, report, check_id):
         "common method to check if check has been validated in RSFC output"
-        if self.context.local_path is not None and check_id in self.local_mode_unsupported_checks:
+        if check_id in self.local_mode_unsupported_checks:
+            # if requested check is not supported in local mode, return a skipped result
             return self._skipped_check_result(check_id)
 
         check = report.get(check_id)
         if check is None:
             raise KeyError(f"RSFC did not generate the expected check with id '{check_id}'")
 
-        if check["output"] == "true":
-            success = True
-        else:
-            success = False
-        check = CheckResult(
+        success = self._check_output_result(check["output"])
+
+        return CheckResult(
             process=check["process"],
             status_id=check["status"]["@id"],
             output=check["output"],
@@ -197,8 +201,9 @@ class RSFC(IndicatorPlugin):
             success = False
             output = "false"
 
-        passed_check_ids = [check_id for check_id, check in codemeta_checks if check["output"] == "true"]
-        passed_checks_text = ", ".join(passed_check_ids) or "none"
+        passed_check_ids = [
+            check_id for check_id, check in codemeta_checks if self._check_output_result(check["output"])
+        ]
 
         process_lines = [f"- {check_id}: {check['output']}" for check_id, check in codemeta_checks]
 
