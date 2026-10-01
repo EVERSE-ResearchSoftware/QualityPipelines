@@ -42,6 +42,9 @@ jobs:
 
       - name: Run example
         run: venv/bin/resqui -c configurations/basic.json -t ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run local resqui
+        run: venv/bin/resqui -p . -c configurations/ossr_configuration.json -t ${{ secrets.GITHUB_TOKEN }}
   
   test-uv-python:
     runs-on: ubuntu-latest
