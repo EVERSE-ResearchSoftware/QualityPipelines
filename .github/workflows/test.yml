@@ -43,8 +43,16 @@ jobs:
       - name: Run example
         run: venv/bin/resqui -c configurations/basic.json -t ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run local resqui
-        run: venv/bin/resqui -p . -c configurations/ossr_configuration.json -t ${{ secrets.GITHUB_TOKEN }}
+      - name: Debug workspace contents
+        run: |
+          echo "Workspace root: $GITHUB_WORKSPACE"
+          ls -la "$GITHUB_WORKSPACE"
+          ls -la "$GITHUB_WORKSPACE/resqui-shared" || true
+          # show any recent files created in repo workspace
+          find . -maxdepth 3 -type f -name 'rsfc_assessment.json' -print -exec ls -l {} \; || true
+
+      - name: Run resqui verbosely (re-run for logs)
+        run: venv/bin/resqui -v -p . -c configurations/ossr_configuration.json -t ${{ secrets.GITHUB_TOKEN }} || true
   
   test-uv-python:
     runs-on: ubuntu-latest
