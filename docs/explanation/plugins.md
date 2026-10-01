@@ -8,3 +8,4 @@
 | OpenSSFScorecard | N/A |  has_ci-tests<br>has_published_package<br>project_is_active<br>no_critical_vulnerabilities<br>static_analysis_common_vulnerabilities<br>uses_fuzzing<br>dependency_management<br>human_code_review_requirement<br>has_no_binary_artifacts |
 | OEBFAIR | N/A | persistent_and_unique_identifier<br>has_published_package<br>software_has_license<br>descriptive_metadata<br>software_has_documentation<br>listed_in_registry |
 | Interrogate | Python | code_documentation_coverage_ok |
+| PySCN | Python | cyclomatic_complexity_ok<br>code_duplication_ok<br>coupling_between_objects_ok<br>internal_cohesion_ok<br> |
