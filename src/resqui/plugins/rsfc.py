@@ -76,9 +76,16 @@ class RSFC(IndicatorPlugin):
                 ]
                 assessment_fpath = os.path.join(workspace.local_path, "rsfc_output", assessment_filename)
             else:
+                # For non-shared workspaces mount the host tmp dir under
+                # a fixed container path and set the container working dir
+                # to that same path so files the tool writes end up on the
+                # host mount where we expect them.
+                mount_target = "/rsfc/rsfc_output"
                 run_args = [
                     "--rm",
-                    *workspace.docker_mount_args("/rsfc/rsfc_output"),
+                    *workspace.docker_mount_args(mount_target),
+                    "-w",
+                    mount_target,
                 ]
                 assessment_fpath = os.path.join(workspace.local_path, assessment_filename)
 
@@ -95,11 +102,20 @@ class RSFC(IndicatorPlugin):
 
             _ = self.executor.run(command, run_args=run_args)
 
-            if not os.path.isfile(assessment_fpath):
+            # RSFC may write the assessment file either at the workspace
+            # root or inside an `rsfc_output` directory depending on the
+            # container's internal behaviour. Accept either location.
+            candidate_paths = [
+                os.path.join(workspace.local_path, "rsfc_output", assessment_filename),
+                os.path.join(workspace.local_path, assessment_filename),
+            ]
+
+            existing = next((p for p in candidate_paths if os.path.isfile(p)), None)
+            if existing is None:
                 msg = f"Error: RSFC did not generate the expected assessment file named '{assessment_filename}'"
                 raise FileNotFoundError(msg)
 
-            with open(assessment_fpath) as f:
+            with open(existing) as f:
                 report = json.load(f)
 
         # New remapping for better management
