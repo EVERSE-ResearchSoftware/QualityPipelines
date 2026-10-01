@@ -33,6 +33,7 @@ class RSFC(IndicatorPlugin):
         "archived_in_scholarly_repository",
         "has_active_communication_channels",
     ]
+    supports_local_path = True
     local_mode_unsupported_checks = {
         "RSFC-01-1",
         "RSFC-03-1",
@@ -141,6 +142,11 @@ class RSFC(IndicatorPlugin):
             success=False,
         )
 
+    @staticmethod
+    def _check_output_result(output) -> bool:
+        """Helper method to determine if the check output indicates success for RSFC plugin."""
+        return output == "true"
+
     def _valid_check_result(self, rsfc_check_dict: dict):
         """Helper method to convert a check dictionary from RSFC report into a CheckResult object."""
         success = self._check_output_result(rsfc_check_dict["output"])
@@ -152,13 +158,8 @@ class RSFC(IndicatorPlugin):
             success=success,
         )
 
-    @staticmethod
-    def _check_output_result(output) -> bool:
-        """Helper method to determine if the check output indicates success for RSFC plugin."""
-        return output == "true"
-
     def _check_result(self, report, check_id) -> CheckResult:
-        "common method to check if check has been validated in RSFC output"
+        """Helper common method to check if check has been validated in RSFC output"""
         if check_id in self.local_mode_unsupported_checks:
             # if requested check is not supported in local mode, return a skipped result
             return self._skipped_check_result(check_id)
@@ -167,20 +168,19 @@ class RSFC(IndicatorPlugin):
         if check is None:
             return self._missing_check_result(check_id)
 
-        success = self._check_output_result(check["output"])
+        return self._valid_check_result(check)
 
-        return CheckResult(
-            process=check["process"],
-            status_id=check["status"]["@id"],
-            output=check["output"],
-            evidence=check["evidence"],
-            success=success,
-        )
-        return check
+    def requirements_specified(self, url, branch_hash_or_tag):
+        report = self.execute(url, branch_hash_or_tag)
+        return self._check_result(report, "RSFC-13-1")
 
     def archived_in_scholarly_repository(self, url, branch_hash_or_tag):
         report = self.execute(url, branch_hash_or_tag)
         return self._check_result(report, "RSFC-08-2")
+
+    def has_releases(self, url, branch_hash_or_tag):
+        report = self.execute(url, branch_hash_or_tag)
+        return self._check_result(report, "RSFC-03-1")
 
     def has_active_communication_channels(self, url, branch_hash_or_tag):
         report = self.execute(url, branch_hash_or_tag)
@@ -189,6 +189,14 @@ class RSFC(IndicatorPlugin):
     def support_issue_tracking(self, url, branch_hash_or_tag):
         report = self.execute(url, branch_hash_or_tag)
         return self._check_result(report, "RSFC-20-1")
+
+    def software_has_license(self, url, branch_hash_or_tag):
+        report = self.execute(url, branch_hash_or_tag)
+        return self._check_result(report, "RSFC-15-1")
+
+    def software_has_documentation(self, url, branch_hash_or_tag):
+        report = self.execute(url, branch_hash_or_tag)
+        return self._check_result(report, "RSFC-05-3")
 
     def has_active_contributors(self, url, branch_hash_or_tag):
         report = self.execute(url, branch_hash_or_tag)
