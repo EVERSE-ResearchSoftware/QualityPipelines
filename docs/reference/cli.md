@@ -11,7 +11,8 @@ resqui indicators
 
 | Flag | Argument | Default | Description |
 |---|---|---|---|
-| `-u` | `<repository_url>` | current repo | URL of the repository to assess. If omitted, resqui reads the remote repository URL from the current working directory's `.git` metadata. |
+| `-u` | `<repository_url>` | current repo | URL of the repository to assess. If omitted, resqui uses the remote URL of the current working directory. Mutually exclusive with `-p`. |
+| `-p` | `<project_path>` | — | Path to a local project directory to be analyzed without requiring Git history. Mutually exclusive with `-u`. |
 | `-c` | `<config_file>` | built-in default | Path to a JSON configuration file. |
 | `-o` | `<output_file>` | `resqui_summary.json` | Path for the JSON-LD output report. |
 | `--md` | `<markdown_report>` | — | Path for a Markdown report, generated from the JSON output after the assessment completes. |
@@ -21,6 +22,8 @@ resqui indicators
 | `-v` | — | off | Verbose output: prints full evidence text for each indicator. |
 | `--version` | — | — | Print the installed version and exit. |
 | `--help` | — | — | Print usage and exit. |
+
+> Note: `-u` and `-p` are mutually exclusive. Specify either a repository URL or a local project path, not both.
 
 ## Subcommands
 

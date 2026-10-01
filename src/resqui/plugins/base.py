@@ -1,8 +1,6 @@
 class PluginInitError(Exception):
     """Thrown if the initialisation of a plugin fails (e.g. missing GITHUB token)"""
 
-    pass
-
 
 class IndicatorPlugin:
     """Skeleton for an Indicator Plugin"""
@@ -11,3 +9,4 @@ class IndicatorPlugin:
     version = None
     id = None
     indicators = []
+    supports_local_path = False
