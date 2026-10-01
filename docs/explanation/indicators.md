@@ -43,6 +43,18 @@ Scans the repository history for accidentally committed secrets (API keys,
 tokens, passwords) using [Gitleaks](https://github.com/gitleaks/gitleaks).
 Runs via Docker.
 
+### `maintainability_index_ok` — ASTMetrics
+
+Computes the average maintainability index **without comment weighting** (MIwoc)
+with [ast-metrics](https://ast-metrics.dev): the three-factor formula
+(Halstead volume, cyclomatic complexity, lines of code) with no comment bonus,
+which is the variant used by the everse indicator. The check passes when the
+average is >= 65, ast-metrics' boundary between "moderate" and "hard to change
+safely".
+
+W3ID: `https://w3id.org/everse/i/indicators/maintainability_index_ok`
+
+
 ## Interpreting results
 
 Each indicator produces a `CheckResult` with:
