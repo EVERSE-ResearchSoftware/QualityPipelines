@@ -1,11 +1,13 @@
 import json
 import os
 import shutil
+import tempfile
 
 from resqui.plugins.base import IndicatorPlugin
 from resqui.executors import DockerExecutor
 from resqui.core import CheckResult
 from resqui.workspace import create_workspace
+from resqui.tools import is_commit_hash
 
 
 class RSFC(IndicatorPlugin):
@@ -80,6 +82,8 @@ class RSFC(IndicatorPlugin):
                 assessment_fpath = os.path.join(workspace.local_path, assessment_filename)
 
             command = ["--repo", url]
+            if not is_commit_hash(commit_hash):
+                command += ["-b", commit_hash]
             if os.path.isfile(cached_somef_output_fpath):
                 shutil.copyfile(cached_somef_output_fpath, metadata_local_fpath)
                 command += ["--metadata", metadata_container_fpath]
@@ -132,9 +136,11 @@ class RSFC(IndicatorPlugin):
         return str(ref).replace("/", "_").replace(":", "_")
 
     def somef_output_path(self, url, commit_hash):
+        if not getattr(self.context, "somef_cache_dir", None):
+            object.__setattr__(self.context, "somef_cache_dir", tempfile.mkdtemp())
+
         return os.path.join(
-            "tmp",
-            "somef_outputs",
+            self.context.somef_cache_dir,
             self.software_id(url),
             self.ref_id(commit_hash),
             "somef_output.json",
