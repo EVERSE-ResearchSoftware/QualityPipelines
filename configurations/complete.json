@@ -235,10 +235,9 @@
       "plugin": "OEBFAIR",
       "@id": "https://w3id.org/everse/i/indicators/listed_in_registry"
     },
-    {
-      "name": "maintainability_index_ok",
-      "plugin": "ASTMetrics",
-      "@id": "https://w3id.org/everse/i/indicators/maintainability_index_ok"
+    { "name": "code_churn_ok",
+      "plugin": "Repowise",
+      "@id": "https://w3id.org/everse/i/indicators/code_churn_ok"
     },
     { "name": "cyclomatic_complexity_ok",
       "plugin": "PySCN",
