@@ -207,6 +207,7 @@ class Rsmetacheck(IndicatorPlugin):
 
         return os.path.join(
             self.context.somef_cache_dir,
+            "somef_outputs",
             self.software_id(url),
             self.ref_id(commit_hash),
             "somef_output.json",
