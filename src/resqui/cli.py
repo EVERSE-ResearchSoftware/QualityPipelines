@@ -256,6 +256,9 @@ def resqui():
     else:
         print("\033[92m✔\033[0m")
 
+    somef_cache_dir = getattr(context, "somef_cache_dir", None)
+    if somef_cache_dir:
+        shutil.rmtree(somef_cache_dir, ignore_errors=True)
 
 def print_indicator_plugins():
     """
