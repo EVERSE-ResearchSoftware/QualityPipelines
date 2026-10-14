@@ -21,6 +21,7 @@ __all__ = [
     "SuperLinter",
     "RSFC",
     "OEBFAIR",
+    "ASTMetrics",
     "Pylint",
     "PySCN"
 ]
