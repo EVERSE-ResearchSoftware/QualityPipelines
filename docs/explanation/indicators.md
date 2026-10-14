@@ -44,6 +44,7 @@ tokens, passwords) using [Gitleaks](https://github.com/gitleaks/gitleaks).
 Runs via Docker.
 
 ### `maintainability_index_ok` — ASTMetrics
+
 Computes the average maintainability index **without comment weighting** (MIwoc)
 with [ast-metrics](https://ast-metrics.dev): the three-factor formula
 (Halstead volume, cyclomatic complexity, lines of code) with no comment bonus,
