@@ -52,8 +52,13 @@ which is the variant used by the everse indicator. The check passes when the
 average is >= 65, ast-metrics' boundary between "moderate" and "hard to change
 safely".
 
-W3ID: `https://w3id.org/everse/i/indicators/maintainability_index_ok`
+### `code_smells_ok` — Pylint
 
+Runs [pylint] on Python files and measures code smell density (refactor +
+convention messages per 1000 LOC), following the EVERSE ratio formula. Passes
+below 50/1000 LOC (provisional threshold, not from pylint itself).
+
+W3ID: `https://w3id.org/everse/i/indicators/code_smells_ok`
 
 ## Interpreting results
 
