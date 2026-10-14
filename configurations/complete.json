@@ -236,6 +236,11 @@
       "@id": "https://w3id.org/everse/i/indicators/listed_in_registry"
     },
     {
+      "name": "maintainability_index_ok",
+      "plugin": "ASTMetrics",
+      "@id": "https://w3id.org/everse/i/indicators/maintainability_index_ok"
+    },
+    {
       "name": "code_documentation_coverage_ok",
       "plugin": "Interrogate",
       "@id": "https://w3id.org/everse/i/indicators/code_documentation_coverage_ok"
