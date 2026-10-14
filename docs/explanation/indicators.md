@@ -43,6 +43,8 @@ Scans the repository history for accidentally committed secrets (API keys,
 tokens, passwords) using [Gitleaks](https://github.com/gitleaks/gitleaks).
 Runs via Docker.
 
+### `maintainability_index_ok` — ASTMetrics
+
 ### `code_smells_ok` — Pylint
 
 Runs [pylint] on Python files and measures code smell density (refactor +
