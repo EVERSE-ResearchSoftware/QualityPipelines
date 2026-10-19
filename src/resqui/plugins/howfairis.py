@@ -31,8 +31,8 @@ class HowFairIs(IndicatorPlugin):
         """
         )
         result = self.executor.execute(script)
-        output = "valid" if result.stdout.strip() == "True" else "invalid"
-        if output == "valid":
+        output = "true" if result.stdout.strip() == "True" else "false"
+        if output == "true":
             evidence = "Found license file: 'LICENSE'."
             success = True
         else:
