@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
@@ -42,3 +42,19 @@ jobs:
 
       - name: Run example
         run: venv/bin/resqui -c configurations/basic.json -t ${{ secrets.GITHUB_TOKEN }}
+  
+  test-uv-python:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@v10.1.0
+      - name: Run tests against a uv-managed interpreter with Python ${{ matrix.python-version }}
+        run: |
+          uv python install ${{ matrix.python-version }}
+          uv venv --python ${{ matrix.python-version }} .venv-uv
+          source .venv-uv/bin/activate
+          uv pip install -e ".[dev]"
+          python -m unittest discover -s tests

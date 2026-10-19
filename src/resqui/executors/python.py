@@ -1,11 +1,11 @@
-import venv
 import os
-import tempfile
 import shutil
 import subprocess
+import tempfile
+import venv
 
-from resqui.tools import normalized
 from resqui.executors.base import ExecutorInitError
+from resqui.tools import normalized
 
 
 class PythonExecutor:
@@ -24,7 +24,7 @@ class PythonExecutor:
         self.temp_dir = tempfile.mkdtemp()
         self.environment = environment if environment is not None else {}
         try:
-            venv.create(self.temp_dir, with_pip=True)
+            venv.create(self.temp_dir, with_pip=True, symlinks=(os.name != "nt"))
             if packages is None:
                 return
             for package in packages:

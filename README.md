@@ -43,7 +43,8 @@ Usage:
 Options:
     -u <repository_url>   URL of the repository to be analyzed (GitHub URLs, Zenodo DOIs and URLs accepted). If omitted, resqui reads the remote repository URL from the current working directory's `.git` metadata.
     -c <config_file>      Path to the configuration file.
-    -o <output_file>      Path to the output file [default: resqui_summary.json].
+    -o <output_file>       Path to the JSON output file [default: resqui_summary.json].
+    --md <markdown_report> Path to a Markdown report to also generate from the JSON output.
     -t <github_token>     GitHub API token.
     -d <dashverse_token>  DashVerse API token.
     -b <branch>           The Git branch to be checked.
