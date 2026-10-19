@@ -5,6 +5,12 @@ from resqui.core import CheckResult
 
 
 class OpenSSFScorecard(IndicatorPlugin):
+    """Runs security and best-practice checks with the
+    [OpenSSF Scorecard](https://github.com/ossf/scorecard).
+
+    Languages: language-independent.
+    """
+
     name = "OpenSSF Scorecard"
     id = "https://github.com/ossf/scorecard"
     version = "v5.4.0"

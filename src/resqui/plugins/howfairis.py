@@ -5,6 +5,12 @@ from resqui.tools import normalized
 
 
 class HowFairIs(IndicatorPlugin):
+    """Checks the repository against the FAIR software recommendations with
+    [howfairis](https://github.com/fair-software/howfairis).
+
+    Languages: language-independent.
+    """
+
     name = "HowFairIs"
     version = "0.14.2"
     python_package_name = "howfairis"

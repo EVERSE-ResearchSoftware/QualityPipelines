@@ -10,6 +10,13 @@ from resqui.workspace import create_workspace
 
 
 class PySCN(IndicatorPlugin):
+    """Code quality analysis of Python projects with
+    [pyscn](https://w3id.org/everse/tools/pyscn). Returns
+    `indeterminate` when less than 20% of the repository files are Python.
+
+    Languages: Python.
+    """
+
     name = "PySCN"
     version = "1.30.0"
     id = "https://w3id.org/everse/tools/pyscn"

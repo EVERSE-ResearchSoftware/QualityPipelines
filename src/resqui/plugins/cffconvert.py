@@ -5,6 +5,12 @@ from resqui.tools import normalized, construct_full_url
 
 
 class CFFConvert(IndicatorPlugin):
+    """Validates the `CITATION.cff` file with
+    [cffconvert](https://github.com/citation-file-format/cffconvert).
+
+    Languages: language-independent.
+    """
+
     name = "CFFConvert"
     version = "2.0.0"
     python_package_name = "cffconvert"

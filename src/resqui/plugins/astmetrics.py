@@ -10,6 +10,11 @@ from resqui.workspace import create_workspace
 TIMEOUT_SECONDS = 600
 
 class ASTMetrics(IndicatorPlugin):
+    """Static code metrics with [ast-metrics](https://ast-metrics.dev).
+
+    Languages: Python, Go, PHP, TypeScript, Rust, Java, C#.
+    """
+
     name = "ASTMetrics"
     version = "0.43.1"
     id = "https://w3id.org/everse/tools/ast-metrics"  

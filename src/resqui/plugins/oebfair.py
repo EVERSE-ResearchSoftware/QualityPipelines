@@ -9,6 +9,12 @@ from resqui.core import CheckResult
 
 
 class OEBFAIR(IndicatorPlugin):
+    """Evaluates FAIRness with the OpenEBench
+    [FAIRsoft evaluator](https://w3id.org/everse/tools/fairsoft-evaluator).
+
+    Languages: language-independent.
+    """
+
     name = "OEBFAIR"
     id = "https://w3id.org/everse/tools/fairsoft-evaluator"
     version = "0.2.2"

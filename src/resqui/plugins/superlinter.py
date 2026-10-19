@@ -12,6 +12,13 @@ from resqui.workspace import create_workspace
 
 
 class SuperLinter(IndicatorPlugin):
+    """Lints the code base with
+    [Super-Linter](https://github.com/super-linter/super-linter).
+
+    Languages: Python, Java, C, C++, JavaScript, SQL, JSON, YAML and
+    [more](https://github.com/super-linter/super-linter#supported-linters-and-formatters).
+    """
+
     name = "SuperLinter"
     version = "8.7.0"
     image_url = f"ghcr.io/super-linter/super-linter:v{version}"

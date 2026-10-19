@@ -8,6 +8,12 @@ from resqui.workspace import create_workspace
 
 
 class RSFC(IndicatorPlugin):
+    """Runs the Research Software FAIRness Checks with
+    [RSFC](https://w3id.org/everse/tools/rsfc).
+
+    Languages: language-independent.
+    """
+
     name = "RSFC"
     id = "https://w3id.org/everse/tools/rsfc"
     version = "0.2.0"

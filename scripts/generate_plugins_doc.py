@@ -53,6 +53,36 @@ extensions that don't match a vocabulary abbreviation exactly (for example
 the W3ID column rather than a guessed link.\
 """
 
+# Page-only tweaks to the readthedocs theme: use the full window width and let
+# table cells wrap, so the long indicator lists fit without scrolling.
+PAGE_STYLE = """\
+<style>
+.wy-nav-content { max-width: none; }
+.wy-table-responsive table td, .wy-table-responsive table th { white-space: normal; }
+details[id^="plugin-"]:last-of-type { margin-bottom: 2em; }
+</style>\
+"""
+
+# Opens the collapsed plugin section a summary-table link points to. The click
+# handler covers the theme swallowing the hashchange; the hash check covers
+# direct links to the page.
+OPEN_DETAILS_SCRIPT = """\
+<script>
+function openPlugin(id) {
+  const target = document.getElementById(id);
+  if (target && target.tagName === "DETAILS") {
+    target.open = true;
+    target.scrollIntoView();
+  }
+}
+document.querySelectorAll('a[href^="#plugin-"]').forEach((link) => {
+  link.addEventListener("click", () => openPlugin(link.getAttribute("href").slice(1)));
+});
+if (location.hash) openPlugin(location.hash.slice(1));
+window.addEventListener("hashchange", () => openPlugin(location.hash.slice(1)));
+</script>\
+"""
+
 
 def _literal_value(node: ast.AST):
     """Return Python value for simple literals, otherwise None."""
@@ -162,6 +192,7 @@ def _extract_plugins() -> list[dict[str, object]]:
                 {
                     "class": node.name,
                     "file": path.name,
+                    "description": ast.get_docstring(node),
                     "version": version,
                     "id": plugin_id,
                     "indicators": indicators,
@@ -175,67 +206,72 @@ def _extract_plugins() -> list[dict[str, object]]:
 
 
 
+def _anchor(plugin: dict[str, object]) -> str:
+    return f"plugin-{str(plugin['class']).lower()}"
+
+
 def _render_markdown(plugins: list[dict[str, object]], w3id_by_abbreviation: dict[str, str]) -> str:
     lines = [
         "# Plugins & Indicators",
+        "",
+        PAGE_STYLE,
         "",
         "This page is auto-generated from `src/resqui/plugins/` during docs build.",
         "",
         INTRO,
         "",
-        "## Plugin to indicator mapping",
+        "## Plugins",
         "",
-        "| Plugin class | Indicators |",
-        "|---|---|",
+        "Click a plugin name to see its description and the checks behind each indicator.",
+        "",
+        "| Plugin | Version | ID | Requires | Indicators |",
+        "|---|---|---|---|---|",
     ]
 
     for plugin in plugins:
-        indicators = plugin["indicators"]
-        indicator_text = ", ".join(f"`{item}`" for item in indicators) if indicators else "(none)"
-        lines.append(f"| `{plugin['class']}` | {indicator_text} |")
-
-    lines.extend(
-        [
-            "",
-            "## Plugin details",
-            "",
-            "| Plugin class | Version | ID | Source file | Requires |",
-            "|---|---|---|---|---|",
-        ]
-    )
-
-    for plugin in plugins:
         version = f"`{plugin['version']}`" if plugin["version"] else "-"
-        plugin_id = f"`{plugin['id']}`" if plugin["id"] else "-"
+        plugin_id = f"[{plugin['id']}]({plugin['id']})" if plugin["id"] else "-"
         requires = plugin["requires"]
         requires_text = ", ".join(f"`{item}`" for item in requires) if requires else "-"
+        indicators = plugin["indicators"]
+        indicator_text = ", ".join(f"`{item}`" for item in indicators) if indicators else "-"
         lines.append(
-            f"| `{plugin['class']}` | {version} | {plugin_id} | `{plugin['file']}` | {requires_text} |"
+            f"| [`{plugin['class']}`](#{_anchor(plugin)}) | {version} | {plugin_id} "
+            f"| {requires_text} | {indicator_text} |"
         )
 
-    lines.extend(["", "## Indicator checks", "", W3ID_NOTE, ""])
+    lines.extend(["", "## Plugin details", "", W3ID_NOTE, ""])
 
     for plugin in plugins:
-        indicators = plugin["indicators"]
-        if not indicators:
-            continue
         descriptions = plugin["descriptions"]
         lines.extend(
             [
-                f"### {plugin['class']}",
+                f'<details id="{_anchor(plugin)}" markdown="1">',
+                f"<summary><strong>{plugin['class']}</strong></summary>",
                 "",
-                "| Indicator | What it checks | W3ID |",
-                "|---|---|---|",
             ]
         )
-        for indicator in indicators:
-            description = descriptions.get(indicator)
-            text = description.replace("|", "\\|") if description else "-"
-            w3id = w3id_by_abbreviation.get(indicator)
-            w3id_text = f"[`{indicator}`]({w3id})" if w3id else "-"
-            lines.append(f"| `{indicator}` | {text} | {w3id_text} |")
-        lines.append("")
+        if plugin["description"]:
+            lines.extend([plugin["description"], ""])
+        lines.extend([f"Source file: `{plugin['file']}`", ""])
+        if plugin["indicators"]:
+            lines.extend(
+                [
+                    "| Indicator | What it checks | W3ID |",
+                    "|---|---|---|",
+                ]
+            )
+            for indicator in plugin["indicators"]:
+                description = descriptions.get(indicator)
+                text = description.replace("|", "\\|") if description else "-"
+                w3id = w3id_by_abbreviation.get(indicator)
+                w3id_text = f"[`{indicator}`]({w3id})" if w3id else "-"
+                lines.append(f"| `{indicator}` | {text} | {w3id_text} |")
+            lines.append("")
+        lines.extend(["</details>", ""])
 
+    lines.append(OPEN_DETAILS_SCRIPT)
+    lines.append("")
     lines.append(INTERPRETING_RESULTS)
     lines.append("")
     lines.append(STATUS_IDS)
@@ -255,6 +291,9 @@ def generate() -> None:
             "W3ID links — retry once the vocabulary API is reachable."
         ) from error
     markdown = _render_markdown(plugins, w3id_by_abbreviation)
+    # Rewriting an unchanged file would make `mkdocs serve` rebuild forever.
+    if OUTPUT_FILE.exists() and OUTPUT_FILE.read_text(encoding="utf-8") == markdown:
+        return
     OUTPUT_FILE.write_text(markdown, encoding="utf-8")
     print(f"Generated {OUTPUT_FILE.relative_to(ROOT)} ({len(plugins)} plugins)")
 

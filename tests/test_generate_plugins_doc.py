@@ -44,6 +44,13 @@ class TestGeneratePluginsDoc(unittest.TestCase):
             for indicator in plugin["indicators"]:
                 self.assertIn(f"`{indicator}`", markdown)
 
+    def test_render_markdown_includes_plugin_docstring(self):
+        plugins = generate_plugins_doc._extract_plugins()
+        astmetrics = next(p for p in plugins if p["class"] == "ASTMetrics")
+        self.assertIn("Languages:", astmetrics["description"])
+        markdown = generate_plugins_doc._render_markdown(plugins, W3ID_BY_ABBREVIATION)
+        self.assertIn(astmetrics["description"], markdown)
+
     def test_generate_writes_the_output_file(self):
         generate_plugins_doc.OUTPUT_FILE.unlink(missing_ok=True)
         generate_plugins_doc.generate()
