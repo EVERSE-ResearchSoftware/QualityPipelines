@@ -7,6 +7,9 @@ repo_name: EVERSE-ResearchSoftware/QualityPipelines
 theme:
   name: readthedocs
 
+extra_css:
+  - css/extra.css
+
 markdown_extensions:
   - md_in_html
 

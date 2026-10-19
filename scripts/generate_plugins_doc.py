@@ -53,11 +53,10 @@ extensions that don't match a vocabulary abbreviation exactly (for example
 the W3ID column rather than a guessed link.\
 """
 
-# Page-only tweaks to the readthedocs theme: use the full window width and let
-# table cells wrap, so the long indicator lists fit without scrolling.
+# Page-only tweaks to the readthedocs theme: let table cells wrap, so the long
+# indicator lists fit without scrolling.
 PAGE_STYLE = """\
 <style>
-.wy-nav-content { max-width: none; }
 .wy-table-responsive table td, .wy-table-responsive table th { white-space: normal; }
 details[id^="plugin-"]:last-of-type { margin-bottom: 2em; }
 </style>\
