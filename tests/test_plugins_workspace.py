@@ -153,6 +153,29 @@ class TestPluginSharedWorkspace(unittest.TestCase):
         with tempfile.TemporaryDirectory() as root, patch.dict(os.environ, self._env(root), clear=True):
             plugin.execute("/tmp/project", "local")
 
+    def test_rsfc_finds_assessment_in_local_project_directory(self):
+        project_root = tempfile.mkdtemp(prefix="resqui-local-project-")
+        assessment_path = os.path.join(project_root, "rsfc_assessment.json")
+        with open(assessment_path, "w") as f:
+            json.dump({"checks": []}, f)
+
+        def fake_rsfc_run(command, run_args=None):
+            return SimpleNamespace(stdout="", stderr="")
+
+        fake_executor = FakeExecutor()
+        fake_executor.run = fake_rsfc_run
+
+        plugin = RSFC.__new__(RSFC)
+        plugin.context = Context(github_token="token", local_path=project_root)
+        plugin.executor = fake_executor
+        plugin._cache = {}
+
+        try:
+            report = plugin.execute(project_root, "local")
+            self.assertEqual(report, {})
+        finally:
+            os.remove(assessment_path)
+            os.rmdir(project_root)
 
 
 class TestRSFCIndicatorMappings(unittest.TestCase):

@@ -30,6 +30,20 @@ jobs:
       - name: Install development dependencies
         run: make install-dev
 
+      - name: Verify installed resqui source location
+        run: |
+          venv/bin/python - <<'PY'
+          import inspect
+          import resqui
+          import resqui.plugins.rsfc
+          print('resqui_file=', resqui.__file__)
+          print('rsfc_file=', inspect.getsourcefile(resqui.plugins.rsfc))
+          print('supports_local_path=', getattr(resqui.plugins.rsfc.RSFC, 'supports_local_path', None))
+          PY
+
+      - name: Force reinstall local package from checkout
+        run: venv/bin/python -m pip install --force-reinstall -e ".[dev]"
+
       - name: Run tests with coverage
         run: make coverage
 
