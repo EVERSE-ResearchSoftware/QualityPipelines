@@ -5,23 +5,40 @@ import requests
 VOCABULARY_URL = "https://everse.software/indicators/api/indicators.json"
 MISSING_ID = "missing"
 
-_known_ids_cache = None
+_vocabulary_cache = None
+
+
+def _fetch_vocabulary():
+    """
+    Fetches the EVERSE indicator vocabulary API response's `indicators` list.
+    The result is cached for the lifetime of the process.
+    """
+    global _vocabulary_cache
+    if _vocabulary_cache is None:
+        response = requests.get(VOCABULARY_URL, timeout=10)
+        response.raise_for_status()
+        _vocabulary_cache = response.json()["indicators"]
+    return _vocabulary_cache
 
 
 def fetch_known_indicator_ids():
     """
     Fetches the set of canonical indicator @id URIs from the EVERSE
-    indicator vocabulary API. The result is cached for the lifetime of
-    the process.
+    indicator vocabulary API.
     """
-    global _known_ids_cache
-    if _known_ids_cache is None:
-        response = requests.get(VOCABULARY_URL, timeout=10)
-        response.raise_for_status()
-        _known_ids_cache = frozenset(
-            indicator["@id"] for indicator in response.json()["indicators"]
-        )
-    return _known_ids_cache
+    return frozenset(indicator["@id"] for indicator in _fetch_vocabulary())
+
+
+def fetch_indicator_id_by_abbreviation():
+    """
+    Fetches a mapping of canonical indicator abbreviation (e.g.
+    `software_has_license`) to its @id URI from the EVERSE indicator
+    vocabulary API.
+    """
+    return {
+        indicator["abbreviation"]: indicator["@id"]
+        for indicator in _fetch_vocabulary()
+    }
 
 
 def is_known_indicator_id(indicator_id):

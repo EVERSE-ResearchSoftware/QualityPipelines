@@ -9,11 +9,18 @@ from resqui.workspace import create_workspace
 
 
 class Gitleaks(IndicatorPlugin):
+    """Scans the repository history for committed secrets (API keys, tokens,
+    passwords) with [Gitleaks](https://github.com/gitleaks/gitleaks).
+
+    Languages: language-independent.
+    """
+
     name = "GitLeaks"
     version = "8.24.2"
     image_url = f"ghcr.io/gitleaks/gitleaks:v{version}"
     id = "https://w3id.org/everse/tools/gitleaks"
     indicators = ["has_no_security_leak"]
+    requires = ["docker"]
 
     def __init__(self, context):
         self.context = context
