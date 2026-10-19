@@ -1,10 +1,10 @@
 import json
-import subprocess
 import os
+import subprocess
 
-from resqui.plugins.base import IndicatorPlugin
-from resqui.executors import DockerExecutor
 from resqui.core import CheckResult
+from resqui.executors import DockerExecutor
+from resqui.plugins.base import IndicatorPlugin
 from resqui.workspace import create_workspace
 
 
@@ -13,6 +13,7 @@ class Gitleaks(IndicatorPlugin):
     version = "8.24.2"
     image_url = f"ghcr.io/gitleaks/gitleaks:v{version}"
     id = "https://w3id.org/everse/tools/gitleaks"
+    supports_local_path = False
     indicators = ["has_no_security_leak"]
 
     def __init__(self, context):
@@ -21,7 +22,6 @@ class Gitleaks(IndicatorPlugin):
 
     def has_no_security_leak(self, url, branch_hash_or_tag):
         report_fname = "report.json"
-
 
         with create_workspace(prefix="resqui-gitleaks-") as workspace:
             try:
@@ -37,9 +37,9 @@ class Gitleaks(IndicatorPlugin):
 
             plugin_path = workspace.container_path("/path")
             report_path = f"{plugin_path}/{report_fname}"
-            
+
             run_args = ["--rm", *workspace.docker_mount_args("/path")]
-            
+
             p = self.executor.run(
                 ["git", plugin_path, "-r", report_path], run_args=run_args
             )

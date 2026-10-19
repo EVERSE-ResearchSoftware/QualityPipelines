@@ -30,6 +30,20 @@ jobs:
       - name: Install development dependencies
         run: make install-dev
 
+      - name: Verify installed resqui source location
+        run: |
+          venv/bin/python - <<'PY'
+          import inspect
+          import resqui
+          import resqui.plugins.rsfc
+          print('resqui_file=', resqui.__file__)
+          print('rsfc_file=', inspect.getsourcefile(resqui.plugins.rsfc))
+          print('supports_local_path=', getattr(resqui.plugins.rsfc.RSFC, 'supports_local_path', None))
+          PY
+
+      - name: Force reinstall local package from checkout
+        run: venv/bin/python -m pip install --force-reinstall -e ".[dev]"
+
       - name: Run tests with coverage
         run: make coverage
 
@@ -42,6 +56,17 @@ jobs:
 
       - name: Run example
         run: venv/bin/resqui -c configurations/basic.json -t ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Debug workspace contents
+        run: |
+          echo "Workspace root: $GITHUB_WORKSPACE"
+          ls -la "$GITHUB_WORKSPACE"
+          ls -la "$GITHUB_WORKSPACE/resqui-shared" || true
+          # show any recent files created in repo workspace
+          find . -maxdepth 3 -type f -name 'rsfc_assessment.json' -print -exec ls -l {} \; || true
+
+      - name: Run resqui verbosely (re-run for logs)
+        run: venv/bin/resqui -v -p . -c configurations/ossr_configuration.json -t ${{ secrets.GITHUB_TOKEN }} || true
   
   test-uv-python:
     runs-on: ubuntu-latest

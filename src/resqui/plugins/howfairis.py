@@ -1,6 +1,6 @@
-from resqui.plugins.base import IndicatorPlugin, PluginInitError
-from resqui.executors import PythonExecutor
 from resqui.core import CheckResult
+from resqui.executors import PythonExecutor
+from resqui.plugins.base import IndicatorPlugin, PluginInitError
 from resqui.tools import normalized
 
 
@@ -9,6 +9,7 @@ class HowFairIs(IndicatorPlugin):
     version = "0.14.2"
     python_package_name = "howfairis"
     id = "https://w3id.org/everse/tools/howfairis"
+    supports_local_path = False
     indicators = ["has_license"]
 
     def __init__(self, context):

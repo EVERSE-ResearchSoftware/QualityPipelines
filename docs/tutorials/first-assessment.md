@@ -75,6 +75,12 @@ You can point resqui at any public repository without cloning it yourself:
 resqui -u https://github.com/org/other-project -t $GITHUB_TOKEN -o other-report.json
 ```
 
+Alternatively, you can assess a local project directory directly by passing `-p` instead of `-u`:
+
+```bash
+resqui -p /path/to/project -t $GITHUB_TOKEN -o other-report.json
+```
+
 ## Next steps
 
 - [Write a custom configuration](../how-to/custom-configuration.md) to choose which indicators to run
