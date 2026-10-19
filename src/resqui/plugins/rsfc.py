@@ -102,13 +102,25 @@ class RSFC(IndicatorPlugin):
 
             _ = self.executor.run(command, run_args=run_args)
 
-            # RSFC may write the assessment file either at the workspace
-            # root or inside an `rsfc_output` directory depending on the
-            # container's internal behaviour. Accept either location.
-            candidate_paths = [
-                os.path.join(workspace.local_path, "rsfc_output", assessment_filename),
-                os.path.join(workspace.local_path, assessment_filename),
-            ]
+            # RSFC may write the assessment file either at the workspace root,
+            # inside an `rsfc_output` directory, or directly in the mounted
+            # local project directory when running in local-path mode.
+            candidate_paths = []
+            if self.context.local_path is not None:
+                local_project_path = os.path.abspath(self.context.local_path)
+                candidate_paths.extend(
+                    [
+                        os.path.join(local_project_path, "rsfc_output", assessment_filename),
+                        os.path.join(local_project_path, assessment_filename),
+                    ]
+                )
+
+            candidate_paths.extend(
+                [
+                    os.path.join(workspace.local_path, "rsfc_output", assessment_filename),
+                    os.path.join(workspace.local_path, assessment_filename),
+                ]
+            )
 
             existing = next((p for p in candidate_paths if os.path.isfile(p)), None)
             if existing is None:
