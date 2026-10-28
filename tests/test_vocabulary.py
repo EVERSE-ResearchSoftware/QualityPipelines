@@ -1,6 +1,10 @@
 import unittest
 
-from resqui.vocabulary import fetch_known_indicator_ids, is_known_indicator_id
+from resqui.vocabulary import (
+    fetch_indicator_id_by_abbreviation,
+    fetch_known_indicator_ids,
+    is_known_indicator_id,
+)
 
 
 class TestVocabulary(unittest.TestCase):
@@ -41,6 +45,18 @@ class TestVocabulary(unittest.TestCase):
         )
         self.assertTrue(
             is_known_indicator_id("https://w3id.org/everse/i/indicators/has_ci-tests")
+        )
+
+
+    def test_fetches_id_by_abbreviation(self):
+        by_abbreviation = fetch_indicator_id_by_abbreviation()
+        self.assertEqual(
+            by_abbreviation["software_has_license"],
+            "https://w3id.org/everse/i/indicators/software_has_license",
+        )
+        self.assertEqual(
+            by_abbreviation["software_has_citation"],
+            "https://w3id.org/everse/i/indicators/software_has_citation",
         )
 
 
