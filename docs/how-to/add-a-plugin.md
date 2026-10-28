@@ -30,7 +30,7 @@ class MyPlugin(IndicatorPlugin):
         return CheckResult(
             process="Looks for a README file in the repository root.",
             status_id="schema:CompletedActionStatus" if found else "schema:FailedActionStatus",
-            output="valid" if found else "missing",
+            output="true" if found else "false",
             evidence="Found README." if found else "No README found.",
             success=found,
         )
