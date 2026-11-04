@@ -5,11 +5,18 @@ from resqui.tools import normalized, construct_full_url
 
 
 class CFFConvert(IndicatorPlugin):
+    """Validates the `CITATION.cff` file with
+    [cffconvert](https://github.com/citation-file-format/cffconvert).
+
+    Languages: language-independent.
+    """
+
     name = "CFFConvert"
     version = "2.0.0"
     python_package_name = "cffconvert"
     id = "https://w3id.org/everse/tools/cffconvert"
     indicators = ["has_citation"]
+    requires = []
 
     def __init__(self, context):
         self.context = context
@@ -28,8 +35,8 @@ class CFFConvert(IndicatorPlugin):
         )
         result = self.executor.execute(script)
 
-        output = "valid" if result.stdout.strip() == "True" else "invalid"
-        if output == "valid":
+        output = "true" if result.stdout.strip() == "True" else "false"
+        if output == "true":
             evidence = "Found valid CITATION.cff file in repository root."
             success = True
         else:

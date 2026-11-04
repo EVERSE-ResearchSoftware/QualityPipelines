@@ -11,3 +11,4 @@ class IndicatorPlugin:
     version = None
     id = None
     indicators = []
+    requires = []

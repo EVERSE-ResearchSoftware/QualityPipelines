@@ -11,6 +11,12 @@ from resqui.tools import is_commit_hash
 
 
 class RSFC(IndicatorPlugin):
+    """Runs the Research Software FAIRness Checks with
+    [RSFC](https://w3id.org/everse/tools/rsfc).
+
+    Languages: language-independent.
+    """
+
     name = "RSFC"
     id = "https://w3id.org/everse/tools/rsfc"
     version = "0.2.0"
@@ -36,6 +42,7 @@ class RSFC(IndicatorPlugin):
         "archived_in_scholarly_repository",
         "has_active_communication_channels"
     ]
+    requires = ["docker"]
 
     def __init__(self, context):
         self.context = context
