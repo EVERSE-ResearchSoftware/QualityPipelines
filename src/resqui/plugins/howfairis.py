@@ -5,6 +5,12 @@ from resqui.tools import normalized
 
 
 class HowFairIs(IndicatorPlugin):
+    """Checks the repository against the FAIR software recommendations with
+    [howfairis](https://github.com/fair-software/howfairis).
+
+    Languages: language-independent.
+    """
+
     name = "HowFairIs"
     version = "0.15.0"
     python_package_name = "howfairis"
@@ -14,6 +20,8 @@ class HowFairIs(IndicatorPlugin):
         "has_license",
         "software_has_license_for_file_types",
     ]
+    requires = ["github_token"]
+
 
     def __init__(self, context):
         self.context = context
@@ -35,8 +43,8 @@ class HowFairIs(IndicatorPlugin):
         """
         )
         result = self.executor.execute(script)
-        output = "valid" if result.stdout.strip() == "True" else "invalid"
-        if output == "valid":
+        output = "true" if result.stdout.strip() == "True" else "false"
+        if output == "true":
             evidence = "Found license file: 'LICENSE'."
             success = True
         else:
