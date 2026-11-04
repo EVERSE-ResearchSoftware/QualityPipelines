@@ -3,10 +3,11 @@ import os
 import tempfile
 import unittest
 from types import SimpleNamespace
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from resqui.core import Context
 from resqui.plugins.gitleaks import Gitleaks
+from resqui.plugins.howfairis import HowFairIs
 from resqui.plugins.rsfc import RSFC
 from resqui.plugins.superlinter import SuperLinter
 
@@ -20,6 +21,17 @@ class FakeExecutor:
     def run(self, command, run_args=None):
         run_args = run_args or []
         self.calls.append((command, run_args))
+        return SimpleNamespace(stdout=self.stdout, stderr=self.stderr)
+
+
+class FakePythonExecutor:
+    def __init__(self, stdout="", stderr=""):
+        self.stdout = stdout
+        self.stderr = stderr
+        self.scripts = []
+
+    def execute(self, script):
+        self.scripts.append(script)
         return SimpleNamespace(stdout=self.stdout, stderr=self.stderr)
 
 
@@ -126,6 +138,35 @@ class TestPluginSharedWorkspace(unittest.TestCase):
 
         command, _ = fake_executor.calls[0]
         self.assertNotIn("-t", command)
+
+
+class TestHowFairIsIndicatorMappings(unittest.TestCase):
+    def test_installs_howfairis_from_git_repository(self):
+        with patch("resqui.plugins.howfairis.PythonExecutor") as mock_executor_class:
+            mock_executor = MagicMock()
+            mock_executor_class.return_value = mock_executor
+
+            HowFairIs(Context(github_token="token"))
+
+        mock_executor.install.assert_called_once_with(
+            "git+https://github.com/fair-software/howfairis.git@0.15.0"
+        )
+
+    def test_license_for_file_types_uses_reuse_checker(self):
+        plugin = HowFairIs.__new__(HowFairIs)
+        plugin.executor = FakePythonExecutor(stdout="True\n")
+
+        result = plugin.software_has_license_for_file_types(
+            "https://github.com/example/repo",
+            "main",
+        )
+
+        script = plugin.executor.scripts[0]
+        self.assertIn("from howfairis import Repo, Checker", script)
+        self.assertIn("checker.is_reuse_compliant()", script)
+        self.assertTrue(result)
+        self.assertEqual(result.output, "true")
+        self.assertEqual(result.status_id, "schema:CompletedActionStatus")
 
 
 class TestRSFCIndicatorMappings(unittest.TestCase):
