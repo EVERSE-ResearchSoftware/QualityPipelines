@@ -211,4 +211,12 @@ class Rsmetacheck(IndicatorPlugin):
             self.software_id(url),
             self.ref_id(commit_hash),
             "somef_output.json",
+            tmpdir = tempfile.mkdtemp()
+            self.context.somef_cache_dir = tmpdir
+            return os.path.join(
+            tmpdir,
+            "somef_outputs",
+            self.software_id(url),
+            self.ref_id(commit_hash),
+            "somef_output.json",
         )
