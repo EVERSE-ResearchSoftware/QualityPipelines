@@ -1,4 +1,7 @@
+import subprocess
 import unittest
+from unittest.mock import call, patch
+
 from resqui.executors import PythonExecutor, DockerExecutor
 
 
@@ -30,6 +33,20 @@ class TestPythonExecutor(unittest.TestCase):
 
 class TestDockerExecutor(unittest.TestCase):
     def test_docker_executor(self):
-        de = DockerExecutor("hello-world")
-        out = de.run([])
+        with patch("resqui.executors.docker.subprocess.run") as mock_run:
+            mock_run.return_value.stdout = "installation appears to be working correctly"
+            de = DockerExecutor("hello-world")
+            out = de.run([])
+
         self.assertIn("installation appears to be working correctly", out.stdout)
+        mock_run.assert_has_calls(
+            [
+                call(
+                    ["docker", "pull", "hello-world"],
+                    check=True,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                ),
+                call(["docker", "run", "hello-world"], capture_output=True, text=True),
+            ]
+        )
