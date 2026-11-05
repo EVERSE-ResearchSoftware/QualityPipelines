@@ -7,7 +7,7 @@ from resqui.core import CheckResult
 from resqui.executors import DockerExecutor
 from resqui.plugins.base import IndicatorPlugin
 from resqui.workspace import create_workspace
-from resqui.tools import is_commit_hash
+from resqui.tools import is_commit_hash, encode_cache_id
 
 
 class Rsmetacheck(IndicatorPlugin):
@@ -84,8 +84,7 @@ class Rsmetacheck(IndicatorPlugin):
                     "--analysis-output",
                     analysis_container_path,
                 ]
-                if not is_commit_hash(commit_hash):
-                    command += ["--branch", commit_hash]
+                command += ["--branch", commit_hash]
 
             result = self.executor.run(command, run_args=run_args)
             if not os.path.isfile(analysis_fpath):
@@ -149,16 +148,38 @@ class Rsmetacheck(IndicatorPlugin):
         
         failed_checks = []
         passed_checks = []
+        seen_codes = set()
         for check in checks:
             
             code = check.get("pitfall_code") or check.get("warning_code")
             count = check.get("count", 0)
             if code in useful_checks:
+                seen_codes.add(code)
+                
                 if count > 0:
                     failed_checks.append(check)
                 else:
                     passed_checks.append(check)
         
+        
+        missing_checks = set(useful_checks) - seen_codes
+        if missing_checks:
+            
+            return CheckResult(
+                process=(
+                    f"This check evaluates {useful_checks} from RsMetaCheck. "
+                    "More information: "
+                    "https://github.com/SoftwareUnderstanding/rsmetacheck/blob/main/docs/catalog.md"
+                ),
+                status_id="schema:FailedActionStatus",
+                output="error",
+                evidence=(
+                    "Incomplete RsMetaCheck analysis. Missing checks: "
+                    + ", ".join(sorted(missing_checks))
+                ),
+                success=False,
+            )
+            
         success = len(failed_checks) == 0
         output = "true" if success else "false"
         if not success:
@@ -190,16 +211,17 @@ class Rsmetacheck(IndicatorPlugin):
         )
 
     def software_id(self, url):
-        return (
+        normalized_url = (
             url.removesuffix(".git")
             .replace("https://github.com/", "")
             .replace("http://github.com/", "")
             .rstrip("/")
-            .replace("/", "_")
         )
 
+        return encode_cache_id(normalized_url)
+
     def ref_id(self, ref):
-        return str(ref).replace("/", "_").replace(":", "_")
+        return encode_cache_id(ref)
 
     def somef_output_path(self, url, commit_hash):
         if not getattr(self.context, "somef_cache_dir", None):
@@ -210,13 +232,4 @@ class Rsmetacheck(IndicatorPlugin):
             "somef_outputs",
             self.software_id(url),
             self.ref_id(commit_hash),
-            "somef_output.json",
-            tmpdir = tempfile.mkdtemp()
-            self.context.somef_cache_dir = tmpdir
-            return os.path.join(
-            tmpdir,
-            "somef_outputs",
-            self.software_id(url),
-            self.ref_id(commit_hash),
-            "somef_output.json",
-        )
+            "somef_output.json")

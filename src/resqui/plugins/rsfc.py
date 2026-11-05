@@ -7,7 +7,7 @@ from resqui.plugins.base import IndicatorPlugin
 from resqui.executors import DockerExecutor
 from resqui.core import CheckResult
 from resqui.workspace import create_workspace
-from resqui.tools import is_commit_hash
+from resqui.tools import is_commit_hash, encode_cache_id
 
 
 class RSFC(IndicatorPlugin):
@@ -89,8 +89,7 @@ class RSFC(IndicatorPlugin):
                 assessment_fpath = os.path.join(workspace.local_path, assessment_filename)
 
             command = ["--repo", url]
-            if not is_commit_hash(commit_hash):
-                command += ["-b", commit_hash]
+            command += ["-b", commit_hash]
             if os.path.isfile(cached_somef_output_fpath):
                 shutil.copyfile(cached_somef_output_fpath, metadata_local_fpath)
                 command += ["--metadata", metadata_container_fpath]
@@ -131,16 +130,17 @@ class RSFC(IndicatorPlugin):
         return report
 
     def software_id(self, url):
-        return (
+        normalized_url = (
             url.removesuffix(".git")
             .replace("https://github.com/", "")
             .replace("http://github.com/", "")
             .rstrip("/")
-            .replace("/", "_")
         )
 
+        return encode_cache_id(normalized_url)
+
     def ref_id(self, ref):
-        return str(ref).replace("/", "_").replace(":", "_")
+        return encode_cache_id(ref)
 
     def somef_output_path(self, url, commit_hash):
         if not getattr(self.context, "somef_cache_dir", None):

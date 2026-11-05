@@ -141,6 +141,83 @@ class TestPluginSharedWorkspace(unittest.TestCase):
         self.assertNotIn("-t", command)
 
 
+    def test_rsmetacheck_passes_commit_hash(self):
+        commit_hash = "a" * 40
+        commands = []
+
+        def fake_run(command, run_args=None):
+            commands.append(command)
+
+            workdir = run_args[run_args.index("-w") + 1]
+
+            with open(
+                os.path.join(workdir, "analysis_results.json"), "w"
+            ) as f:
+                json.dump({"pitfalls & warnings": []}, f)
+
+            return SimpleNamespace(returncode=0, stdout="", stderr="")
+
+        plugin = Rsmetacheck.__new__(Rsmetacheck)
+        plugin.context = Context()
+        plugin.executor = SimpleNamespace(run=fake_run)
+        plugin._cache = {}
+
+        with tempfile.TemporaryDirectory() as root:
+            object.__setattr__(plugin.context, "somef_cache_dir", root)
+
+            with patch.dict(os.environ, self._env(root), clear=True):
+                plugin.execute(
+                    "https://github.com/example/repo",
+                    commit_hash,
+                )
+
+        command = commands[0]
+
+        self.assertIn("--branch", command)
+        self.assertEqual(
+            command[command.index("--branch") + 1],
+            commit_hash,
+        )
+    def test_rsfc_passes_commit_hash(self):
+        commit_hash = "a" * 40
+        commands = []
+
+        def fake_run(command, run_args=None):
+            commands.append(command)
+
+            workdir = run_args[run_args.index("-w") + 1]
+            output_dir = os.path.join(workdir, "rsfc_output")
+            os.makedirs(output_dir, exist_ok=True)
+
+            with open(
+                os.path.join(output_dir, "rsfc_assessment.json"), "w"
+            ) as f:
+                json.dump({"checks": []}, f)
+
+            return SimpleNamespace(returncode=0, stdout="", stderr="")
+
+        plugin = RSFC.__new__(RSFC)
+        plugin.context = Context()
+        plugin.executor = SimpleNamespace(run=fake_run)
+        plugin._cache = {}
+
+        with tempfile.TemporaryDirectory() as root:
+            object.__setattr__(plugin.context, "somef_cache_dir", root)
+
+            with patch.dict(os.environ, self._env(root), clear=True):
+                plugin.execute(
+                    "https://github.com/example/repo",
+                    commit_hash,
+                )
+
+        command = commands[0]
+
+        self.assertIn("-b", command)
+        self.assertEqual(
+            command[command.index("-b") + 1],
+            commit_hash,
+        )
+
 class TestHowFairIsIndicatorMappings(unittest.TestCase):
     def test_installs_howfairis_from_git_repository(self):
         with patch("resqui.plugins.howfairis.PythonExecutor") as mock_executor_class:
@@ -298,3 +375,66 @@ class TestRsmetacheckIndicatorMappings(unittest.TestCase):
         self.assertIn("W002: description for W002 (count: 1)", result.evidence)
         self.assertNotIn("P001: description for P001", result.evidence)
 
+    def test_metadata_is_up_to_date_fails_when_checks_are_missing(self):
+        report = {
+            "pitfalls & warnings": [
+                self._pitfall("P001", 0),
+                self._pitfall("P012", 0),
+                self._pitfall("P016", 0),
+            ]
+        }
+
+        plugin = self._plugin_with_report(report)
+
+        result = plugin.metadata_is_up_to_date(
+            "https://github.com/example/repo",
+            "main",
+        )
+
+        self.assertFalse(result)
+        self.assertEqual(result.status_id, "schema:FailedActionStatus")
+        self.assertEqual(result.output, "error")
+        self.assertIn("P017", result.evidence)
+        self.assertIn("W002", result.evidence)
+        
+        
+class TestSomefCacheIdentifiers(unittest.TestCase):
+
+    def setUp(self):
+        self.rsfc = RSFC.__new__(RSFC)
+        self.rsmetacheck = Rsmetacheck.__new__(Rsmetacheck)
+
+    def test_different_branches_have_different_ids(self):
+        refs = ["feature/develop", "feature_develop"]
+
+        for plugin in (self.rsfc, self.rsmetacheck):
+            self.assertNotEqual(
+                plugin.ref_id(refs[0]),
+                plugin.ref_id(refs[1]),
+            )
+
+    def test_different_repositories_have_different_ids(self):
+        urls = [
+            "https://github.com/a_b/c",
+            "https://github.com/a/b_c",
+        ]
+
+        for plugin in (self.rsfc, self.rsmetacheck):
+            self.assertNotEqual(
+                plugin.software_id(urls[0]),
+                plugin.software_id(urls[1]),
+            )
+
+    def test_plugins_generate_same_cache_ids(self):
+        url = "https://github.com/example/repo"
+        ref = "feature/develop"
+
+        self.assertEqual(
+            self.rsfc.software_id(url),
+            self.rsmetacheck.software_id(url),
+        )
+
+        self.assertEqual(
+            self.rsfc.ref_id(ref),
+            self.rsmetacheck.ref_id(ref),
+        )
