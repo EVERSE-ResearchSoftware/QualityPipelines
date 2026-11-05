@@ -69,4 +69,3 @@ More information the services can be found at:
 2) Technology Radar - [TechRadar](https://everse.software/services/techradar/)
 3) Quality Pipelines - `resqui` which is this project
 4) Software Quality Dashboards - [DashVERSE](https://everse.software/services/dashverse/)
-
