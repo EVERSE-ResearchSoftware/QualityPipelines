@@ -4,6 +4,7 @@ import sys  # noqa: F401
 import os
 import subprocess
 import tempfile
+from types import SimpleNamespace
 import unittest
 from unittest.mock import MagicMock, patch
 
@@ -481,7 +482,85 @@ class TestResquiMainPath(unittest.TestCase):
             resqui()
         self.summary.write.assert_called_once()
 
+    def test_somef_cache_cleanup_when_summary_write_fails(self):
+        with tempfile.TemporaryDirectory() as root:
+            cache_dir = os.path.join(root, "somef_cache")
+            os.makedirs(cache_dir)
 
+            context = SimpleNamespace(
+                github_token=None,
+                dashverse_token=None,
+                somef_cache_dir=cache_dir,
+            )
+
+            self.summary.write.side_effect = OSError("Disk write failed")
+
+            with self._patches(
+                **{
+                    "resqui.cli.Context": MagicMock(return_value=context),
+                }
+            ):
+                with self.assertRaises(OSError):
+                    resqui()
+
+            self.assertFalse(os.path.exists(cache_dir))
+            
+    def test_somef_cache_cleanup_when_plugin_fails(self):
+        with tempfile.TemporaryDirectory() as root:
+            cache_dir = os.path.join(root, "somef_cache")
+            os.makedirs(cache_dir)
+
+            context = SimpleNamespace(
+                github_token=None,
+                dashverse_token=None,
+                somef_cache_dir=cache_dir,
+            )
+
+            mock_instance = MagicMock()
+            mock_instance.has_license.side_effect = RuntimeError("Plugin failed")
+
+            mock_class = MagicMock(return_value=mock_instance)
+            mock_module = MagicMock()
+            mock_module.MockPlugin = mock_class
+
+            self.config._cfg = {
+                "indicators": [
+                    {
+                        "name": "has_license",
+                        "plugin": "MockPlugin",
+                        "@id": "https://example.com/license",
+                    }
+                ]
+            }
+
+            with self._patches(
+                **{
+                    "resqui.cli.Context": MagicMock(return_value=context),
+                    "resqui.cli.importlib.import_module": MagicMock(
+                        return_value=mock_module
+                    ),
+                }
+            ):
+                with self.assertRaises(RuntimeError):
+                    resqui()
+
+            self.assertFalse(os.path.exists(cache_dir))
+        
+    def test_invalid_commit_hash_is_rejected(self):
+        invalid_sha = "f" * 40
+
+        self.inspector.git.side_effect = subprocess.CalledProcessError(
+            1,
+            ["git", "cat-file", "-e"],
+        )
+
+        with self._patches(argv=["resqui", "-b", invalid_sha]):
+            with self.assertRaises(ValueError):
+                resqui()
+
+        self.summary.write.assert_not_called()
+    
+    
 class TestPrintIndicatorPluginsNoIndicators(unittest.TestCase):
     """Cover the '(none)' branch for a plugin that declares no indicators."""
 
