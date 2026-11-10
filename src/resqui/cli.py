@@ -216,7 +216,7 @@ def resqui():
             with Spinner(print_time=False):
                 try:
                     plugin_instances[plugin_class_name] = plugin_class(context)
-                except (ExecutorInitError, PluginInitError, subprocess.CalledProcessError) as e:
+                except Exception as e:
                     print(f"⚠️  {e} (skipping its indicators)")
                     continue
 
@@ -226,7 +226,7 @@ def resqui():
         try:
             with Spinner():
                 results = getattr(plugin_instance, plugin_method)(url, branch_hash_or_tag)
-        except (subprocess.CalledProcessError, FileNotFoundError, ValueError) as e:
+        except Exception as e:
             print(f"\033[91m✖\033[0m {type(e).__name__}: {e}")
             continue
 
