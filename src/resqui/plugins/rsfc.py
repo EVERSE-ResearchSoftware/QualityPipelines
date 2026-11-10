@@ -1,10 +1,13 @@
 import json
 import os
+import shutil
+import tempfile
 
 from resqui.plugins.base import IndicatorPlugin
 from resqui.executors import DockerExecutor
 from resqui.core import CheckResult
 from resqui.workspace import create_workspace
+from resqui.tools import is_commit_hash, encode_cache_id
 
 
 class RSFC(IndicatorPlugin):
@@ -54,11 +57,17 @@ class RSFC(IndicatorPlugin):
         url = url.removesuffix(".git")
 
         assessment_filename = "rsfc_assessment.json"
-
+        cached_somef_output_fpath = self.somef_output_path(url, commit_hash)
 
         with create_workspace(prefix="resqui-rsfc-") as workspace:
             if workspace.is_shared:
                 container_workspace = workspace.container_path("/rsfc")
+                rsfc_output_dir = os.path.join(workspace.local_path, "rsfc_output")
+                generated_somef_fpath = os.path.join(rsfc_output_dir, "somef_assessment.json")
+
+                metadata_local_fpath = os.path.join(workspace.local_path, "somef_output.json")
+                metadata_container_fpath = os.path.join(container_workspace, "somef_output.json")
+                
                 run_args = [
                     "--rm",
                     *workspace.docker_mount_args("/rsfc"),
@@ -69,6 +78,10 @@ class RSFC(IndicatorPlugin):
                     workspace.local_path, "rsfc_output", assessment_filename
                 )
             else:
+                generated_somef_fpath = os.path.join(workspace.local_path, "somef_assessment.json")
+
+                metadata_local_fpath = os.path.join(workspace.local_path, "somef_output.json")
+                metadata_container_fpath = "/rsfc/rsfc_output/somef_output.json"
                 run_args = [
                     "--rm",
                     *workspace.docker_mount_args("/rsfc/rsfc_output"),
@@ -76,9 +89,15 @@ class RSFC(IndicatorPlugin):
                 assessment_fpath = os.path.join(workspace.local_path, assessment_filename)
 
             command = ["--repo", url]
+            command += ["-b", commit_hash]
+            if os.path.isfile(cached_somef_output_fpath):
+                shutil.copyfile(cached_somef_output_fpath, metadata_local_fpath)
+                command += ["--metadata", metadata_container_fpath]
+            else:
+                command += ["-s"]
+                
             if self.context.github_token:
                 command += ["-t", self.context.github_token]
-
             _ = self.executor.run(command, run_args=run_args)
 
             if not os.path.isfile(assessment_fpath):
@@ -87,7 +106,13 @@ class RSFC(IndicatorPlugin):
 
             with open(assessment_fpath) as f:
                 report = json.load(f)
-                
+            
+            if (    
+            not os.path.isfile(cached_somef_output_fpath)
+            and os.path.isfile(generated_somef_fpath)
+        ):
+                os.makedirs(os.path.dirname(cached_somef_output_fpath), exist_ok=True)
+                shutil.copyfile(generated_somef_fpath, cached_somef_output_fpath)        
         # New remapping for better management
         checks_by_id = {}
         
@@ -104,6 +129,30 @@ class RSFC(IndicatorPlugin):
 
         return report
 
+    def software_id(self, url):
+        normalized_url = (
+            url.removesuffix(".git")
+            .replace("https://github.com/", "")
+            .replace("http://github.com/", "")
+            .rstrip("/")
+        )
+
+        return encode_cache_id(normalized_url)
+
+    def ref_id(self, ref):
+        return encode_cache_id(ref)
+
+    def somef_output_path(self, url, commit_hash):
+        if not getattr(self.context, "somef_cache_dir", None):
+            object.__setattr__(self.context, "somef_cache_dir", tempfile.mkdtemp())
+
+        return os.path.join(
+            self.context.somef_cache_dir,
+            "somef_outputs",
+            self.software_id(url),
+            self.ref_id(commit_hash),
+            "somef_output.json",
+        )
 
     def archived_in_scholarly_repository(self, url, branch_hash_or_tag):
         report = self.execute(url, branch_hash_or_tag)
