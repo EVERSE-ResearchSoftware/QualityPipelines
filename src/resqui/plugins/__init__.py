@@ -10,6 +10,7 @@ from .oebfair import OEBFAIR
 from .astmetrics import ASTMetrics
 from .pyscn import PySCN
 from .rsmetacheck import Rsmetacheck
+from .semgrep import Semgrep
 
 __all__ = [
     "IndicatorPlugin",
@@ -24,4 +25,5 @@ __all__ = [
     "ASTMetrics",
     "PySCN",
     "Rsmetacheck",
+    "Semgrep"
 ]
