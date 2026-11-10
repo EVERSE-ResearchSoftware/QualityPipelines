@@ -1,4 +1,5 @@
 import json
+import os
 import subprocess
 from resqui.plugins.base import IndicatorPlugin, PluginInitError
 from resqui.core import CheckResult
@@ -63,7 +64,7 @@ class OpenSSFScorecard(IndicatorPlugin):
             "run",
             "--rm", 
             "-e",
-            f"GITHUB_TOKEN={self.context.github_token}",
+            "GITHUB_TOKEN",  # value comes from env below, keeping it out of the command line
             self.image_url,
             *check_args,
             "--show-details",
@@ -77,7 +78,8 @@ class OpenSSFScorecard(IndicatorPlugin):
         ]
 
         try:
-            r = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            env = {**os.environ, "GITHUB_TOKEN": self.context.github_token}
+            r = subprocess.run(cmd, capture_output=True, text=True, check=True, env=env)
             if r.stdout:
                 out = json.loads(r.stdout)
                 self._cache[cache_key] = out
