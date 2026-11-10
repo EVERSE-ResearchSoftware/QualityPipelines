@@ -41,7 +41,10 @@ class ScanCodeToolkit(IndicatorPlugin):
     version = "32.5.0"
     # Provisional: ScanCode Toolkit is not registered in the TechRadar yet.
     id = "https://w3id.org/everse/tools/scancode-toolkit"
-    indicators = ["software_has_license_for_file_types"]
+    indicators = [ 
+        "has_license",
+        "software_has_license_for_file_types"
+    ]
     requires = []
 
     def __init__(self, context):
@@ -95,6 +98,7 @@ class ScanCodeToolkit(IndicatorPlugin):
                         "--license",
                         "--info",
                         "--classify",
+                        "--summary",
                         "--strip-root",
                         "--processes", str(max(1, (os.cpu_count() or 2) - 1)),
                         "--timeout", str(PER_FILE_TIMEOUT_SECONDS),
@@ -123,6 +127,63 @@ class ScanCodeToolkit(IndicatorPlugin):
 
         self._cache[cache_key] = report
         return report
+
+    def has_license(self, url, branch=None):
+        process = (
+            "Runs ScanCode Toolkit license detection with its codebase summary, "
+            "which derives the license declared for the whole project from its "
+            "top-level key files (e.g. LICENSE, README, package manifests). "
+            "The check passes if a declared license is found."
+        )
+        report = self.execute(url, branch)
+
+        if "error" in report:
+            return CheckResult(
+                process=process,
+                status_id="schema:FailedActionStatus",
+                output="error",
+                evidence=report["error"],
+                success=False,
+            )
+
+        summary = report.get("summary")
+        if not summary:
+            return CheckResult(
+                process=process,
+                status_id="schema:FailedActionStatus",
+                output="error",
+                evidence="The ScanCode report has no codebase summary.",
+                success=False,
+            )
+
+        clarity = summary.get("license_clarity_score") or {}
+        success = bool(clarity.get("declared_license"))
+        score = clarity.get("score", 0)
+
+        if success:
+            key_files = sorted(
+                f"{f['path']} ({f['detected_license_expression_spdx']})"
+                for f in report.get("files", [])
+                if f.get("is_key_file") and f.get("detected_license_expression_spdx")
+            )
+            evidence = (
+                f"Declared license: {summary.get('declared_license_expression')}, "
+                f"found in: {', '.join(key_files) or 'key files'}. "
+                f"License clarity score: {score}/100."
+            )
+        else:
+            evidence = "No declared license found in the project's key files."
+
+        return CheckResult(
+            process=process,
+            status_id="schema:CompletedActionStatus",
+            output="true" if success else "false",
+            evidence=evidence,
+            success=success,
+            raw_value=str(score),
+            threshold="Passes if a declared license is found in the project's key files.",
+        )
+
 
     def software_has_license_for_file_types(self, url, branch=None):
         process = (
