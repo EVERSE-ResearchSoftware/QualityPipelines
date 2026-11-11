@@ -1,7 +1,7 @@
 import re
 
 import requests
-
+from urllib.parse import quote
 
 def normalized(script):
     """
@@ -120,3 +120,13 @@ def zenodo_url_to_git(url):
                     return [url, branch]
 
     raise ValueError("No Git repository found for Zenodo URL")
+
+
+def encode_cache_id(value):
+    """
+    Encode a value as a filesystem-safe cache identifier.
+
+    Percent-encoding preserves differences between values
+    containing characters such as '/', ':' and '_'.
+    """
+    return quote(str(value), safe="")

@@ -10,6 +10,7 @@ from .oebfair import OEBFAIR
 from .astmetrics import ASTMetrics
 from .interrogate import Interrogate 
 from .pyscn import PySCN
+from .rsmetacheck import Rsmetacheck
 
 __all__ = [
     "IndicatorPlugin",
@@ -23,5 +24,6 @@ __all__ = [
     "OEBFAIR",
     "ASTMetrics",
     "Interrogate",
-    "PySCN"
+    "PySCN",
+    "Rsmetacheck",
 ]
