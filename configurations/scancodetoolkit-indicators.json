@@ -1,5 +1,6 @@
 {
     "indicators": [
+        { "name": "has_license", "plugin": "ScanCodeToolkit", "@id": "https://w3id.org/everse/i/indicators/software_has_license" },
         { "name": "software_has_license_for_file_types", "plugin": "ScanCodeToolkit", "@id": "https://w3id.org/everse/i/indicators/software_has_license_for_file_types" }
     ]
 }
