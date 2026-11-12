@@ -1,5 +1,6 @@
 import json
 import os
+import subprocess
 import tempfile
 import unittest
 from types import SimpleNamespace
@@ -10,6 +11,7 @@ from resqui.plugins.gitleaks import Gitleaks
 from resqui.plugins.howfairis import HowFairIs
 from resqui.plugins.rsfc import RSFC
 from resqui.plugins.rsmetacheck import Rsmetacheck
+from resqui.plugins.scancodetoolkit import ScanCodeToolkit
 from resqui.plugins.superlinter import SuperLinter
 
 
@@ -396,8 +398,234 @@ class TestRsmetacheckIndicatorMappings(unittest.TestCase):
         self.assertEqual(result.output, "error")
         self.assertIn("P017", result.evidence)
         self.assertIn("W002", result.evidence)
-        
-        
+
+
+class TestScanCodeToolkitIndicatorMappings(unittest.TestCase):
+    URL = "https://github.com/example/repo"
+
+    def _plugin_with_report(self, report):
+        plugin = ScanCodeToolkit.__new__(ScanCodeToolkit)
+        plugin.execute = lambda _url, _branch: report
+        return plugin
+
+    # Returned by any execution of scancodetoolkit, per file information
+    def _file(self, path, spdx=None, size=10, **flags):
+        """A ScanCode file entry; `spdx` is the detected license, if any."""
+        return {
+            "path": path,
+            "type": "file",
+            "size": size,
+            "extension": os.path.splitext(path)[1],
+            "detected_license_expression": spdx.lower() if spdx else None,
+            "detected_license_expression_spdx": spdx,
+            **flags,
+        }
+    
+    # Returned when scancodetoolkit is run with "--summary" option (used by "has_license")
+    def _summary(self, declared, expression=None, score=0):
+        return {
+            "declared_license_expression": expression,
+            "license_clarity_score": {"score": score, "declared_license": declared},
+        }
+
+    # "has_license" indicators tests
+    def test_has_license_passes_when_a_declared_license_is_found(self):
+        report = {
+            "summary": self._summary(True, "apache-2.0", 90),
+            "files": [
+                self._file("LICENSE", "Apache-2.0", is_key_file=True, is_legal=True),
+                self._file("setup.py", "Apache-2.0", is_key_file=True, is_source=True),
+                self._file("src/main.py", is_source=True),
+            ],
+        }
+        result = self._plugin_with_report(report).has_license(self.URL, "main")
+
+        self.assertTrue(result)
+        self.assertEqual(result.status_id, "schema:CompletedActionStatus")
+        self.assertEqual(result.output, "true")
+        self.assertEqual(result.raw_value, "90")
+        self.assertIn("Declared license: apache-2.0", result.evidence)
+        self.assertIn("LICENSE (Apache-2.0), setup.py (Apache-2.0)", result.evidence)
+        self.assertNotIn("src/main.py", result.evidence)
+
+    def test_has_license_fails_when_no_declared_license_is_found(self):
+        report = {
+            "summary": self._summary(False),
+            "files": [self._file("main.py", is_source=True)],
+        }
+        result = self._plugin_with_report(report).has_license(self.URL, "main")
+
+        self.assertFalse(result)
+        self.assertEqual(result.status_id, "schema:CompletedActionStatus")
+        self.assertEqual(result.output, "false")
+        self.assertEqual(result.raw_value, "0")
+
+    def test_has_license_errors_without_a_summary(self):
+        report = {"files": [self._file("main.py", is_source=True)]}
+        result = self._plugin_with_report(report).has_license(self.URL, "main")
+
+        self.assertFalse(result)
+        self.assertEqual(result.status_id, "schema:FailedActionStatus")
+        self.assertEqual(result.output, "error")
+
+    # "software_has_license_for_file_types" indicators tests
+    def test_file_types_passes_when_every_file_is_licensed(self):
+        report = {
+            "files": [
+                self._file("LICENSE", "MIT", is_legal=True),
+                self._file("main.py", "MIT", is_source=True),
+                self._file("README.md", "CC-BY-4.0", is_readme=True),
+                # licensed through its REUSE companion file
+                self._file("logo.png", is_media=True),
+                self._file("logo.png.license", "CC0-1.0"),
+                # not counted: empty file and REUSE metadata
+                self._file("pkg/__init__.py", size=0, is_source=True),
+                self._file("REUSE.toml"),
+            ],
+        }
+        result = self._plugin_with_report(report).software_has_license_for_file_types(
+            self.URL, "main"
+        )
+
+        self.assertTrue(result)
+        self.assertEqual(result.output, "true")
+        self.assertEqual(result.raw_value, "100.0")
+        self.assertIn("3/3 files", result.evidence)
+        self.assertIn("code: 1/1, documentation: 1/1, media: 1/1", result.evidence)
+        self.assertIn("Licenses found: CC-BY-4.0, CC0-1.0, MIT", result.evidence)
+
+    def test_file_types_fails_with_partial_coverage(self):
+        report = {
+            "files": [
+                self._file("main.py", "MIT", is_source=True),
+                self._file("utils.py", is_source=True),
+                self._file("docs/guide.md"),
+                self._file("data.csv"),
+            ],
+        }
+        result = self._plugin_with_report(report).software_has_license_for_file_types(
+            self.URL, "main"
+        )
+
+        self.assertFalse(result)
+        self.assertEqual(result.status_id, "schema:CompletedActionStatus")
+        self.assertEqual(result.output, "false")
+        self.assertEqual(result.raw_value, "25.0")
+        self.assertIn("code: 1/2, documentation: 0/1, other: 0/1", result.evidence)
+
+    def test_file_types_is_indeterminate_without_files_to_check(self):
+        report = {
+            "files": [
+                self._file("LICENSE", "MIT", is_legal=True),
+                self._file("empty.py", size=0, is_source=True),
+                {"path": "src", "type": "directory"},
+            ],
+        }
+        result = self._plugin_with_report(report).software_has_license_for_file_types(
+            self.URL, "main"
+        )
+
+        self.assertTrue(result)
+        self.assertEqual(result.output, "indeterminate")
+
+    def test_indicators_report_execute_errors(self):
+        plugin = self._plugin_with_report({"error": "Could not clone the repository."})
+
+        for indicator in ScanCodeToolkit.indicators:
+            result = getattr(plugin, indicator)(self.URL, "main")
+
+            self.assertFalse(result)
+            self.assertEqual(result.status_id, "schema:FailedActionStatus")
+            self.assertEqual(result.output, "error")
+            self.assertEqual(result.evidence, "Could not clone the repository.")
+
+
+class TestScanCodeToolkitExecute(unittest.TestCase):
+    """Tests execute() with git and ScanCode replaced by fakes."""
+
+    URL = "https://github.com/example/repo"
+
+    def _plugin(self):
+        plugin = ScanCodeToolkit.__new__(ScanCodeToolkit)
+        plugin.context = Context(github_token=None)
+        plugin.executor = SimpleNamespace(temp_dir="/tmp/fake-venv")
+        plugin._cache = {}
+        return plugin
+
+    def _run(self, plugin, fake_run, indicators):
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = os.path.join(tmp, "repo")
+            with patch("resqui.plugins.scancodetoolkit.create_workspace") as mock_ws:
+                mock_ws.return_value.__enter__ = lambda s: s
+                mock_ws.return_value.__exit__ = MagicMock(return_value=False)
+                mock_ws.return_value.local_path = workspace
+                with patch(
+                    "resqui.plugins.scancodetoolkit.subprocess.run", side_effect=fake_run
+                ):
+                    return [
+                        getattr(plugin, indicator)(self.URL, "main")
+                        for indicator in indicators
+                    ]
+
+    def test_both_indicators_share_a_single_scan(self):
+        scancode_calls = []
+
+        def fake_run(args, **kwargs):
+            if args[0] == "git":
+                return SimpleNamespace(returncode=0, stdout="", stderr="")
+            scancode_calls.append(args)
+            report_path = args[args.index("--json") + 1]
+            with open(report_path, "w") as f:
+                json.dump(
+                    {
+                        "summary": {
+                            "declared_license_expression": "mit",
+                            "license_clarity_score": {"score": 100, "declared_license": True},
+                        },
+                        "files": [
+                            {
+                                "path": "main.py",
+                                "type": "file",
+                                "size": 10,
+                                "is_source": True,
+                                "is_key_file": True,
+                                "detected_license_expression": "mit",
+                                "detected_license_expression_spdx": "MIT",
+                            }
+                        ],
+                    },
+                    f,
+                )
+            return SimpleNamespace(returncode=0, stdout="", stderr="")
+
+        results = self._run(self._plugin(), fake_run, ScanCodeToolkit.indicators)
+
+        self.assertEqual(len(scancode_calls), 1)
+        self.assertIn("--summary", scancode_calls[0])
+        self.assertTrue(all(results))
+
+    def test_clone_failure_is_reported_as_error(self):
+        def fake_run(args, **kwargs):
+            raise subprocess.CalledProcessError(128, args)
+
+        [result] = self._run(self._plugin(), fake_run, ["has_license"])
+
+        self.assertEqual(result.output, "error")
+        self.assertIn("Could not clone", result.evidence)
+
+    def test_missing_report_is_reported_as_error(self):
+        def fake_run(args, **kwargs):
+            if args[0] == "git":
+                return SimpleNamespace(returncode=0, stdout="", stderr="")
+            return SimpleNamespace(returncode=1, stdout="", stderr="scancode crashed")
+
+        [result] = self._run(self._plugin(), fake_run, ["has_license"])
+
+        self.assertEqual(result.output, "error")
+        self.assertIn("did not produce a report", result.evidence)
+        self.assertIn("scancode crashed", result.evidence)
+
+
 class TestSomefCacheIdentifiers(unittest.TestCase):
 
     def setUp(self):
