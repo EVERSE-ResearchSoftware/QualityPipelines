@@ -1,0 +1,2 @@
+/* Use the full window width instead of the readthedocs theme's 800px cap. */
+.wy-nav-content { max-width: none; }
