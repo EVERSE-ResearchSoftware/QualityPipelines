@@ -12,11 +12,19 @@ from resqui.workspace import create_workspace
 
 
 class SuperLinter(IndicatorPlugin):
+    """Lints the code base with
+    [Super-Linter](https://github.com/super-linter/super-linter).
+
+    Languages: Python, Java, C, C++, JavaScript, SQL, JSON, YAML and
+    [more](https://github.com/super-linter/super-linter#supported-linters-and-formatters).
+    """
+
     name = "SuperLinter"
     version = "8.7.0"
     image_url = f"ghcr.io/super-linter/super-linter:v{version}"
     id = "https://w3id.org/everse/tools/superlinter"
     indicators = ["has_no_linting_issues"]
+    requires = ["docker"]
 
     def __init__(self, context):
         self.context = context
