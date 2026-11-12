@@ -36,6 +36,7 @@ from resqui.tools import (
     project_name_from_url,
     ensure_list,
     zenodo_url_to_git,
+    is_commit_hash,
 )
 from resqui.plugins import IndicatorPlugin, PluginInitError
 from resqui.executors import ExecutorInitError
@@ -178,8 +179,29 @@ def resqui():
 
     branch_hash_or_tag = gitinspector.current_commit_hash if branch is None else branch
 
-    if temp_dir is not None:
-        shutil.rmtree(temp_dir)
+    try:
+        if is_commit_hash(branch_hash_or_tag):
+            gitinspector.git(
+                "cat-file",
+                "-e",
+                f"{branch_hash_or_tag}^{{commit}}",
+            )
+            
+            software_version = gitinspector.git(
+            "describe",
+            "--tags",
+            "--always",
+            branch_hash_or_tag,
+        )
+
+    except subprocess.CalledProcessError as exc:
+        raise ValueError(
+            f"Commit {branch_hash_or_tag} does not exist in the inspected repository."
+        ) from exc
+
+    finally:
+        if temp_dir is not None:
+            shutil.rmtree(temp_dir, ignore_errors=True)
 
     if github_token is not None:
         print("GitHub API token \033[92m✔\033[0m")
@@ -199,63 +221,68 @@ def resqui():
     summary = Summary(
         author, email, project_name, url, software_version, branch_hash_or_tag
     )
-    plugin_instances = {}
-    for indicator in configuration._cfg["indicators"]:
-        print(
-            f"  {indicator['name']}/{indicator['plugin']}",
-            end=" ",
-        )
-        sys.stdout.flush()
-
-        base_package = __name__.rsplit(".", 1)[0]
-        plugin_class_name = indicator["plugin"]
-
-        if plugin_class_name not in plugin_instances:
-            plugin_module = importlib.import_module(base_package + ".plugins")
-            plugin_class = getattr(plugin_module, plugin_class_name)
-            with Spinner(print_time=False):
-                try:
-                    plugin_instances[plugin_class_name] = plugin_class(context)
-                except (ExecutorInitError, PluginInitError, subprocess.CalledProcessError) as e:
-                    print(f"⚠️  {e} (skipping its indicators)")
-                    continue
-
-        plugin_instance = plugin_instances[plugin_class_name]
-        plugin_method = indicator["name"]
-
-        try:
-            with Spinner():
-                results = getattr(plugin_instance, plugin_method)(url, branch_hash_or_tag)
-        except (subprocess.CalledProcessError, FileNotFoundError, ValueError) as e:
-            print(f"\033[91m✖\033[0m {type(e).__name__}: {e}")
-            continue
-
-        for result in ensure_list(results):
-            status = "\033[92m✔\033[0m" if result else "\033[91m✖\033[0m"
-            if verbose:
-                print(indented(f"\n {result.evidence} {status}", 4), end="")
-            else:
-                print(status, end=" ")
-
-            summary.add_indicator_result(indicator, type(plugin_instance), result)
-        print()
-
-    summary.write(output_file)
-    print(f"Summary has been written to {output_file}")
-
-    if markdown_report is not None:
-        json_to_markdown(output_file, markdown_report)
-        print(f"Markdown report has been written to {markdown_report}")
-
-    print("Publishing summary ", end="")
-    sys.stdout.flush()
     try:
-        summary.upload(context.dashverse_token)
-    except (RuntimeError, ValueError) as e:
-        print(f"\033[91m✖\033[0m {e}")
-    else:
-        print("\033[92m✔\033[0m")
+        plugin_instances = {}
+        for indicator in configuration._cfg["indicators"]:
+            print(
+                f"  {indicator['name']}/{indicator['plugin']}",
+                end=" ",
+            )
+            sys.stdout.flush()
 
+            base_package = __name__.rsplit(".", 1)[0]
+            plugin_class_name = indicator["plugin"]
+
+            if plugin_class_name not in plugin_instances:
+                plugin_module = importlib.import_module(base_package + ".plugins")
+                plugin_class = getattr(plugin_module, plugin_class_name)
+                with Spinner(print_time=False):
+                    try:
+                        plugin_instances[plugin_class_name] = plugin_class(context)
+                    except (ExecutorInitError, PluginInitError, subprocess.CalledProcessError) as e:
+                        print(f"⚠️  {e} (skipping its indicators)")
+                        continue
+
+            plugin_instance = plugin_instances[plugin_class_name]
+            plugin_method = indicator["name"]
+
+            try:
+                with Spinner():
+                    results = getattr(plugin_instance, plugin_method)(url, branch_hash_or_tag)
+            except (subprocess.CalledProcessError, FileNotFoundError, ValueError) as e:
+                print(f"\033[91m✖\033[0m {type(e).__name__}: {e}")
+                continue
+
+            for result in ensure_list(results):
+                status = "\033[92m✔\033[0m" if result else "\033[91m✖\033[0m"
+                if verbose:
+                    print(indented(f"\n {result.evidence} {status}", 4), end="")
+                else:
+                    print(status, end=" ")
+
+                summary.add_indicator_result(indicator, type(plugin_instance), result)
+            print()
+
+        summary.write(output_file)
+        print(f"Summary has been written to {output_file}")
+
+        if markdown_report is not None:
+            json_to_markdown(output_file, markdown_report)
+            print(f"Markdown report has been written to {markdown_report}")
+
+        print("Publishing summary ", end="")
+        sys.stdout.flush()
+        try:
+            summary.upload(context.dashverse_token)
+        except (RuntimeError, ValueError) as e:
+            print(f"\033[91m✖\033[0m {e}")
+        else:
+            print("\033[92m✔\033[0m")
+    
+    finally:
+        somef_cache_dir = getattr(context, "somef_cache_dir", None)
+        if somef_cache_dir:
+            shutil.rmtree(somef_cache_dir, ignore_errors=True)
 
 def print_indicator_plugins():
     """

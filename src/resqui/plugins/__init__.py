@@ -9,6 +9,7 @@ from .rsfc import RSFC
 from .oebfair import OEBFAIR
 from .astmetrics import ASTMetrics
 from .pyscn import PySCN
+from .rsmetacheck import Rsmetacheck
 from .scancodetoolkit import ScanCodeToolkit
 
 __all__ = [
@@ -23,5 +24,6 @@ __all__ = [
     "OEBFAIR",
     "ASTMetrics",
     "PySCN",
+    "Rsmetacheck",
     "ScanCodeToolkit",
 ]
