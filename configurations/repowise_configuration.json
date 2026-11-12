@@ -1,0 +1,5 @@
+{
+    "indicators": [
+        { "name": "code_churn_ok", "plugin": "Repowise", "@id": "https://w3id.org/everse/i/indicators/code_churn_ok" }
+    ]
+}
