@@ -46,15 +46,25 @@ class Repowise(IndicatorPlugin):
                                 timeout=self.TIMEOUT_SECONDS,
                                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-            commits_total = int(subprocess.run(
-                ["git", "rev-list", "--count", "HEAD"],
-                capture_output=True, text=True, cwd=ws.local_path, timeout=self.TIMEOUT_SECONDS,
-            ).stdout.strip() or 0)
+            def git_commit_count(*rev_args):
+                try:
+                    result = subprocess.run(
+                        ["git", "rev-list", "--count", *rev_args],
+                        capture_output=True, text=True, cwd=ws.local_path,
+                        timeout=self.TIMEOUT_SECONDS, check=True,
+                    )
+                except subprocess.CalledProcessError as exc:
+                    stderr = (exc.stderr or "").lower()
+                    if "head" in stderr and any(
+                        phrase in stderr
+                        for phrase in ("bad revision", "unknown revision", "ambiguous argument")
+                    ):
+                        return 0
+                    raise
+                return int(result.stdout.strip() or 0)
 
-            commits_90d = int(subprocess.run(
-                ["git", "rev-list", "--count", "--since=90 days ago", "HEAD"],
-                capture_output=True, text=True, cwd=ws.local_path, timeout=self.TIMEOUT_SECONDS,
-            ).stdout.strip() or 0) if commits_total else 0
+            commits_total = git_commit_count("HEAD")
+            commits_90d = git_commit_count("--since=90 days ago", "HEAD") if commits_total else 0
 
             targets = {}
             if commits_total:
@@ -143,7 +153,6 @@ class Repowise(IndicatorPlugin):
         # ok = pct < 40 # provisional threshold, to be discussed with the team.
         ok = pct < self.MAX_HOTSPOT_PERCENT
 
-        
         return CheckResult(
             process="Measures code churn over time using repowise",
             status_id="schema:CompletedActionStatus",
