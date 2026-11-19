@@ -15,7 +15,7 @@ class CFFConvert(IndicatorPlugin):
     version = "2.0.0"
     python_package_name = "cffconvert"
     id = "https://w3id.org/everse/tools/cffconvert"
-    indicators = ["has_citation"]
+    indicators = ["software_has_citation"]
     requires = []
 
     def __init__(self, context):
@@ -23,7 +23,7 @@ class CFFConvert(IndicatorPlugin):
         self.executor = PythonExecutor()
         self.executor.install(f"{self.python_package_name}=={self.version}")
 
-    def has_citation(self, url, branch_hash_or_tag):
+    def software_has_citation(self, url, branch_hash_or_tag):
         full_url = construct_full_url(url, branch_hash_or_tag)
         script = normalized(
             f"""

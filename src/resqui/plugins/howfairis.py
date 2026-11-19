@@ -17,7 +17,7 @@ class HowFairIs(IndicatorPlugin):
     python_package_spec = "git+https://github.com/fair-software/howfairis.git@0.15.0"
     id = "https://w3id.org/everse/tools/howfairis"
     indicators = [
-        "has_license",
+        "software_has_license",
         "software_has_license_for_file_types",
     ]
     requires = ["github_token"]
@@ -32,7 +32,7 @@ class HowFairIs(IndicatorPlugin):
         )
         self.executor.install(self.python_package_spec)
 
-    def has_license(self, url, branch_hash_or_tag):
+    def software_has_license(self, url, branch_hash_or_tag):
         url = url.removesuffix(".git")
         script = normalized(
             f"""
