@@ -13,8 +13,8 @@ from resqui.tools import is_commit_hash, encode_cache_id
 class Rsmetacheck(IndicatorPlugin):
     name = "rsmetacheck"
     id = "https://github.com/SoftwareUnderstanding/rsmetacheck"
-    version = "0.3.6"
-    image_url = f"docker.io/sergiozsz/rsmetacheck:{version}"
+    version = "0.3.8"
+    image_url = f"ghcr.io/softwareunderstanding/rsmetacheck:{version}"
     indicators = ["metadata_is_up_to_date"]
 
     def __init__(self, context):

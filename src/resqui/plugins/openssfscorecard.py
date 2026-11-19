@@ -125,6 +125,8 @@ class OpenSSFScorecard(IndicatorPlugin):
             output=output,
             evidence=evidence,
             success=success,
+            threshold=0,
+            raw_value=check
         )
 
     def human_code_review_requirement(self, url, branch_hash_or_tag):
@@ -146,6 +148,8 @@ class OpenSSFScorecard(IndicatorPlugin):
             output=output,
             evidence=evidence,
             success=success,
+            threshold=5,
+            raw_value=check
         )
 
     def has_published_package(self, url, branch_hash_or_tag):
@@ -167,6 +171,8 @@ class OpenSSFScorecard(IndicatorPlugin):
             output=output,
             evidence=evidence,
             success=success,
+            threshold=0,
+            raw_value=check
         )
 
     def project_is_active(self, url, branch_hash_or_tag):
@@ -187,6 +193,8 @@ class OpenSSFScorecard(IndicatorPlugin):
             output=output,
             evidence=evidence,
             success=success,
+            threshold=3,
+            raw_value=check
         )
         
     def static_analysis_common_vulnerabilities(self, url, branch_hash_or_tag):
@@ -207,6 +215,8 @@ class OpenSSFScorecard(IndicatorPlugin):
             output=output,
             evidence=evidence,
             success=success,
+            threshold=0,
+            raw_value=check
         )
         
     def dependency_management(self, url, branch_hash_or_tag):
@@ -228,6 +238,8 @@ class OpenSSFScorecard(IndicatorPlugin):
             output=output,
             evidence=evidence,
             success=success,
+            threshold=0,
+            raw_value=check
         )
         
     def no_critical_vulnerability(self, url, branch_hash_or_tag):
@@ -248,6 +260,8 @@ class OpenSSFScorecard(IndicatorPlugin):
             output=output,
             evidence=evidence,
             success=success,
+            threshold=7,
+            raw_value=check
         )
         
     def uses_fuzzing(self, url, branch_hash_or_tag):
@@ -269,6 +283,8 @@ class OpenSSFScorecard(IndicatorPlugin):
             output=output,
             evidence=evidence,
             success=success,
+            threshold=0,
+            raw_value=check
         )
         
     def has_no_binary_artifacts(self, url, branch_hash_or_tag):
@@ -289,6 +305,8 @@ class OpenSSFScorecard(IndicatorPlugin):
             output=output,
             evidence=evidence,
             success=success,
+            threshold=10,
+            raw_value=check
         )
         
     def uses_tool_for_warnings_and_mistakes(self, url, branch_hash_or_tag):
@@ -317,4 +335,6 @@ class OpenSSFScorecard(IndicatorPlugin):
             output=output,
             evidence=evidence,
             success=success,
+            threshold=0,
+            raw_value=check
         )
