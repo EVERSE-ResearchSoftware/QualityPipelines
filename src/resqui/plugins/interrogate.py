@@ -15,6 +15,11 @@ EXCLUDED_DIRS = ("build", "dist", "node_modules")
 
 
 class Interrogate(IndicatorPlugin):
+    """Measures Python docstring coverage with interrogate.
+
+    The pass cutoff is interrogate's own default; every result reports it in
+    `threshold` and `evidence` together with the measured `raw_value`.
+    """
     name = "Interrogate"
     version = "1.7.0"
     id = "https://w3id.org/everse/tools/interrogate"
@@ -127,4 +132,6 @@ class Interrogate(IndicatorPlugin):
             output="true" if ok else "false",
             evidence=evidence,
             success=ok,
+            raw_value=f"{report['percentage']:.1f}",
+            threshold=str(FAIL_UNDER),
         )
