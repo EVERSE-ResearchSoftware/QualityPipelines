@@ -8,6 +8,7 @@ from resqui.core import CheckResult
 from resqui.workspace import create_workspace
 
 TIMEOUT_SECONDS = 600
+MIN_MAINTAINABILITY_INDEX = 65  # ast-metrics' convention: >=65 is moderate-or-better
 
 class ASTMetrics(IndicatorPlugin):
     """Static code metrics with [ast-metrics](https://ast-metrics.dev).
@@ -69,8 +70,7 @@ class ASTMetrics(IndicatorPlugin):
         # in the indicator better than averageMI.
 
         miwoc = report.get("averageMIwoc", 0)
-        ok = miwoc >= 65  # ast-metrics' own convention for "easy to maintain"  
-
+        ok = miwoc >= MIN_MAINTAINABILITY_INDEX
         # 85-100 -> easy to maintain
         # 65-84 -> moderate maintainability
         # <65 -> hard to maintain
@@ -80,6 +80,9 @@ class ASTMetrics(IndicatorPlugin):
             status_id="schema:CompletedActionStatus",
             output="true" if ok else "false",
             evidence=f"Average maintainability index (without comment weighting): {miwoc:.1f}/100 "
-                f"(threshold: 65 -> moderate-or-better maintainability; below 65 is considered hard to maintain).",
+                f"(threshold: {MIN_MAINTAINABILITY_INDEX} -> moderate-or-better maintainability; "
+                f"below {MIN_MAINTAINABILITY_INDEX} is considered hard to maintain).",
             success=ok,
+            raw_value=f"{miwoc:.1f}",
+            threshold=str(MIN_MAINTAINABILITY_INDEX),
         )
