@@ -30,9 +30,9 @@ class TestGeneratePluginsDoc(unittest.TestCase):
     def test_extracted_plugin_has_expected_shape(self):
         plugins = generate_plugins_doc._extract_plugins()
         cffconvert = next(p for p in plugins if p["class"] == "CFFConvert")
-        self.assertEqual(cffconvert["indicators"], ["has_citation"])
+        self.assertEqual(cffconvert["indicators"], ["software_has_citation"])
         self.assertIn(
-            "CITATION.cff", cffconvert["descriptions"]["has_citation"]
+            "CITATION.cff", cffconvert["descriptions"]["software_has_citation"]
         )
 
     def test_render_markdown_includes_every_plugin_and_indicator(self):

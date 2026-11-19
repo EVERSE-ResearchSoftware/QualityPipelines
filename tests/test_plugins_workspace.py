@@ -56,7 +56,7 @@ class TestPluginSharedWorkspace(unittest.TestCase):
         with tempfile.TemporaryDirectory() as root:
             with patch.dict(os.environ, self._env(root), clear=True):
                 with patch("resqui.plugins.gitleaks.subprocess.run", side_effect=fake_clone):
-                    plugin.has_no_security_leak("https://github.com/example/repo", "main")
+                    plugin.no_leaked_credentials("https://github.com/example/repo", "main")
 
         command, run_args = plugin.executor.calls[0]
         self.assertEqual(run_args, ["--rm", "-v", f"sqoo_resqui_work:{root}"])
