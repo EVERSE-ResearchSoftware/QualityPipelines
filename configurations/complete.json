@@ -241,6 +241,10 @@
       "@id": "https://w3id.org/everse/i/indicators/maintainability_index_ok"
     },
     {
+      "name": "code_documentation_coverage_ok",
+      "plugin": "Interrogate",
+      "@id": "https://w3id.org/everse/i/indicators/code_documentation_coverage_ok"
+    },
       "name": "code_smells_ok",
       "plugin": "Pylint",
       "@id": "https://w3id.org/everse/i/indicators/code_smells_ok"

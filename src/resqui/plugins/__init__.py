@@ -8,6 +8,7 @@ from .superlinter import SuperLinter
 from .rsfc import RSFC
 from .oebfair import OEBFAIR
 from .astmetrics import ASTMetrics
+from .interrogate import Interrogate 
 from .pylint import Pylint
 from .pyscn import PySCN
 from .rsmetacheck import Rsmetacheck
@@ -23,6 +24,7 @@ __all__ = [
     "RSFC",
     "OEBFAIR",
     "ASTMetrics",
+    "Interrogate",
     "Pylint",
     "PySCN",
     "Rsmetacheck",
