@@ -7,8 +7,15 @@ from resqui.executors import PythonExecutor
 from resqui.core import CheckResult
 from resqui.workspace import create_workspace
 TIMEOUT_SECONDS = 600 
+MAX_CODE_SMELLS_PER_1000_LOC = 50
 
 class Pylint(IndicatorPlugin):
+    """Counts pylint design messages as a proxy for code smells.
+
+    Repositories with fewer than 20% Python files are reported as
+    `indeterminate`. Every result reports its cutoff in `threshold` and the
+    measured ratio in `raw_value`.
+    """
     name = "Pylint"
     version = "4.0.8"
     id = "https://w3id.org/everse/tools/pylint" 
@@ -154,7 +161,7 @@ class Pylint(IndicatorPlugin):
         loc = report["lines_of_code"]
 
         ratio = (code_smells / loc) * 1000 if loc else 0
-        ok = ratio < 50 
+        ok = ratio < MAX_CODE_SMELLS_PER_1000_LOC
 
         return CheckResult(
             process="Measures code smell ratio using pylint.",
@@ -162,6 +169,10 @@ class Pylint(IndicatorPlugin):
             output="true" if ok else "false",
             evidence=f"{code_smells} code smells (refactor: {counts.get('refactor', 0)}, "
                     f"convention: {counts.get('convention', 0)}) over {loc} lines of code "
-                    f"= {ratio:.2f} per 1000 LOC (threshold: 50).",
+                    f"= {ratio:.2f} per 1000 LOC (threshold: "
+                    f"{MAX_CODE_SMELLS_PER_1000_LOC}; code smells are pylint's "
+                    f"refactor + convention messages, excluding correctness ones).",
             success=ok,
+            raw_value=f"{ratio:.2f}",
+            threshold=str(MAX_CODE_SMELLS_PER_1000_LOC),
         )
