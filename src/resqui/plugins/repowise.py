@@ -126,9 +126,23 @@ class Repowise(IndicatorPlugin):
             t["change_magnitude"].get("lines_added_90d", 0) + t["change_magnitude"].get("lines_deleted_90d", 0)
             for t in tracked.values()
         )
+
+        hotspot_files = sorted(
+        (
+            {
+                "file": k,
+                "hotspot_score": t.get("hotspot_score", 0),
+                "lines_added_90d": t["change_magnitude"].get("lines_added_90d", 0),
+                "lines_deleted_90d": t["change_magnitude"].get("lines_deleted_90d", 0),
+            }
+            for k, t in tracked.items() if t.get("is_hotspot", False)
+        ),
+        key=lambda x: -x["hotspot_score"],
+    )
         pct = (hotspots / total * 100) if total else 0
         # ok = pct < 40 # provisional threshold, to be discussed with the team.
         ok = pct < self.MAX_HOTSPOT_PERCENT
+
         
         return CheckResult(
             process="Measures code churn over time using repowise",
@@ -144,5 +158,6 @@ class Repowise(IndicatorPlugin):
                 f"({report['commits_total']} total)."
             ),
             success=ok,
+            raw_value=json.dumps(hotspot_files, separators=(",", ":")),
             threshold=str(self.MAX_HOTSPOT_PERCENT),
         )
