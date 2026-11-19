@@ -9,12 +9,20 @@ from resqui.workspace import create_workspace
 
 
 class Repowise(IndicatorPlugin):
+    """Measures code churn with [repowise](https://w3id.org/everse/tools/repowise).
+
+    A check passes while fewer than 40% of the files with git-history data are
+    flagged by repowise as hotspots. This cutoff is provisional and pending
+    agreement with the EVERSE team; every result reports it in `threshold`
+    together with the measured `raw_value`.
+    """
     name = "Repowise"
     version = "0.50.0"
     id = "https://w3id.org/everse/tools/repowise"
     indicators = ["code_churn_ok"]
     TIMEOUT_SECONDS = 600 
-
+    MAX_HOTSPOT_PERCENT = 40
+    
     def __init__(self, context):
         self.context = context
         self.executor = PythonExecutor()
@@ -119,15 +127,22 @@ class Repowise(IndicatorPlugin):
             for t in tracked.values()
         )
         pct = (hotspots / total * 100) if total else 0
-        ok = pct < 40 # provisional threshold, to be discussed with the team.
-
+        # ok = pct < 40 # provisional threshold, to be discussed with the team.
+        ok = pct < self.MAX_HOTSPOT_PERCENT
+        
         return CheckResult(
             process="Measures code churn over time using repowise",
             status_id="schema:CompletedActionStatus",
             output="true" if ok else "false",
-            evidence=f"{hotspots}/{total} hotspots among files with git-history data tracked by repowise "
-                        f"({total} of {len(targets)} total files. Remember repowise does not track lock files, configs, "
-                        f"or other non-source files); {total_lines} lines changed in 90 days across those tracked "
-                        f"files; {report['commits_90d']} commits in the last 90 days ({report['commits_total']} total).",
+            evidence=(
+                f"{hotspots}/{total} files flagged as hotspots by repowise ({pct:.1f}%) among files "
+                f"with git-history data; the check passes while that share is below "
+                f"{self.MAX_HOTSPOT_PERCENT}% (provisional threshold, pending team agreement). "
+                f"{total} of {len(targets)} total files are indexed (repowise does not track lock files, "
+                f"configs or other non-source files); {total_lines} lines changed in 90 days across those "
+                f"tracked files; {report['commits_90d']} commits in the last 90 days "
+                f"({report['commits_total']} total)."
+            ),
             success=ok,
+            threshold=str(self.MAX_HOTSPOT_PERCENT),
         )
