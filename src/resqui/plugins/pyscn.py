@@ -127,6 +127,8 @@ class PySCN(IndicatorPlugin):
             evidence=f"Average complexity {summary['average_complexity']}; "
                      f"{summary['high_complexity_count']} functions/classes exceed complexity 10.",
             success=ok,
+            threshold=4,
+            raw_value=summary
         )
 
     def code_duplication_ok(self, url, branch=None):
@@ -143,6 +145,8 @@ class PySCN(IndicatorPlugin):
             evidence=f"Percentage of duplication: {summary['code_duplication_percentage']}%; "
                      f"{summary['total_clones']} duplicated fragments.",
             success=ok,
+            threshold=4,
+            raw_value=summary
         )
 
     def coupling_between_objects_ok(self, url, branch=None):
@@ -159,6 +163,8 @@ class PySCN(IndicatorPlugin):
             evidence=f"CBO average {summary['average_coupling']}; "
                      f"{summary['high_coupling_classes']} classes exceed CBO 7.",
             success=ok,
+            threshold=4,
+            raw_value=summary
         )
 
     def internal_cohesion_ok(self, url, branch=None):
@@ -175,4 +181,6 @@ class PySCN(IndicatorPlugin):
             evidence=f"LCOM4 average {summary['average_lcom']}; "
                      f"{summary['high_lcom_classes']} classes exceed LCOM4 5.",
             success=ok,
+            threshold=4,
+            raw_value=summary
         )
