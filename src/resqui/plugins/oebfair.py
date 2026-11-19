@@ -20,10 +20,10 @@ class OEBFAIR(IndicatorPlugin):
     version = "0.2.2"
     image_url = f"registry.gitlab.bsc.es/everse/resqui-oeb-plugin/resqui-oebfair:v0.2.2"
     indicators = [
-        "unique_identifier",
-        "has_package",
-        "has_license",
-        "has_documentation",
+        "persistent_and_unique_identifier",
+        "has_published_package",
+        "software_has_license",
+        "software_has_documentation",
         "has_releases",
         "descriptive_metadata",
         "listed_in_registry",
@@ -72,7 +72,7 @@ class OEBFAIR(IndicatorPlugin):
 
         return report
 
-    def unique_identifier(self, url, branch_hash_or_tag):
+    def persistent_and_unique_identifier(self, url, branch_hash_or_tag):
         report = self.execute(url, branch_hash_or_tag)
         checks = report["checks"]
         check_list = []
@@ -96,7 +96,7 @@ class OEBFAIR(IndicatorPlugin):
 
         return check_list
 
-    def has_package(self, url, branch_hash_or_tag):
+    def has_published_package(self, url, branch_hash_or_tag):
         report = self.execute(url, branch_hash_or_tag)
         checks = report["checks"]
         check_list = []
@@ -120,7 +120,7 @@ class OEBFAIR(IndicatorPlugin):
 
         return check_list
 
-    def has_documentation(self, url, branch_hash_or_tag):
+    def software_has_documentation(self, url, branch_hash_or_tag):
         report = self.execute(url, branch_hash_or_tag)
         checks = report["checks"]
         check_list = []
@@ -168,7 +168,7 @@ class OEBFAIR(IndicatorPlugin):
 
         return check_list
 
-    def has_license(self, url, branch_hash_or_tag):
+    def software_has_license(self, url, branch_hash_or_tag):
         report = self.execute(url, branch_hash_or_tag)
 
         checks = report["checks"]

@@ -19,14 +19,14 @@ class Gitleaks(IndicatorPlugin):
     version = "8.24.2"
     image_url = f"ghcr.io/gitleaks/gitleaks:v{version}"
     id = "https://w3id.org/everse/tools/gitleaks"
-    indicators = ["has_no_security_leak"]
+    indicators = ["has_no_leaked_credentials"]
     requires = ["docker"]
 
     def __init__(self, context):
         self.context = context
         self.executor = DockerExecutor(self.image_url)
 
-    def has_no_security_leak(self, url, branch_hash_or_tag):
+    def has_no_leaked_credentials(self, url, branch_hash_or_tag):
         report_fname = "report.json"
 
 

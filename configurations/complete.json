@@ -1,17 +1,17 @@
 {
   "indicators": [
     {
-      "name": "has_citation",
+      "name": "software_has_citation",
       "plugin": "CFFConvert",
       "@id": "https://w3id.org/everse/i/indicators/software_has_citation"
     },
     {
-      "name": "has_no_security_leak",
+      "name": "no_leaked_credentials",
       "plugin": "Gitleaks",
       "@id": "https://w3id.org/everse/i/indicators/no_leaked_credentials"
     },
     {
-      "name": "has_license",
+      "name": "software_has_license",
       "plugin": "HowFairIs",
       "@id": "https://w3id.org/everse/i/indicators/software_has_license"
     },
@@ -21,17 +21,17 @@
       "@id": "https://w3id.org/everse/i/indicators/descriptive_metadata"
     },
     {
-      "name": "has_documentation",
+      "name": "software_has_documentation",
       "plugin": "OEBFAIR",
       "@id": "https://w3id.org/everse/i/indicators/software_has_documentation"
     },
     {
-      "name": "has_license",
+      "name": "software_has_license",
       "plugin": "OEBFAIR",
       "@id": "https://w3id.org/everse/i/indicators/software_has_license"
     },
     {
-      "name": "has_package",
+      "name": "has_published_package",
       "plugin": "OEBFAIR",
       "@id": "https://w3id.org/everse/i/indicators/has_published_package"
     },
@@ -41,7 +41,7 @@
       "@id": "https://w3id.org/everse/i/indicators/listed_in_registry"
     },
     {
-      "name": "unique_identifier",
+      "name": "persistent_and_unique_identifier",
       "plugin": "OEBFAIR",
       "@id": "https://w3id.org/everse/i/indicators/persistent_and_unique_identifier"
     },
@@ -156,84 +156,14 @@
       "@id": "https://w3id.org/everse/i/indicators/software_is_containerized"
     },
     {
-      "name": "has_license",
-      "plugin": "HowFairIs",
-      "@id": "https://w3id.org/everse/i/indicators/software_has_license"
-    },
-    {
-      "name": "has_citation",
-      "plugin": "CFFConvert",
-      "@id": "https://w3id.org/everse/i/indicators/software_has_citation"
-    },
-    {
       "name": "has_no_linting_issues",
       "plugin": "SuperLinter",
       "@id": "https://w3id.org/everse/i/indicators/has_no_linting_issues"
     },
     {
-      "name": "static_analysis_common_vulnerabilities",
-      "plugin": "OpenSSFScorecard",
-      "@id": "https://w3id.org/everse/i/indicators/static_analysis_common_vulnerabilities"
-    },
-    {
-      "name": "uses_fuzzing",
-      "plugin": "OpenSSFScorecard",
-      "@id": "https://w3id.org/everse/i/indicators/uses_fuzzing"
-    },
-    {
-      "name": "dependency_management",
-      "plugin": "OpenSSFScorecard",
-      "@id": "https://w3id.org/everse/i/indicators/dependency_management"
-    },
-    {
-      "name": "has_published_package",
-      "plugin": "OpenSSFScorecard",
-      "@id": "https://w3id.org/everse/i/indicators/has_published_package"
-    },
-    {
-      "name": "project_is_active",
-      "plugin": "OpenSSFScorecard",
-      "@id": "https://w3id.org/everse/i/indicators/project_is_active"
-    },
-    {
-      "name": "human_code_review_requirement",
-      "plugin": "OpenSSFScorecard",
-      "@id": "https://w3id.org/everse/i/indicators/human_code_review_requirement"
-    },
-    {
       "name": "has_no_binary_artifacts",
       "plugin": "OpenSSFScorecard",
       "@id": "https://w3id.org/everse/i/indicators/has_no_binary_artifacts"
-    },
-    {
-      "name": "unique_identifier",
-      "plugin": "OEBFAIR",
-      "@id": "https://w3id.org/everse/i/indicators/persistent_and_unique_identifier"
-    },
-    {
-      "name": "has_package",
-      "plugin": "OEBFAIR",
-      "@id": "https://w3id.org/everse/i/indicators/has_published_package"
-    },
-    {
-      "name": "has_license",
-      "plugin": "OEBFAIR",
-      "@id": "https://w3id.org/everse/i/indicators/software_has_license"
-    },
-    {
-      "name": "descriptive_metadata",
-      "plugin": "OEBFAIR",
-      "@id": "https://w3id.org/everse/i/indicators/descriptive_metadata"
-    },
-    {
-      "name": "has_documentation",
-      "plugin": "OEBFAIR",
-      "@id": "https://w3id.org/everse/i/indicators/software_has_documentation"
-    },
-    {
-      "name": "listed_in_registry",
-      "plugin": "OEBFAIR",
-      "@id": "https://w3id.org/everse/i/indicators/listed_in_registry"
     },
     {
       "name": "maintainability_index_ok",
@@ -245,23 +175,28 @@
       "plugin": "Interrogate",
       "@id": "https://w3id.org/everse/i/indicators/code_documentation_coverage_ok"
     },
+    {
       "name": "code_smells_ok",
       "plugin": "Pylint",
       "@id": "https://w3id.org/everse/i/indicators/code_smells_ok"
     },
-    { "name": "cyclomatic_complexity_ok",
+    {
+      "name": "cyclomatic_complexity_ok",
       "plugin": "PySCN",
       "@id": "https://w3id.org/everse/i/indicators/cyclomatic_complexity_ok"
     },
-    { "name": "code_duplication_ok",
+    {
+      "name": "code_duplication_ok",
       "plugin": "PySCN",
       "@id": "https://w3id.org/everse/i/indicators/code_duplication_ok"
     },
-    { "name": "coupling_between_objects_ok",
+    {
+      "name": "coupling_between_objects_ok",
       "plugin": "PySCN",
       "@id": "https://w3id.org/everse/i/indicators/coupling_between_objects_ok"
     },
-    { "name": "internal_cohesion_ok",
+    {
+      "name": "internal_cohesion_ok",
       "plugin": "PySCN",
       "@id": "https://w3id.org/everse/i/indicators/internal_cohesion_ok"
     }
