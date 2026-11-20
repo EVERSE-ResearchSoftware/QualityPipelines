@@ -255,6 +255,10 @@
     { "name": "internal_cohesion_ok",
       "plugin": "PySCN",
       "@id": "https://w3id.org/everse/i/indicators/internal_cohesion_ok"
+    },
+    { "name": "no_critical_vulnerability", 
+      "plugin": "Semgrep", 
+      "@id": "https://w3id.org/everse/i/indicators/no_critical_vulnerability" 
     }
   ]
 }
