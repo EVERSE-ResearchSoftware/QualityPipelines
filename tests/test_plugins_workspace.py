@@ -10,6 +10,7 @@ from resqui.plugins.gitleaks import Gitleaks
 from resqui.plugins.howfairis import HowFairIs
 from resqui.plugins.rsfc import RSFC
 from resqui.plugins.rsmetacheck import Rsmetacheck
+from resqui.plugins.semgrep import Semgrep
 from resqui.plugins.superlinter import SuperLinter
 
 
@@ -113,6 +114,41 @@ class TestPluginSharedWorkspace(unittest.TestCase):
         self.assertIn("-t", command)
         self.assertEqual(command[command.index("-t") + 1], "token")
 
+    def test_semgrep_runs_without_token(self):
+
+        def fake_clone(args, **kwargs):
+            os.makedirs(args[3], exist_ok=True)
+            with open(os.path.join(args[3], "report.json"), "w") as f:
+                json.dump({}, f)
+
+        def fake_semgrep_run(command, run_args=None):
+            run_args = run_args or []
+            workdir = run_args[2]
+            output_dir = os.path.join(workdir, "semgrep_output")
+            os.makedirs(output_dir, exist_ok=True)
+            assessment_path = os.path.join(output_dir, "semgrep-indicators.json")
+            with open(assessment_path, "w") as f:
+                json.dump({"checks": []}, f)
+            fake_executor.calls.append((command, run_args))
+            return SimpleNamespace(stdout="", stderr="")
+
+        fake_executor = FakeExecutor()
+        fake_executor.run = fake_semgrep_run
+
+        plugin = Semgrep.__new__(Semgrep)
+        plugin.context = Context(github_token=None)
+        plugin.executor = fake_executor
+        plugin._cache = {}
+
+        with tempfile.TemporaryDirectory() as root:
+            with patch.dict(os.environ, self._env(root), clear=True):
+                with patch("resqui.plugins.semgrep.subprocess.run", side_effect=fake_clone):
+                    plugin.no_critical_vulnerability("https://github.com/example/repo", "main")
+
+        command, _ = fake_executor.calls[0]
+        self.assertNotIn("-t", command)
+
+
     def test_rsfc_runs_without_token(self):
         def fake_rsfc_run(command, run_args=None):
             run_args = run_args or []
@@ -178,6 +214,7 @@ class TestPluginSharedWorkspace(unittest.TestCase):
             command[command.index("--branch") + 1],
             commit_hash,
         )
+
     def test_rsfc_passes_commit_hash(self):
         commit_hash = "a" * 40
         commands = []
@@ -396,8 +433,8 @@ class TestRsmetacheckIndicatorMappings(unittest.TestCase):
         self.assertEqual(result.output, "error")
         self.assertIn("P017", result.evidence)
         self.assertIn("W002", result.evidence)
-        
-        
+
+
 class TestSomefCacheIdentifiers(unittest.TestCase):
 
     def setUp(self):
