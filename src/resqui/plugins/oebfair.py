@@ -9,16 +9,21 @@ from resqui.core import CheckResult
 
 
 class OEBFAIR(IndicatorPlugin):
+    """Evaluates FAIRness with the OpenEBench
+    [FAIRsoft evaluator](https://w3id.org/everse/tools/fairsoft-evaluator).
+
+    Languages: language-independent.
+    """
+
     name = "OEBFAIR"
     id = "https://w3id.org/everse/tools/fairsoft-evaluator"
     version = "0.2.2"
     image_url = f"registry.gitlab.bsc.es/everse/resqui-oeb-plugin/resqui-oebfair:v0.2.2"
     indicators = [
-        "unique_identifier",
-        "has_package",
-        "has_citation",
-        "has_license",
-        "has_documentation",
+        "persistent_and_unique_identifier",
+        "has_published_package",
+        "software_has_license",
+        "software_has_documentation",
         "has_releases",
         "descriptive_metadata",
         "listed_in_registry",
@@ -28,6 +33,7 @@ class OEBFAIR(IndicatorPlugin):
         "repository_workflows",
         "archived_in_software_heritage"
     ]
+    requires = ["docker", "github_token"]
 
     def __init__(self, context):
         self.context = context
@@ -66,7 +72,7 @@ class OEBFAIR(IndicatorPlugin):
 
         return report
 
-    def unique_identifier(self, url, branch_hash_or_tag):
+    def persistent_and_unique_identifier(self, url, branch_hash_or_tag):
         report = self.execute(url, branch_hash_or_tag)
         checks = report["checks"]
         check_list = []
@@ -90,7 +96,7 @@ class OEBFAIR(IndicatorPlugin):
 
         return check_list
 
-    def has_package(self, url, branch_hash_or_tag):
+    def has_published_package(self, url, branch_hash_or_tag):
         report = self.execute(url, branch_hash_or_tag)
         checks = report["checks"]
         check_list = []
@@ -114,7 +120,7 @@ class OEBFAIR(IndicatorPlugin):
 
         return check_list
 
-    def has_documentation(self, url, branch_hash_or_tag):
+    def software_has_documentation(self, url, branch_hash_or_tag):
         report = self.execute(url, branch_hash_or_tag)
         checks = report["checks"]
         check_list = []
@@ -162,7 +168,7 @@ class OEBFAIR(IndicatorPlugin):
 
         return check_list
 
-    def has_license(self, url, branch_hash_or_tag):
+    def software_has_license(self, url, branch_hash_or_tag):
         report = self.execute(url, branch_hash_or_tag)
 
         checks = report["checks"]
@@ -290,30 +296,6 @@ class OEBFAIR(IndicatorPlugin):
 
         for check in checks:
             if "software_tests" in check["assessesIndicator"]["@id"]:
-                if check["output"] == "true":
-                    success = True
-                else:
-                    success = False
-
-                check_res = CheckResult(
-                    process=check["process"],
-                    status_id=check["status"]["@id"],
-                    output=check["output"],
-                    evidence=check["evidence"],
-                    success=success,
-                )
-
-                check_list.append(check_res)
-
-        return check_list
-
-    def has_citation(self, url, branch_hash_or_tag):
-        report = self.execute(url, branch_hash_or_tag)
-        checks = report["checks"]
-        check_list = []
-
-        for check in checks:
-            if "software_has_citation" in check["assessesIndicator"]["@id"]:
                 if check["output"] == "true":
                     success = True
                 else:

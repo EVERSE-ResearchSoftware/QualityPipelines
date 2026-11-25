@@ -1,0 +1,49 @@
+{
+  "indicators": [
+    {
+      "name": "dependency_management",
+      "plugin": "OpenSSFScorecard",
+      "@id": "https://w3id.org/everse/i/indicators/dependency_management"
+    },
+    {
+      "name": "has_ci_tests",
+      "plugin": "OpenSSFScorecard",
+      "@id": "https://w3id.org/everse/i/indicators/has_ci-tests"
+    },
+    {
+      "name": "has_published_package",
+      "plugin": "OpenSSFScorecard",
+      "@id": "https://w3id.org/everse/i/indicators/has_published_package"
+    },
+    {
+      "name": "human_code_review_requirement",
+      "plugin": "OpenSSFScorecard",
+      "@id": "https://w3id.org/everse/i/indicators/human_code_review_requirement"
+    },
+    {
+      "name": "no_critical_vulnerability",
+      "plugin": "OpenSSFScorecard",
+      "@id": "https://w3id.org/everse/i/indicators/no_critical_vulnerability"
+    },
+    {
+      "name": "project_is_active",
+      "plugin": "OpenSSFScorecard",
+      "@id": "https://w3id.org/everse/i/indicators/project_is_active"
+    },
+    {
+      "name": "static_analysis_common_vulnerabilities",
+      "plugin": "OpenSSFScorecard",
+      "@id": "https://w3id.org/everse/i/indicators/static_analysis_common_vulnerabilities"
+    },
+    {
+      "name": "uses_fuzzing",
+      "plugin": "OpenSSFScorecard",
+      "@id": "https://w3id.org/everse/i/indicators/uses_fuzzing"
+    },
+    {
+      "name": "has_no_binary_artifacts",
+      "plugin": "OpenSSFScorecard",
+      "@id": "https://w3id.org/everse/i/indicators/has_no_binary_artifacts"
+    }
+  ]
+}

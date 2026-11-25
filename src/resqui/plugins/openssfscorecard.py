@@ -5,9 +5,15 @@ from resqui.core import CheckResult
 
 
 class OpenSSFScorecard(IndicatorPlugin):
+    """Runs security and best-practice checks with the
+    [OpenSSF Scorecard](https://github.com/ossf/scorecard).
+
+    Languages: language-independent.
+    """
+
     name = "OpenSSF Scorecard"
     id = "https://github.com/ossf/scorecard"
-    version = "v5.4.0"
+    version = "v5.6.0"
     image_url = f"ghcr.io/ossf/scorecard:{version}"
     indicators = [
         "has_ci_tests",
@@ -21,6 +27,7 @@ class OpenSSFScorecard(IndicatorPlugin):
         "has_no_binary_artifacts",
         "uses_tool_for_warnings_and_mistakes"
     ]
+    requires = ["docker", "github_token"]
 
     def __init__(self, context):
         self.context = context
@@ -48,7 +55,7 @@ class OpenSSFScorecard(IndicatorPlugin):
 
         url = url[:-4] if url.endswith(".git") else url
         
-        check_values = ["CI-Tests", "SAST", "Maintained", "Fuzzing", "Dependency-Update-Tool", "Vulnerabilities", "Code-Review", "Packaging"]
+        check_values = ["CI-Tests", "SAST", "Maintained", "Fuzzing", "Dependency-Update-Tool", "Vulnerabilities", "Code-Review", "Packaging", "Binary-Artifacts"]
         check_args = [arg for check in check_values for arg in ("--checks", check)]
 
         cmd = [
@@ -56,7 +63,7 @@ class OpenSSFScorecard(IndicatorPlugin):
             "run",
             "--rm", 
             "-e",
-            f"GITHUB_AUTH_TOKEN={self.context.github_token}",
+            f"GITHUB_TOKEN={self.context.github_token}",
             self.image_url,
             *check_args,
             "--show-details",
@@ -118,6 +125,8 @@ class OpenSSFScorecard(IndicatorPlugin):
             output=output,
             evidence=evidence,
             success=success,
+            threshold=0,
+            raw_value=check
         )
 
     def human_code_review_requirement(self, url, branch_hash_or_tag):
@@ -139,6 +148,8 @@ class OpenSSFScorecard(IndicatorPlugin):
             output=output,
             evidence=evidence,
             success=success,
+            threshold=5,
+            raw_value=check
         )
 
     def has_published_package(self, url, branch_hash_or_tag):
@@ -160,6 +171,8 @@ class OpenSSFScorecard(IndicatorPlugin):
             output=output,
             evidence=evidence,
             success=success,
+            threshold=0,
+            raw_value=check
         )
 
     def project_is_active(self, url, branch_hash_or_tag):
@@ -180,6 +193,8 @@ class OpenSSFScorecard(IndicatorPlugin):
             output=output,
             evidence=evidence,
             success=success,
+            threshold=3,
+            raw_value=check
         )
         
     def static_analysis_common_vulnerabilities(self, url, branch_hash_or_tag):
@@ -200,6 +215,8 @@ class OpenSSFScorecard(IndicatorPlugin):
             output=output,
             evidence=evidence,
             success=success,
+            threshold=0,
+            raw_value=check
         )
         
     def dependency_management(self, url, branch_hash_or_tag):
@@ -221,6 +238,8 @@ class OpenSSFScorecard(IndicatorPlugin):
             output=output,
             evidence=evidence,
             success=success,
+            threshold=0,
+            raw_value=check
         )
         
     def no_critical_vulnerability(self, url, branch_hash_or_tag):
@@ -241,6 +260,8 @@ class OpenSSFScorecard(IndicatorPlugin):
             output=output,
             evidence=evidence,
             success=success,
+            threshold=7,
+            raw_value=check
         )
         
     def uses_fuzzing(self, url, branch_hash_or_tag):
@@ -262,11 +283,13 @@ class OpenSSFScorecard(IndicatorPlugin):
             output=output,
             evidence=evidence,
             success=success,
+            threshold=0,
+            raw_value=check
         )
         
     def has_no_binary_artifacts(self, url, branch_hash_or_tag):
         results = self.execute(url, branch_hash_or_tag)
-        check = self.get_score(results, "Fuzzing")
+        check = self.get_score(results, "Binary-Artifacts")
         if check["score"] == 10:
             output = "true"
             evidence = self.format_details(check["details"])
@@ -282,6 +305,8 @@ class OpenSSFScorecard(IndicatorPlugin):
             output=output,
             evidence=evidence,
             success=success,
+            threshold=10,
+            raw_value=check
         )
         
     def uses_tool_for_warnings_and_mistakes(self, url, branch_hash_or_tag):
@@ -310,4 +335,6 @@ class OpenSSFScorecard(IndicatorPlugin):
             output=output,
             evidence=evidence,
             success=success,
+            threshold=0,
+            raw_value=check
         )

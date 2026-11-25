@@ -17,7 +17,7 @@ Please read and adhere to our contribution guidelines on  `CONTRIBUTING.md` and 
 An overview on the quality pipelines is given below.
 The complete documentation of the quality pipelines are available at the project's [Github Pages](https://everse.software/QualityPipelines/), please read through those pages if you encounter issues and questions.
 
-1) `resqui`  can be installed - preferably within a Python virtual environment - with the requirements of `Docker` and `Python 3.9+`
+1) `resqui`  can be installed - preferably within a Python virtual environment - with the requirements of `Docker` and `Python 3.11+`
 
 - using pip:
 
