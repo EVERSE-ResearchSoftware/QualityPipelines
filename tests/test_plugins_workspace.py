@@ -443,7 +443,7 @@ class TestScanCodeToolkitIndicatorMappings(unittest.TestCase):
         self.assertTrue(result)
         self.assertEqual(result.status_id, "schema:CompletedActionStatus")
         self.assertEqual(result.output, "true")
-        self.assertIsNone(result.raw_value)
+        self.assertEqual(result.raw_value, report["summary"])
         self.assertIn("Declared license: apache-2.0", result.evidence)
         self.assertIn("LICENSE (Apache-2.0), setup.py (Apache-2.0)", result.evidence)
         self.assertNotIn("src/main.py", result.evidence)
@@ -458,7 +458,7 @@ class TestScanCodeToolkitIndicatorMappings(unittest.TestCase):
         self.assertFalse(result)
         self.assertEqual(result.status_id, "schema:CompletedActionStatus")
         self.assertEqual(result.output, "false")
-        self.assertIsNone(result.raw_value)
+        self.assertEqual(result.raw_value, report["summary"])
 
     def test_has_license_errors_without_a_summary(self):
         report = {"files": [self._file("main.py", is_source=True)]}
@@ -608,7 +608,7 @@ class TestScanCodeToolkitExecute(unittest.TestCase):
         def fake_run(args, **kwargs):
             raise subprocess.CalledProcessError(128, args)
 
-        [result] = self._run(self._plugin(), fake_run, ["has_license"])
+        [result] = self._run(self._plugin(), fake_run, ["software_has_license"])
 
         self.assertEqual(result.output, "error")
         self.assertIn("Could not clone", result.evidence)
@@ -619,7 +619,7 @@ class TestScanCodeToolkitExecute(unittest.TestCase):
                 return SimpleNamespace(returncode=0, stdout="", stderr="")
             return SimpleNamespace(returncode=1, stdout="", stderr="scancode crashed")
 
-        [result] = self._run(self._plugin(), fake_run, ["has_license"])
+        [result] = self._run(self._plugin(), fake_run, ["software_has_license"])
 
         self.assertEqual(result.output, "error")
         self.assertIn("did not produce a report", result.evidence)
