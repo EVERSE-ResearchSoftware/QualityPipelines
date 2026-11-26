@@ -58,7 +58,7 @@ class TestPluginSharedWorkspace(unittest.TestCase):
         with tempfile.TemporaryDirectory() as root:
             with patch.dict(os.environ, self._env(root), clear=True):
                 with patch("resqui.plugins.gitleaks.subprocess.run", side_effect=fake_clone):
-                    plugin.has_no_security_leak("https://github.com/example/repo", "main")
+                    plugin.no_leaked_credentials("https://github.com/example/repo", "main")
 
         command, run_args = plugin.executor.calls[0]
         self.assertEqual(run_args, ["--rm", "-v", f"sqoo_resqui_work:{root}"])
@@ -438,12 +438,12 @@ class TestScanCodeToolkitIndicatorMappings(unittest.TestCase):
                 self._file("src/main.py", is_source=True),
             ],
         }
-        result = self._plugin_with_report(report).has_license(self.URL, "main")
+        result = self._plugin_with_report(report).software_has_license(self.URL, "main")
 
         self.assertTrue(result)
         self.assertEqual(result.status_id, "schema:CompletedActionStatus")
         self.assertEqual(result.output, "true")
-        self.assertEqual(result.raw_value, "90")
+        self.assertIsNone(result.raw_value)
         self.assertIn("Declared license: apache-2.0", result.evidence)
         self.assertIn("LICENSE (Apache-2.0), setup.py (Apache-2.0)", result.evidence)
         self.assertNotIn("src/main.py", result.evidence)
@@ -453,16 +453,16 @@ class TestScanCodeToolkitIndicatorMappings(unittest.TestCase):
             "summary": self._summary(False),
             "files": [self._file("main.py", is_source=True)],
         }
-        result = self._plugin_with_report(report).has_license(self.URL, "main")
+        result = self._plugin_with_report(report).software_has_license(self.URL, "main")
 
         self.assertFalse(result)
         self.assertEqual(result.status_id, "schema:CompletedActionStatus")
         self.assertEqual(result.output, "false")
-        self.assertEqual(result.raw_value, "0")
+        self.assertIsNone(result.raw_value)
 
     def test_has_license_errors_without_a_summary(self):
         report = {"files": [self._file("main.py", is_source=True)]}
-        result = self._plugin_with_report(report).has_license(self.URL, "main")
+        result = self._plugin_with_report(report).software_has_license(self.URL, "main")
 
         self.assertFalse(result)
         self.assertEqual(result.status_id, "schema:FailedActionStatus")
@@ -489,7 +489,7 @@ class TestScanCodeToolkitIndicatorMappings(unittest.TestCase):
 
         self.assertTrue(result)
         self.assertEqual(result.output, "true")
-        self.assertEqual(result.raw_value, "100.0")
+        self.assertIsNone(result.raw_value)
         self.assertIn("3/3 files", result.evidence)
         self.assertIn("code: 1/1, documentation: 1/1, media: 1/1", result.evidence)
         self.assertIn("Licenses found: CC-BY-4.0, CC0-1.0, MIT", result.evidence)
@@ -510,7 +510,7 @@ class TestScanCodeToolkitIndicatorMappings(unittest.TestCase):
         self.assertFalse(result)
         self.assertEqual(result.status_id, "schema:CompletedActionStatus")
         self.assertEqual(result.output, "false")
-        self.assertEqual(result.raw_value, "25.0")
+        self.assertIsNone(result.raw_value)
         self.assertIn("code: 1/2, documentation: 0/1, other: 0/1", result.evidence)
 
     def test_file_types_is_indeterminate_without_files_to_check(self):
