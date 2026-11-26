@@ -8,7 +8,7 @@
     {
       "name": "has_ci_tests",
       "plugin": "OpenSSFScorecard",
-      "@id": "https://w3id.org/everse/i/indicators/has_ci-tests"
+      "@id": "https://w3id.org/everse/i/indicators/has_ci_tests"
     },
     {
       "name": "has_published_package",
