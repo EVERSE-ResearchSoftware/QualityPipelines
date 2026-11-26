@@ -44,7 +44,7 @@ class TestVocabulary(unittest.TestCase):
             )
         )
         self.assertTrue(
-            is_known_indicator_id("https://w3id.org/everse/i/indicators/has_ci-tests")
+            is_known_indicator_id("https://w3id.org/everse/i/indicators/has_ci_tests")
         )
 
 

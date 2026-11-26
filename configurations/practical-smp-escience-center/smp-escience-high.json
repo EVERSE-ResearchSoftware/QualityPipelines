@@ -16,7 +16,7 @@
       "@id": "https://w3id.org/everse/i/indicators/version_control_use"
     },
     {
-      "name": "unique_identifier",
+      "name": "persistent_and_unique_identifier",
       "plugin": "OEBFAIR",
       "@id": "https://w3id.org/everse/i/indicators/persistent_and_unique_identifier"
     },
@@ -26,7 +26,7 @@
       "@id": "https://w3id.org/everse/i/indicators/persistent_and_unique_identifier"
     },
     {
-      "name": "has_documentation",
+      "name": "software_has_documentation",
       "plugin": "OEBFAIR",
       "@id": "https://w3id.org/everse/i/indicators/software_has_documentation"
     },
@@ -36,12 +36,12 @@
       "@id": "https://w3id.org/everse/i/indicators/software_has_documentation"
     },
     {
-      "name": "has_license",
+      "name": "software_has_license",
       "plugin": "HowFairIs",
       "@id": "https://w3id.org/everse/i/indicators/software_has_license"
     },
     {
-      "name": "has_license",
+      "name": "software_has_license",
       "plugin": "OEBFAIR",
       "@id": "https://w3id.org/everse/i/indicators/software_has_license"
     },
@@ -56,13 +56,8 @@
       "@id": "https://w3id.org/everse/i/indicators/requirements_specified"
     },
     {
-      "name": "has_citation",
+      "name": "software_has_citation",
       "plugin": "CFFConvert",
-      "@id": "https://w3id.org/everse/i/indicators/software_has_citation"
-    },
-    {
-      "name": "has_citation",
-      "plugin": "OEBFAIR",
       "@id": "https://w3id.org/everse/i/indicators/software_has_citation"
     },
     {
@@ -81,7 +76,7 @@
       "@id": "https://w3id.org/everse/i/indicators/software_has_tests"
     },
     {
-      "name": "has_package",
+      "name": "has_published_package",
       "plugin": "OEBFAIR",
       "@id": "https://w3id.org/everse/i/indicators/has_published_package"
     },
