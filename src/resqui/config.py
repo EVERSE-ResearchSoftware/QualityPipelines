@@ -17,7 +17,7 @@ DEFAULT_CONFIG = {
         {
             "name": "has_ci_tests",
             "plugin": "OpenSSFScorecard",
-            "@id": "https://w3id.org/everse/i/indicators/has_ci-tests",
+            "@id": "https://w3id.org/everse/i/indicators/has_ci_tests",
         },
         {
             "name": "human_code_review_requirement",
