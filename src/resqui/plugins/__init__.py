@@ -13,6 +13,7 @@ from .interrogate import Interrogate
 from .pylint import Pylint
 from .pyscn import PySCN
 from .rsmetacheck import Rsmetacheck
+from .scancodetoolkit import ScanCodeToolkit
 
 __all__ = [
     "IndicatorPlugin",
@@ -30,4 +31,5 @@ __all__ = [
     "Pylint",
     "PySCN",
     "Rsmetacheck",
+    "ScanCodeToolkit",
 ]
