@@ -20,6 +20,11 @@
       "plugin": "HowFairIs",
       "@id": "https://w3id.org/everse/i/indicators/software_has_license_for_file_types"
     },
+    { 
+      "name": "metadata_is_up_to_date",
+      "plugin": "Rsmetacheck",
+      "@id": "https://w3id.org/everse/i/indicators/metadata_is_up_to_date"
+    },
     {
       "name": "descriptive_metadata",
       "plugin": "OEBFAIR",
