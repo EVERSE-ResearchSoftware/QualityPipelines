@@ -1,62 +1,34 @@
 #!/usr/bin/env python3
-"""Check that configs point to real indicators and that declared
-indicators are configured somewhere. Standard library only."""
+"""Check that configs point to real plugin indicators and that every
+declared indicator appears in configurations/complete.json."""
 
-import ast
 import difflib
 import json
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "src"))
+
+import resqui.plugins as plugins_module
+from resqui.config import DEFAULT_CONFIG
+
 CONFIG_DIR = ROOT / "configurations"
-PLUGINS_DIR = ROOT / "src" / "resqui" / "plugins"
-CONFIG_PY = ROOT / "src" / "resqui" / "config.py"
-
-
-def literal_value(node):
-    """Return the literal value of a simple assignment, if possible."""
-    try:
-        return ast.literal_eval(node)
-    except (ValueError, TypeError, SyntaxError):
-        return None
+COMPLETE_LABEL = "configurations/complete.json"
+SKIP = {"IndicatorPlugin", "PluginInitError"}
+KEYS = ("plugin", "name", "@id")
 
 
 def load_plugins():
-    """Collect the exported plugin classes, their methods and indicators."""
-    exported = set()
-    init_file = PLUGINS_DIR / "__init__.py"
-    for node in ast.parse(init_file.read_text(encoding="utf-8")).body:
-        if isinstance(node, ast.ImportFrom):
-            exported.update(alias.name for alias in node.names)
-
-    plugins = {}
-    for path in sorted(PLUGINS_DIR.glob("*.py")):
-        if path.name in ("__init__.py", "base.py"):
+    """Return the exported plugin classes, as the runtime sees them."""
+    result = {}
+    for name in plugins_module.__all__:
+        if name in SKIP:
             continue
-        for cls in ast.parse(path.read_text(encoding="utf-8")).body:
-            if not isinstance(cls, ast.ClassDef):
-                continue
-            methods = {
-                n.name
-                for n in cls.body
-                if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))
-            }
-            declared = []
-            for node in cls.body:
-                if not isinstance(node, ast.Assign):
-                    continue
-                if not any(getattr(t, "id", None) == "indicators" for t in node.targets):
-                    continue
-                value = literal_value(node.value)
-                if isinstance(value, (list, tuple)):
-                    declared = list(value)
-            plugins[cls.name] = {
-                "methods": methods,
-                "declared": declared,
-                "exported": cls.name in exported,
-            }
-    return plugins
+        cls = getattr(plugins_module, name, None)
+        if isinstance(cls, type):
+            result[name] = cls
+    return result
 
 
 def load_configs():
@@ -72,19 +44,14 @@ def load_configs():
         indicators = data.get("indicators", []) if isinstance(data, dict) else []
         configs.append((label, indicators, None))
 
-    for node in ast.parse(CONFIG_PY.read_text(encoding="utf-8")).body:
-        if isinstance(node, ast.Assign) and any(
-            getattr(t, "id", None) == "DEFAULT_CONFIG" for t in node.targets
-        ):
-            value = literal_value(node.value)
-            if isinstance(value, dict):
-                configs.append(
-                    (
-                        "src/resqui/config.py::DEFAULT_CONFIG",
-                        value.get("indicators", []),
-                        None,
-                    )
-                )
+    configs.append(
+        (
+            "src/resqui/config.py::DEFAULT_CONFIG",
+            DEFAULT_CONFIG.get("indicators", []),
+            None,
+        )
+    )
+
     return configs
 
 
@@ -93,7 +60,15 @@ def check(configs, plugins):
     errors = []
     covered = set()
 
-    # Config -> code: plugin and method must exist.
+    # Reference set: only complete.json defines which indicators must exist.
+    for label, indicators, parse_error in configs:
+        if label == COMPLETE_LABEL and not parse_error:
+            covered = {
+                (entry["plugin"], entry["name"])
+                for entry in indicators
+                if isinstance(entry, dict) and "plugin" in entry and "name" in entry
+                }
+
     for label, indicators, parse_error in configs:
         if parse_error:
             errors.append((label, "-", "-", parse_error))
@@ -102,28 +77,41 @@ def check(configs, plugins):
             if not isinstance(entry, dict):
                 errors.append((label, "-", "-", "entry %d is not an object" % position))
                 continue
-            plugin = entry.get("plugin")
-            name = entry.get("name")
-            if plugin not in plugins or not plugins[plugin]["exported"]:
-                errors.append((label, plugin, name, "plugin does not exist or is not exported"))
-                continue
-            if name not in plugins[plugin]["methods"]:
-                hint = difflib.get_close_matches(
-                    str(name), plugins[plugin]["declared"], n=1, cutoff=0.6
+            missing = [key for key in KEYS if key not in entry]
+            if missing:
+                errors.append(
+                    (label, "-", "-", "missing key(s): %s" % ", ".join(missing))
                 )
-                reason = "indicator is not a method of the plugin"
+                continue
+
+            plugin_name, name = entry["plugin"], entry["name"]
+            cls = plugins.get(plugin_name)
+            if cls is None:
+                errors.append(
+                    (label, plugin_name, name, "plugin is not exported by resqui.plugins")
+                )
+                continue
+            declared = list(getattr(cls, "indicators", []) or [])
+            if name not in declared or not hasattr(cls, name):
+                hint = difflib.get_close_matches(str(name), declared, n=1, cutoff=0.6)
+                reason = "indicator is not declared and implemented by the plugin"
                 if hint:
                     reason += " (did you mean %s?)" % hint[0]
-                errors.append((label, plugin, name, reason))
-                continue
-            covered.add((plugin, name))
-    # Code -> config: every declared indicator must be configured somewhere.
-    for plugin in sorted(plugins):
-        for name in plugins[plugin]["declared"]:
-            if (plugin, name) not in covered:
+                errors.append((label, plugin_name, name, reason))
+
+    # Code -> config: only exported plugins, checked against complete.json.
+    for plugin_name, cls in sorted(plugins.items()):
+        for name in getattr(cls, "indicators", []) or []:
+            if (plugin_name, name) not in covered:
                 errors.append(
-                    ("(no config)", plugin, name, "declared indicator has no configuration")
+                    (
+                        COMPLETE_LABEL,
+                        plugin_name,
+                        name,
+                        "declared indicator is missing from complete.json",
+                    )
                 )
+                
     return errors
 
 
