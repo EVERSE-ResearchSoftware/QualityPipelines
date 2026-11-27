@@ -42,7 +42,7 @@ class ScanCodeToolkit(IndicatorPlugin):
     # Provisional: ScanCode Toolkit is not registered in the TechRadar yet.
     id = "https://w3id.org/everse/tools/scancode-toolkit"
     indicators = [ 
-        "has_license",
+        "software_has_license",
         "software_has_license_for_file_types"
     ]
     requires = []
@@ -128,7 +128,7 @@ class ScanCodeToolkit(IndicatorPlugin):
         self._cache[cache_key] = report
         return report
 
-    def has_license(self, url, branch=None):
+    def software_has_license(self, url, branch=None):
         process = (
             "Runs ScanCode Toolkit license detection with its codebase summary, "
             "which derives the license declared for the whole project from its "
@@ -143,7 +143,7 @@ class ScanCodeToolkit(IndicatorPlugin):
                 status_id="schema:FailedActionStatus",
                 output="error",
                 evidence=report["error"],
-                success=False,
+                success=False
             )
 
         summary = report.get("summary")
@@ -153,7 +153,7 @@ class ScanCodeToolkit(IndicatorPlugin):
                 status_id="schema:FailedActionStatus",
                 output="error",
                 evidence="The ScanCode report has no codebase summary.",
-                success=False,
+                success=False
             )
 
         clarity = summary.get("license_clarity_score") or {}
@@ -180,8 +180,7 @@ class ScanCodeToolkit(IndicatorPlugin):
             output="true" if success else "false",
             evidence=evidence,
             success=success,
-            raw_value=str(score),
-            threshold="Passes if a declared license is found in the project's key files.",
+            raw_value=summary,
         )
 
 
@@ -203,7 +202,7 @@ class ScanCodeToolkit(IndicatorPlugin):
                 status_id="schema:FailedActionStatus",
                 output="error",
                 evidence=report["error"],
-                success=False,
+                success=False
             )
 
         files = [f for f in report.get("files", []) if f.get("type") == "file"]
@@ -233,7 +232,7 @@ class ScanCodeToolkit(IndicatorPlugin):
                 status_id="schema:CompletedActionStatus",
                 output="indeterminate",
                 evidence="No files to check were found in the repository.",
-                success=True,
+                success=True
             )
 
         licensed = sum(lic for _, lic in categories.values())
@@ -260,6 +259,5 @@ class ScanCodeToolkit(IndicatorPlugin):
             output="true" if success else "false",
             evidence=evidence,
             success=success,
-            raw_value=f"{coverage:.1f}",
             threshold="100",
         )
