@@ -13,6 +13,7 @@ from .interrogate import Interrogate
 from .pylint import Pylint
 from .pyscn import PySCN
 from .rsmetacheck import Rsmetacheck
+from .semgrep import Semgrep
 from .scancodetoolkit import ScanCodeToolkit
 
 __all__ = [
@@ -31,5 +32,6 @@ __all__ = [
     "Pylint",
     "PySCN",
     "Rsmetacheck",
+    "Semgrep"
     "ScanCodeToolkit",
 ]
