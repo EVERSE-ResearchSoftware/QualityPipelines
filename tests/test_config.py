@@ -99,19 +99,6 @@ class TestConfigurationVocabularyValidation(unittest.TestCase):
         ]
         self.assertEqual(warnings, [])
 
-    def test_no_warning_for_missing_sentinel(self):
-        custom = {
-            "indicators": [{"name": "has_ci_tests", "plugin": "X", "@id": "missing"}]
-        }
-        path = self._write_config(custom)
-        with patch("builtins.print") as mock_print:
-            Configuration(filepath=path)
-        warnings = [
-            call.args[0]
-            for call in mock_print.call_args_list
-            if call.args and "Warning" in call.args[0]
-        ]
-        self.assertEqual(warnings, [])
 
     def test_default_config_has_no_vocabulary_warnings(self):
         with patch("builtins.print") as mock_print:

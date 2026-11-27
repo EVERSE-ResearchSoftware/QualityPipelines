@@ -5,19 +5,19 @@ from resqui.vocabulary import is_known_indicator_id
 DEFAULT_CONFIG = {
     "indicators": [
         {
-            "name": "has_license",
+            "name": "software_has_license",
             "plugin": "HowFairIs",
             "@id": "https://w3id.org/everse/i/indicators/software_has_license",
         },
         {
-            "name": "has_citation",
+            "name": "software_has_citation",
             "plugin": "CFFConvert",
             "@id": "https://w3id.org/everse/i/indicators/software_has_citation",
         },
         {
             "name": "has_ci_tests",
             "plugin": "OpenSSFScorecard",
-            "@id": "https://w3id.org/everse/i/indicators/has_ci-tests",
+            "@id": "https://w3id.org/everse/i/indicators/has_ci_tests",
         },
         {
             "name": "human_code_review_requirement",
@@ -30,7 +30,7 @@ DEFAULT_CONFIG = {
             "@id": "https://w3id.org/everse/i/indicators/has_published_package",
         },
         {
-            "name": "has_no_security_leak",
+            "name": "no_leaked_credentials",
             "plugin": "Gitleaks",
             "@id": "https://w3id.org/everse/i/indicators/no_leaked_credentials",
         },
